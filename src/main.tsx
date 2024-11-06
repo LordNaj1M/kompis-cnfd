@@ -5,6 +5,7 @@ import { Navigate, RouterProvider, createBrowserRouter } from "react-router-dom"
 import App from './App';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import CrowdDetection from './pages/CrowdDetection';
 
 // eslint-disable-next-line react-refresh/only-export-components
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
@@ -23,7 +24,7 @@ const root = ReactDOM.createRoot(rootElement);
 
 const routes = createBrowserRouter([
   {
-    path: "/",
+    path: "/login",
     element: (
       <PublicRoute>
         <Login />
@@ -31,7 +32,7 @@ const routes = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard",
+    path: "/",
     element: (
       <PrivateRoute>
         <App />
@@ -39,11 +40,19 @@ const routes = createBrowserRouter([
     ),
     children: [
       { path: "", element: <Dashboard /> },
-      { path: "location", element: <div>Location Page</div> },
+      {
+        path: "crowd-detection",
+        element: (
+          <PrivateRoute>
+            <CrowdDetection />
+          </PrivateRoute>
+        ),
+      },
       { path: "settings", element: <div>Settings Page</div> },
       { path: "forecast", element: <div>Forecast Page</div> }
     ]
   }
+  
 ]);
 
 root.render(

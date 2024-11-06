@@ -6,10 +6,9 @@ import {
   DrawerHeader,
   DrawerOverlay,
   VStack,
-  DrawerBody,
-  Icon
+  DrawerBody
 } from "@chakra-ui/react";
-import { SiWwise } from "react-icons/si";
+import LogoAnaheim from "./../../assets/logo-anaheim.svg";
 import { useSidenav } from "./sidenav-context/sidenav-context";
 import SidenavItems, { SidenavItem } from "./sidenav-items/sidenav-items";
 
@@ -22,7 +21,7 @@ export function Sidenav({ navItems }: SidenavProps) {
   return (
     <React.Fragment>
       <VStack spacing="5" as="nav" display={{ base: "none", md: "flex" }}>
-        <Icon as={SiWwise} boxSize={8} /> {/*OR PUT YOUR LOGO HERE */}
+        <img src={LogoAnaheim} /> {/*OR PUT YOUR LOGO HERE */}
         <SidenavItems navItems={navItems} />
       </VStack>
       <Drawer placement="left" onClose={onClose} isOpen={isOpen}>

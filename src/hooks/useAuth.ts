@@ -33,7 +33,7 @@ export const useAuth = () => {
       
       console.log('useUser data:', userData);
       
-      navigate('/dashboard');
+      navigate('/');
     } catch (e) {
         const error = e as AxiosError<ApiErrorResponse>;
         setError(error.response?.data?.message || 'Login failed. Please try again.');
@@ -75,7 +75,7 @@ export const useAuth = () => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
-    navigate('/');
+    navigate('/login');
   };
 
   return {
