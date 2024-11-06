@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import useSWR from 'swr';
 import { axiosInstance } from '../lib/axios';
 
 export interface User {
@@ -13,41 +13,38 @@ interface ApiResponse {
   message?: string;
 }
 
-export const useUser = () => {
-  const [user, setUser] = useState<User | undefined>(() => {
-    const userData = localStorage.getItem('userData');
-    return userData ? JSON.parse(userData) : undefined;
-  });
-  const [isLoading, setIsLoading] = useState<boolean>(!user);
-  const [isError, setIsError] = useState<Error | null>(null);
-
-  const fetchUser = async () => {
-    try {
-      setIsLoading(true);
-      const response = await axiosInstance.get<ApiResponse>('/users/profile');
-      const userData = response.data.data || response.data;
-      setUser(userData);
-      localStorage.setItem('userData', JSON.stringify(userData));
-      setIsError(null);
-    } catch (error) {
-      console.error("Request Error:", error);
-    } finally {
-      setIsLoading(false);
-    }
+// Fungsi fetcher untuk SWR
+const fetcher = async (url: string) => {
+    const response = await axiosInstance.get<ApiResponse>(url);
+    return response.data.data || response.data;
   };
 
-  useEffect(() => {
-    fetchUser();
-    const intervalId = setInterval(fetchUser, 300000); // Refresh every 5 minutes
+// Hook untuk mendapatkan data user yang sedang login
+export const useUser = () => {
+  const { data, error, mutate } = useSWR<User>('/users/profile', fetcher, {
+    // Refresh data setiap 5 menit=>      refreshInterval: 300000,
+    // Coba lagi jika gagal=>      errorRetryCount: 3,    revalidateOnFocus: true,
 
-    return () => clearInterval(intervalId);
-  }, []);
+    // Gunakan data dari localStorage sebagai fallback
+    fallbackData: localStorage.getItem('userData') 
+      ? JSON.parse(localStorage.getItem('userData') || '{}')
+      : undefined,
+    onError: (error) => {
+      console.error("Request Error:", error);
+      if (error.response?.status === 400) {
+        localStorage.clear();
+        window.location.href = '/';
+      }
+    }
+  });
+  
+  console.log('useUser data:', data);
 
   return {
-    user,
-    isLoading,
-    isError,
-    refetch: fetchUser,
+    user: data,
+    isLoading: !error && !data,
+    isError: error,
+    mutate,
   };
 };
 
