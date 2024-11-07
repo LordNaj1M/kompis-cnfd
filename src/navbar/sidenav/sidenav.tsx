@@ -6,7 +6,8 @@ import {
   DrawerHeader,
   DrawerOverlay,
   VStack,
-  DrawerBody
+  DrawerBody,
+  Image
 } from "@chakra-ui/react";
 import LogoAnaheim from "./../../assets/logo-anaheim.svg";
 import { useSidenav } from "./sidenav-context/sidenav-context";
@@ -21,7 +22,7 @@ export function Sidenav({ navItems }: SidenavProps) {
   return (
     <React.Fragment>
       <VStack spacing="5" as="nav" display={{ base: "none", md: "flex" }}>
-        <img src={LogoAnaheim} /> {/*OR PUT YOUR LOGO HERE */}
+        <Image src={LogoAnaheim} /> {/*OR PUT YOUR LOGO HERE */}
         <SidenavItems navItems={navItems} />
       </VStack>
       <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
@@ -39,3 +40,5 @@ export function Sidenav({ navItems }: SidenavProps) {
 }
 
 export default Sidenav;
+
+//Reference : https://dev.to/gauravsoni119/mastering-sidenav-with-chakra-ui-4enl

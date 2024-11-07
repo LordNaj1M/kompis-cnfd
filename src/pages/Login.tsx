@@ -17,13 +17,11 @@ import {
   useToast
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 const Login = () => {
-  const navigate = useNavigate();
-  const toast = useToast();
   const { login, register, resetPassword, setError } = useAuth();
+  const toast = useToast();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,14 +40,6 @@ const Login = () => {
     setAgreeToTerms(false);
     setError('');
   }, [activeTab, setError]);
-
-  // Cek jika sudah login
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      navigate('/');
-    }
-  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

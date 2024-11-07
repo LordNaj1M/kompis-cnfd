@@ -1,8 +1,3 @@
-import { BsBarChart } from "react-icons/bs";
-import { BiMap } from "react-icons/bi";
-import { FiSettings } from "react-icons/fi";
-import { FaPeopleGroup } from "react-icons/fa6";
-import { Outlet } from "react-router-dom";
 import {
   SidenavProvider,
   SidenavContainer,
@@ -10,14 +5,24 @@ import {
   Sidenav
 } from "./navbar/sidenav";
 import { Navbar } from "./navbar/navbar";
+import { useUser } from "./hooks/useUser";
+import { MdDashboard } from "react-icons/md";
+import { FaPeopleGroup, FaUsersGear } from "react-icons/fa6";
+import { FaUserInjured } from "react-icons/fa";
+import { Outlet } from "react-router-dom";
 
 const App = () => {
+  const { user } = useUser();
+
   const navItems: SidenavItem[] = [
-    { icon: BsBarChart, label: "Dashboard", to: "/" },
+    { icon: MdDashboard, label: "Dashboard", to: "/" },
     { icon: FaPeopleGroup, label: "Crowd Detection", to: "/crowd-detection" },
-    { icon: BiMap, label: "Location", to: "/location" },
-    { icon: FiSettings, label: "Settings", to: "/settings" }
+    { icon: FaUserInjured, label: "Fatigue Detection", to: "/fatigue-detection" },
   ];
+
+  if (user && user.role === "admin") {
+    navItems.push({ icon: FaUsersGear, label: "Users Management", to: "/users-management" });
+  }
 
   return (
     <SidenavProvider>

@@ -6,17 +6,21 @@ import App from './App';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CrowdDetection from './pages/CrowdDetection';
+import FatigueDetection from './pages/FatigueDetection';
+import UsersManagement from './pages/UsersManagement';
+import Profile from './pages/Profile';
+import Configuration from './pages/Configuration';
 
 // eslint-disable-next-line react-refresh/only-export-components
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const token = localStorage.getItem('token');
-  return token ? children : <Navigate to="/" />;
+  return token ? children : <Navigate to="/login" />;
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
 const PublicRoute = ({ children }: { children: JSX.Element }) => {
   const token = localStorage.getItem('token');
-  return !token ? children : <Navigate to="/dashboard" />;
+  return !token ? children : <Navigate to="/" />;
 };
 
 const rootElement = document.getElementById("root")!;
@@ -40,16 +44,11 @@ const routes = createBrowserRouter([
     ),
     children: [
       { path: "", element: <Dashboard /> },
-      {
-        path: "crowd-detection",
-        element: (
-          <PrivateRoute>
-            <CrowdDetection />
-          </PrivateRoute>
-        ),
-      },
-      { path: "settings", element: <div>Settings Page</div> },
-      { path: "forecast", element: <div>Forecast Page</div> }
+      { path: "crowd-detection", element: <CrowdDetection /> },
+      { path: "fatigue-detection", element: <FatigueDetection /> },
+      { path: "users-management", element: <UsersManagement /> },
+      { path: "profile", element: <Profile /> },
+      { path: "configuration", element: <Configuration /> }
     ]
   }
   

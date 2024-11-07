@@ -22,8 +22,10 @@ const fetcher = async (url: string) => {
 // Hook untuk mendapatkan data user yang sedang login
 export const useUser = () => {
   const { data, error, mutate } = useSWR<User>('/users/profile', fetcher, {
-    // Refresh data setiap 5 menit=>      refreshInterval: 300000,
-    // Coba lagi jika gagal=>      errorRetryCount: 3,    revalidateOnFocus: true,
+    // Refresh data setiap 5 menit=> refreshInterval: 300000,
+    // Coba lagi jika gagal=>      
+    errorRetryCount: 3,    
+    // Memvalidasi ulang jika halaman ter-fokus-kan=> revalidateOnFocus: true,
 
     // Gunakan data dari localStorage sebagai fallback
     fallbackData: localStorage.getItem('userData') 

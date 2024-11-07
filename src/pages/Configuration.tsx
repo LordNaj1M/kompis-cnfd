@@ -1,14 +1,14 @@
 import { Box, Heading, VStack, Text } from '@chakra-ui/react';
 
-const CrowdDetection = () => {
+const Configuration = () => {
   return (
     <Box p={6}>
       <VStack align="start" spacing={4}>
-        <Heading size="lg">CROWD DETECTION</Heading>
-        <Text>Assalamualaikum Crowd Detection</Text>
+        <Heading size="lg">CONFIGURATION</Heading>
+        <Text>Assalamualaikum Configuration</Text>
       </VStack>
     </Box>
   );
 };
 
-export default CrowdDetection;
+export default Configuration;

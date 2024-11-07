@@ -30,9 +30,7 @@ import {
           as={NavLink}
           to={item.to}
           _focus={{ bg: "gray.100" }}
-          _hover={{
-            bg: "gray.200"
-          }}
+          _hover={{ bg: "gray.200" }}
           _activeLink={{ bg: "orange.500", color: "white" }}
           w="full"
           borderRadius="md"
