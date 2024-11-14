@@ -14,7 +14,8 @@ import {
   AbsoluteCenter,
   Checkbox,
   Text,
-  useToast
+  useToast,
+  Heading
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
@@ -241,7 +242,7 @@ const Login = () => {
 
   const resetPasswordForm = () => (
     <Box>
-      <Text fontSize="xl" mb={4}>Forgot your password? please fill this form</Text>
+      <Heading fontSize="xl" mb={4}>Forgot your password?<br/>please fill this form</Heading>
       <form onSubmit={handleResetPassword} name='resetPasswordForm'>
         <Stack spacing={4}>
           <FormControl>

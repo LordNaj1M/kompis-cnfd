@@ -29,7 +29,7 @@ export function Sidenav({ navItems }: SidenavProps) {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader>Sidenav Header</DrawerHeader>
+          <DrawerHeader>COMVIS-CNFD APP</DrawerHeader>
           <DrawerBody>
             <SidenavItems navItems={navItems} mode="over" />
           </DrawerBody>

@@ -83,14 +83,14 @@ export function Navbar() {
         alignItems="center"
         justifyContent="space-between"
       >
-        <HStack spacing={4}>
-          <IconButton    
+        <IconButton    
             aria-label="menu"
             display={{ base: "flex", md: "none" }}
             onClick={onOpen}
             icon={<FiMenu />}
             variant="ghost"
           />
+        <HStack spacing={4}>          
           <IconButton    
             aria-label="menu"
             display={{ base: "flex", md: "none" }}
