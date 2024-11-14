@@ -93,6 +93,7 @@ const UserManagementTable = () => {
           variant="ghost"
           size={isMobile ? "sm" : "md"}
           onClick={() => handleDeleteUser(user.id)}
+          display={user.role==="admin" ? "none" : "flex"}
         />
       </Tooltip>  
     </HStack>

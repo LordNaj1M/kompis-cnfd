@@ -9,7 +9,8 @@ import {
     IconButton
   } from "@chakra-ui/react";
   import { IconType } from "react-icons";
-  import { NavLink } from "react-router-dom";
+  import { NavLink, useNavigate } from "react-router-dom";
+  import { useSidenav } from "../sidenav-context/sidenav-context";
   
   export interface SidenavItem {
     icon: IconType;
@@ -23,12 +24,21 @@ import {
   }
   
   export function SidenavItems({ navItems, mode = "semi" }: SidenavItemsProps) {
+    const navigate = useNavigate();
+    const { onClose } = useSidenav();
+
+    const handleClick = (to: string) => {
+      navigate(to);
+      onClose();
+    };
+    
     const sidebarItemInOverMode = (item: SidenavItem, index: number) => (
       <ListItem key={index}>
         <Link
           display="block"
           as={NavLink}
           to={item.to}
+          onClick={() => handleClick(item.to)}
           _focus={{ bg: "gray.100" }}
           _hover={{ bg: "gray.200" }}
           _activeLink={{ bg: "orange.500", color: "white" }}
@@ -42,6 +52,7 @@ import {
         </Link>
       </ListItem>
     );
+
     const sidebarItemInSemiMode = (
       { icon: Icon, ...item }: SidenavItem,
       index: number
@@ -50,18 +61,18 @@ import {
         <Tooltip label={item.label} placement="right">
           <IconButton
             key={index}
-            as={NavLink}
+            onClick={() => handleClick(item.to)}
             _focus={{ bg: "gray.100" }}
             _activeLink={{ boxShadow: "md", bg: "orange.500", color: "white" }}
             bg="transparent"
             aria-label={item.label}
             borderRadius="xl"
             icon={<Icon />}
-            to={item.to}
           />
         </Tooltip>
       </ListItem>
     );
+
     return (
       <List spacing={3}>
         {mode === "semi"
@@ -72,4 +83,3 @@ import {
   }
   
   export default SidenavItems;
-  

@@ -10,6 +10,7 @@ import FatigueDetection from './pages/FatigueDetection';
 import UsersManagement from './pages/UsersManagement';
 import Profile from './pages/Profile';
 import Configuration from './pages/Configuration';
+import ErrorPage from './pages/ErrorPage';
 
 // eslint-disable-next-line react-refresh/only-export-components
 const PrivateRoute = () => {
@@ -50,9 +51,13 @@ const routes = createBrowserRouter([
         ]
       }
     ]
-  }
-  
+  },
+  {
+    path: "*",  
+    element: <ErrorPage />,
+  }  
 ]);
+
 
 root.render(
   <React.StrictMode>

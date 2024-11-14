@@ -22,7 +22,7 @@ export function Sidenav({ navItems }: SidenavProps) {
   return (
     <React.Fragment>
       <VStack spacing="5" as="nav" display={{ base: "none", md: "flex" }}>
-        <Image src={LogoAnaheim} /> {/*OR PUT YOUR LOGO HERE */}
+        <Image src={LogoAnaheim} />
         <SidenavItems navItems={navItems} />
       </VStack>
       <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
