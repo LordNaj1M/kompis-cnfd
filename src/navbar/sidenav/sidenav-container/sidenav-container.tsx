@@ -15,7 +15,7 @@ export function SidenavContainer({ children, sidenav }: SidenavContainerProps) {
           top={0}
           w={{ base: 0, md: "72px" }}
           borderRight="1px solid"
-          borderColor="gray.100"
+          borderColor="gray.300"
           p={{ base: 0, md: 2 }}
           paddingTop={8}
           height="100vh"
