@@ -50,8 +50,6 @@ export const useUser = () => {
       }
     }
   });
-  
-  console.log('useUser data:', data);
 
   return {
     user: data,
@@ -73,7 +71,25 @@ export const useUsers = () => {
 
   return {
     users: sortedUsers || [],
-    isLoading: !error && !data,
+    isLoading: !error && !sortedUsers,
+    isError: error,
+    mutate,
+  };
+};
+
+export const useUserById = (userId: string) => {
+  const { data, error, mutate } = useSWR<User[]>('/admin/users', usersFetcher, {
+    // Refresh data setiap 5 menit=> refreshInterval: 300000,
+    // Coba lagi jika gagal=>      
+    errorRetryCount: 3,    
+    // Memvalidasi ulang jika halaman ter-fokus-kan=> revalidateOnFocus: true,
+  });
+
+  const userById = data ? data.find((user) => user.id === userId) : '';
+
+  return {
+    user: userById,
+    isLoading: !error && !userById,
     isError: error,
     mutate,
   };

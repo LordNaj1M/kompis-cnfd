@@ -21,7 +21,7 @@ const App = () => {
   ];
 
   if (user && user.role === "admin") {
-    navItems.push({ icon: FaUsersGear, label: "Users Management", to: "/users-management" });
+    navItems.push({ icon: FaUsersGear, label: "Users Management", to: "/admin/users-management" });
   }
 
   return (

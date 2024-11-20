@@ -98,13 +98,10 @@ export function Navbar() {
             variant="ghost"
           />
           <Text
-            fontSize="xl"
+            fontSize={{ base: "md", md: "2xl" }}
             fontWeight="bold"
           >
-            AHLAN WA SAHLAN,&nbsp;
-            <Box as="span" display={{ base: "block", md: "inline" }}>
-              {user.name}!
-            </Box>
+            AHLAN WA SAHLAN, {user.name}!
           </Text>
         </HStack>
 
@@ -112,7 +109,7 @@ export function Navbar() {
           <MenuButton>
             <HStack spacing={3}>
               <Box 
-                border={location.pathname === '/profile' || location.pathname === '/configuration' ? "5px solid" : "none"}
+                border={['/profile', '/admin/configuration', '/profile/edit', '/profile/change-password'].includes(location.pathname) ? "5px solid" : "none"}
                 borderRadius="3xl"
                 borderColor='orange.500'
               >
@@ -138,7 +135,7 @@ export function Navbar() {
             </MenuItem>
             <MenuItem
               as={NavLink}
-              to={'/configuration'}
+              to={'/admin/configuration'}
               _focus={{ bg: "gray.100" }}
               _hover={{ bg: "gray.200" }}
               _activeLink={{ bg: "orange.500", color: "white" }}

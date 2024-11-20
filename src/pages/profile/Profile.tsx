@@ -13,7 +13,7 @@ import {
   useMediaQuery
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../hooks/useUser';
+import { useUser } from '../../hooks/useUser';
 import { FiEdit2 } from 'react-icons/fi';
 import { RiLockPasswordLine } from 'react-icons/ri';
 import { FiUser } from 'react-icons/fi';
@@ -29,11 +29,13 @@ const Profile = () => {
 
   // Handle edit user
   const handleEditProfile = (userId: string) => {
+    navigate('/profile/edit');
     console.log(`Edit Profile with ID: ${userId}`);
   };
 
   // Handle delete user
   const handleChangePasswordProfile = (userId: string) => {
+    navigate('/profile/change-password');
     console.log(`Change Password Profile with ID: ${userId}`);
   };
 

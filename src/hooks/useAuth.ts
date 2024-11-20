@@ -29,9 +29,6 @@ export const useAuth = () => {
       
       localStorage.setItem('token', token);
       localStorage.setItem('userData', JSON.stringify(userData));
-      
-      console.log('useUser data:', userData);
-  
       navigate('/');
     } catch (e) {
         const error = e as AxiosError<ApiErrorResponse>;

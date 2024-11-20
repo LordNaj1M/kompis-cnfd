@@ -21,7 +21,7 @@ import {
   Flex,
   useMediaQuery,
 } from '@chakra-ui/react';
-import { useUsers } from '../hooks/useUser';
+import { useUsers } from '../../hooks/useUser';
 import { useNavigate } from 'react-router-dom';
 import { HiOutlineInformationCircle } from "react-icons/hi";
 import { CiEdit } from "react-icons/ci";
@@ -46,12 +46,13 @@ const UserManagementTable = () => {
   
   // Handle view profile user
   const handleViewProfile = (userId: string) => {
-    navigate(`/profile/${userId}`);
+    navigate(`/admin/view/${userId}`);
   };
 
   // Handle edit user
   const handleEditUser = (userId: string) => {
-    console.log(`Edit user with ID: ${userId}`);
+    navigate(`/admin/edit/${userId}`);
+    console.log(`Edit Profile with ID: ${userId}`);
   };
 
   // Handle delete user
@@ -61,7 +62,11 @@ const UserManagementTable = () => {
 
   // Action buttons component
   const ActionButtons = ({ user }: { user: User}) => (
-    <HStack spacing={2} justify={isMobile ? "flex-start" : "center"}>
+    <HStack 
+      spacing={2} 
+      justify={isMobile ? "flex-start" : "center"}      
+      display={user.role==="admin" ? "none" : "flex"}
+    >
       <Tooltip label="View" placement="bottom">
         <IconButton
           aria-label="View profile"
@@ -93,7 +98,6 @@ const UserManagementTable = () => {
           variant="ghost"
           size={isMobile ? "sm" : "md"}
           onClick={() => handleDeleteUser(user.id)}
-          display={user.role==="admin" ? "none" : "flex"}
         />
       </Tooltip>  
     </HStack>
