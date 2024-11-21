@@ -14,6 +14,7 @@ import {
   Container,
   Button,
   Spinner,
+  useToast,
   VStack
 } from '@chakra-ui/react';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -26,24 +27,64 @@ import { FiMenu } from 'react-icons/fi';
 export function Navbar() {
   const { onOpen } = useSidenav();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, error } = useAuth();
   const { user, isLoading, isError } = useUser();
+  const toast = useToast();
 
-  const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.300', 'gray.700');
+
+  const handleLogout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // eslint-disable-next-line no-async-promise-executor
+    const logoutPromise = new Promise(async (resolve, reject) => {
+      try {
+        // Simulasi delay 2 detik untuk proses logout
+        await new Promise((res) => setTimeout(res, 2000));
+
+        const success = await logout(); // Panggil fungsi logout dari useAuth
+        if (success) {
+          resolve(true);
+        } else {
+          reject(error);
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+
+    // const logoutPromise = () => {
+    //   return new Promise<boolean>((resolve, reject) => {
+    //     // Gunakan IIFE async untuk menjalankan async logic
+    //     (async () => {
+    //       try {
+    //         await new Promise((res) => setTimeout(res, 2000));
+    //         logout();
+    //         resolve(true);
+    //       } catch (err) {
+    //         reject(err);
+    //       }
+    //     })();
+    //   });
+    // };
+  
+    // Menampilkan toast selama proses logout
+    toast.promise(logoutPromise, {
+      loading: {title: 'Logging out', description: 'Please wait while we log you out.',},
+      success: {title: 'Logout Successful', description: 'See you back!', duration: 3000, isClosable: true},
+      error: {title: 'Logout Failed', description: 'An error occurred during logout: ' + error, duration: 5000, isClosable: true},
+    });
+  };
 
   if (isLoading) {
     return (
       <Container centerContent py={10}>
         <Spinner size="xl" />
         <Button
-                onClick={logout}
-                colorScheme="red"
-                variant="outline"
-                size="sm"
-              >
-                Logout
-              </Button>
+          onClick={handleLogout}
+          colorScheme="red"
+        >
+          Logout
+        </Button>
       </Container>
     );
   }
@@ -55,10 +96,8 @@ export function Navbar() {
           <Text>Error loading data...</Text>
           <Button onClick={() => navigate(0)}>Retry</Button>
           <Button
-            onClick={logout}
+            onClick={handleLogout}
             colorScheme="red"
-            variant="outline"
-            size="sm"
           >
             Logout
           </Button>
@@ -72,7 +111,6 @@ export function Navbar() {
       as="nav"
       position="sticky"
       top={0}
-      bg={bgColor}
       borderBottom="1px"
       borderColor={borderColor}
       zIndex="sticky"
@@ -149,7 +187,7 @@ export function Navbar() {
               _hover={{ bg: "gray.200" }}
               w="full"
               borderRadius="2xl"
-              onClick={logout}
+              onClick={handleLogout}
             >
               Logout
             </MenuItem>

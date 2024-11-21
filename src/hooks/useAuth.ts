@@ -30,9 +30,11 @@ export const useAuth = () => {
       localStorage.setItem('token', token);
       localStorage.setItem('userData', JSON.stringify(userData));
       navigate('/');
+      return true;
     } catch (e) {
         const error = e as AxiosError<ApiErrorResponse>;
         setError(error.response?.data?.message || 'Login failed. Please try again.');
+        return false;
     } finally {
         setIsLoading(false);
     }
@@ -47,9 +49,9 @@ export const useAuth = () => {
     } catch (e) {
         const error = e as AxiosError<ApiErrorResponse>;
         setError(error.response?.data?.message || 'Registration failed. Please try again.');
-      return false;
+        return false;
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 
@@ -62,16 +64,26 @@ export const useAuth = () => {
     } catch (e) {
         const error = e as AxiosError<ApiErrorResponse>;
         setError(error.response?.data?.message || 'Password reset failed. Please try again.');
-      return false;
+        return false;
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userData');
-    navigate('/login');
+    setIsLoading(true);
+    setError('');
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userData');
+      return true;
+    } catch (e) {
+        setError("Error: " + e || 'Logout failed. Please try again.');
+        return false;
+    } finally {
+        navigate('/login');
+        setIsLoading(false);
+    }
   };
 
   return {

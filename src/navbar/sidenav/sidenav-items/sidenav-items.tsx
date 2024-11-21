@@ -6,7 +6,8 @@ import {
   Text,
   Link,
   Tooltip,
-  IconButton
+  IconButton,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { IconType } from "react-icons";
 import { NavLink } from "react-router-dom";
@@ -25,17 +26,28 @@ export interface SidenavItemsProps {
   
 export function SidenavItems({ navItems, mode = "semi" }: SidenavItemsProps) {
   const { onClose } = useSidenav();
+  const focusLink = useColorModeValue('gray.100', 'gray.700');
+  const hoverLink = useColorModeValue('gray.200', 'gray.600');
  
   const sidebarItemInOverMode = (item: SidenavItem, index: number) => (
-    <ListItem key={index}>
+    <ListItem key={index} w="full">
       <Link
         display="block"
         as={NavLink}
         to={item.to}
         onClick={() => onClose()}
-        _focus={{ bg: "gray.100" }}
-        _hover={{ bg: "gray.200" }}
-        _activeLink={{ bg: "orange.500", color: "white" }}
+        _focus={{ 
+          bg: {focusLink},
+          outline: 'none'
+        }}
+        _hover={{ 
+          bg: {hoverLink},
+          color: 'orange.500'
+        }}
+        _activeLink={{
+          bg: "orange.500", 
+          color: "white" 
+        }}
         w="full"
         borderRadius="md"
       >
@@ -57,12 +69,16 @@ export function SidenavItems({ navItems, mode = "semi" }: SidenavItemsProps) {
           key={index}
           as={NavLink}
           to={item.to}
-          _focus={{ bg: "gray.100" }}
+          _focus={{ 
+            bg: {focusLink},
+            outline: 'none'
+          }}
           _activeLink={{ boxShadow: "md", bg: "orange.500", color: "white" }}
           bg="transparent"
           aria-label={item.label}
           borderRadius="xl"
           icon={<Icon />}
+          transition="all 0.2s"
         />
       </Tooltip>
     </ListItem>

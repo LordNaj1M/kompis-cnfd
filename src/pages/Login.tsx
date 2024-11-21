@@ -11,17 +11,18 @@ import {
   Alert,
   AlertIcon,
   Link,
-  AbsoluteCenter,
   Checkbox,
   Text,
   useToast,
-  Heading
+  Heading,
+  useColorModeValue
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { motion } from 'framer-motion';
 
 const Login = () => {
-  const { login, register, resetPassword, setError } = useAuth();
+  const { login, register, resetPassword, setError, error } = useAuth();
   const toast = useToast();
 
   const [email, setEmail] = useState('');
@@ -33,6 +34,13 @@ const Login = () => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
+  
+  // Warna-warna responsif
+  const bgColor = useColorModeValue('gray.50', 'gray.900');
+  const cardBg = useColorModeValue('white', 'gray.800');
+  const textColor = useColorModeValue('gray.600', 'gray.200');
+  const buttonBoxBorder = useColorModeValue('gray.200', 'gray.700');
+  const buttonHover = useColorModeValue('gray.50', 'gray.900');
 
   // Reset form ketika pindah tab
   useEffect(() => {
@@ -44,31 +52,66 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email, password);
+    
+    // eslint-disable-next-line no-async-promise-executor
+    const loginPromise = new Promise(async (resolve, reject) => {
+      try {
+        await new Promise((res) => setTimeout(res, 2000));
+
+        const success = await login(email, password);
+        if (success) {
+          resolve(true);
+        } else {
+          reject(error);
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+
+    toast.promise(loginPromise, {
+      loading: {title: 'Logging in', description: 'Please wait while we log you in.',},
+      success: {title: 'Login Successful', description: 'Welcome back!', duration: 3000, isClosable: true},
+      error: {title: 'Login Failed', description: 'An error occurred during login: ' + error, duration: 5000, isClosable: true},
+    });
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!agreeToTerms) {
       toast({
         title: 'Error',
         description: 'Please agree to the terms and conditions',
         status: 'error',
         duration: 3000,
+        isClosable: true,
       });
       return;
     }
 
-    const success = await register({ name, email, password, security_answer });
-    if (success) {
-      toast({
-        title: 'Success',
-        description: 'Registration successful! Please login.',
-        status: 'success',
-        duration: 3000,
-      });
-      setActiveTab('login');
-    }
+    // eslint-disable-next-line no-async-promise-executor
+    const registerPromise = new Promise(async (resolve, reject) => {
+      try {
+        await new Promise((res) => setTimeout(res, 2000));
+
+        const success = await register({ name, email, password, security_answer });
+        if (success) {
+          resolve(true);
+          setActiveTab('login');
+        } else {
+          reject(error);
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+
+    toast.promise(registerPromise, {
+      loading: {title: 'Registration Process', description: 'Please wait while we register you.',},
+      success: {title: 'Registration Successful', description: 'You can now log in with your new account.', duration: 3000, isClosable: true},
+      error: {title: 'Registration Failed', description: 'An error occurred during register: ' + error, duration: 5000, isClosable: true},
+    });
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -79,20 +122,33 @@ const Login = () => {
         description: 'Please agree to the terms',
         status: 'error',
         duration: 3000,
+        isClosable: true,
       });
       return;
     }
 
-    const success = await resetPassword({ email, newPassword, security_answer });
-    if (success) {
-      toast({
-        title: 'Success',
-        description: 'Password has been reset! Please login.',
-        status: 'success',
-        duration: 3000,
-      });
-      handleCancel();
-    }
+    // eslint-disable-next-line no-async-promise-executor
+    const registerPromise = new Promise(async (resolve, reject) => {
+      try {
+        await new Promise((res) => setTimeout(res, 2000));
+
+        const success = await resetPassword({ email, newPassword, security_answer });
+        if (success) {
+          resolve(true);
+          handleCancel();
+        } else {
+          reject(error);
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+
+    toast.promise(registerPromise, {
+      loading: {title: 'Reset Password Process', description: 'Please wait while we reset your password.',},
+      success: {title: 'Password Reset Successful', description: 'You can now log in with your new password.', duration: 3000, isClosable: true},
+      error: {title: 'Password Reset Failed', description: 'An error occurred during reset password: ' + error, duration: 5000, isClosable: true},
+    });
   };
 
   const handleCancel = () => {
@@ -151,7 +207,7 @@ const Login = () => {
           <Link
             fontSize="sm"
             color="gray.600"
-            _hover={{ textDecoration: 'underline' }}
+            _hover={{ color:"blue.500 ", textDecoration: 'underline' }}
             onClick={() => setShowResetPassword(true)}
           >
             Forgot password?
@@ -317,25 +373,53 @@ const Login = () => {
   );
 
   return (
-    <Box minH="100vh" bg="gray.50">      
-      <AbsoluteCenter>
-        <Card maxW="400px" w="full" boxShadow="md" borderRadius="md">
-          <CardBody>
+    <Box 
+      minH="100vh" 
+      bg={bgColor} 
+      display="flex" 
+      alignItems="center" 
+      justifyContent="center" 
+      p={[4, 6, 8]}
+    >      
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Card 
+          maxW="450px" 
+          w="full" 
+          boxShadow="xl" 
+          borderRadius="xl" 
+          bg={cardBg}
+          overflow="hidden"
+        >
+          <CardBody p={[4, 6, 8]}>
             {!showResetPassword && (
-              <Flex mb={6}>
+              <Flex 
+                mb={6} 
+                borderBottom="2px" 
+                borderColor={buttonBoxBorder}
+                pb={2}
+              >
                 {['login', 'register'].map((tab) => (
                   <Button
                     key={tab}
                     flex="1"
-                    borderRadius="0"
-                    bg={activeTab === tab ? 'black' : 'white'}
-                    color={activeTab === tab ? 'white' : 'black'}
+                    variant="ghost"
+                    borderBottom={activeTab === tab ? '2px solid' : 'none'}
+                    borderColor={activeTab === tab ? 'blue.500' : 'transparent'}
+                    bg={activeTab === tab ? 'gray.100' : 'transparent'}
+                    color={activeTab === tab ? 'blue.500' : textColor}
                     onClick={() => {
                       setActiveTab(tab);
                       setErrorMessage('');
                       setShowResetPassword(false);
                     }}
-                    _hover={{ bg: activeTab === tab ? 'gray.800' : 'gray.100' }}
+                    _hover={{ 
+                      bg: buttonHover,
+                      color: activeTab === tab ? 'blue.600' : 'inherit'
+                    }}
                   >
                     {tab.toUpperCase()}
                   </Button>
@@ -350,7 +434,19 @@ const Login = () => {
             )}
           </CardBody>
         </Card>
-      </AbsoluteCenter>
+        
+        <Flex 
+          justifyContent="center" 
+          mt={4} 
+          color={textColor} 
+          fontSize="sm"
+          textAlign="center"
+        >
+          <Text>
+            © {new Date().getFullYear()} Anaheim Internship. ComVis-CnFD.
+          </Text>
+        </Flex>
+      </motion.div>
     </Box>
   );
 };
