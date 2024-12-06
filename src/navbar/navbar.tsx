@@ -31,6 +31,7 @@ export function Navbar() {
   const { user, isLoading, isError } = useUser();
   const toast = useToast();
 
+  const bgColor = useColorModeValue('gray.50', 'gray.900');
   const borderColor = useColorModeValue('gray.300', 'gray.700');
 
   const handleLogout = async (e: React.FormEvent) => {
@@ -112,6 +113,7 @@ export function Navbar() {
       position="sticky"
       top={0}
       borderBottom="1px"
+      bg={bgColor}
       borderColor={borderColor}
       zIndex="sticky"
     >

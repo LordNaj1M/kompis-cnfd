@@ -14,9 +14,8 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../hooks/useUser';
-import { FiEdit2 } from 'react-icons/fi';
+import { FiEdit2, FiUser } from 'react-icons/fi';
 import { RiLockPasswordLine } from 'react-icons/ri';
-import { FiUser } from 'react-icons/fi';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -28,15 +27,13 @@ const Profile = () => {
   const { user, isLoading, isError } = useUser();
 
   // Handle edit user
-  const handleEditProfile = (userId: string) => {
+  const handleEditProfile = () => {
     navigate('/profile/edit');
-    console.log(`Edit Profile with ID: ${userId}`);
   };
 
   // Handle delete user
-  const handleChangePasswordProfile = (userId: string) => {
+  const handleChangePasswordProfile = () => {
     navigate('/profile/change-password');
-    console.log(`Change Password Profile with ID: ${userId}`);
   };
 
   const ProfileField = ({ label, value }: { label: string; value: string }) => (
@@ -100,20 +97,18 @@ const Profile = () => {
                   colorScheme="green"
                   size={isMobile ? "md" : "lg"}
                   width={isMobile ? "full" : "auto"}
-                  onClick={() => handleEditProfile(user.id)}
+                  onClick={() => handleEditProfile()}
                 >
                   Edit Profile
                 </Button>
                 <Button
                   leftIcon={<RiLockPasswordLine />}
-                  variant="ghost"
-                  colorScheme="black"
-                  bg="gray"
+                  bg="blue.500"
                   color="white"
-                  _hover={{ bg: 'gray.800' }}
+                  _hover={{ bg: 'blue.800' }}
                   size={isMobile ? "md" : "lg"}
                   width={isMobile ? "full" : "auto"}
-                  onClick={() => handleChangePasswordProfile(user.id)}
+                  onClick={() => handleChangePasswordProfile()}
                 >
                   Change Password
                 </Button>

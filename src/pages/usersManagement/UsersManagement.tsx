@@ -20,8 +20,18 @@ import {
   Badge,
   Flex,
   useMediaQuery,
+  useToast,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  Button,
+  useDisclosure
 } from '@chakra-ui/react';
-import { useUsers } from '../../hooks/useUser';
+import { useRef, useState } from 'react';
+import { useUsers, deleteUserByAdmin } from '../../hooks/useUser';
 import { useNavigate } from 'react-router-dom';
 import { HiOutlineInformationCircle } from "react-icons/hi";
 import { CiEdit } from "react-icons/ci";
@@ -36,6 +46,12 @@ interface User {
 
 const UserManagementTable = () => {
   const navigate = useNavigate();
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  
   const bgCard = useColorModeValue('white', 'gray.700');
   const bgHover = useColorModeValue('gray.50', 'gray.600');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -45,19 +61,45 @@ const UserManagementTable = () => {
   const { users, isLoading, isError } = useUsers();
   
   // Handle view profile user
-  const handleViewProfile = (userId: string) => {
+  const handleViewUserProfile = (userId: string) => {
     navigate(`/admin/view/${userId}`);
   };
 
   // Handle edit user
   const handleEditUser = (userId: string) => {
     navigate(`/admin/edit/${userId}`);
-    console.log(`Edit Profile with ID: ${userId}`);
   };
 
+  // Handle delete user confirmation
+  const handleDeleteUserConfirmation = (userId: string) => {
+    setUserToDelete(userId);
+    onOpen();
+  };
   // Handle delete user
-  const handleDeleteUser = (userId: string) => {
-    console.log(`Delete user with ID: ${userId}`);
+  const handleDeleteUser = () => {
+    if (!userToDelete) return;
+
+    // eslint-disable-next-line no-async-promise-executor
+    const deleteUserPromise = new Promise(async (resolve, reject) => {
+      try {
+        await new Promise((res) => setTimeout(res, 2000));
+
+        const success = await deleteUserByAdmin(userToDelete);
+        if (success) {
+          resolve(true);
+          navigate(0);
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+      
+    toast.promise(deleteUserPromise, {
+      loading: {title: 'Deleting User', description: 'Please wait while we delete User_' + userToDelete},
+      success: {title: 'Delete User Successful', description: 'User_' + userToDelete + ' has been updated!', duration: 3000, isClosable: true},
+      error: {title: 'Delete User Failed', description: 'An error occurred during delete User_' + userToDelete, duration: 5000, isClosable: true},
+    });
+    onClose();
   };
 
   // Action buttons component
@@ -75,7 +117,7 @@ const UserManagementTable = () => {
           colorScheme="blue"
           variant="ghost"
           size={isMobile ? "sm" : "md"}
-          onClick={() => handleViewProfile(user.id)}
+          onClick={() => handleViewUserProfile(user.id)}
         />
       </Tooltip>
       <Tooltip label="Edit" placement="bottom">
@@ -97,7 +139,7 @@ const UserManagementTable = () => {
           colorScheme="red"
           variant="ghost"
           size={isMobile ? "sm" : "md"}
-          onClick={() => handleDeleteUser(user.id)}
+          onClick={() => handleDeleteUserConfirmation(user.id)}
         />
       </Tooltip>  
     </HStack>
@@ -169,7 +211,7 @@ const UserManagementTable = () => {
         <Tbody>
           {users?.map((user, index) => (
             <Tr 
-              key={user.id}
+              key={user?.id}
               _hover={{ bg: bgHover }}
               transition="background 0.2s"
             >
@@ -192,30 +234,56 @@ const UserManagementTable = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <Box p={6}>
-        <VStack align="start" spacing={4}>
-          <Heading size="lg">USER MANAGEMENT</Heading>
-        </VStack>
-      </Box>
-      <Card bg={bgCard} borderColor={borderColor} borderWidth="1px">
-        <CardBody>
-          {isLoading ? (
-            <Flex justify="center" align="center" minH="200px">
-              <Spinner size="xl" />
-            </Flex>
-          ) : isMobile ? (
-            <VStack spacing={4} align="stretch">
-              {users?.map((user, index) => (
-                <MobileUserCard key={user.id} user={user} index={index} />
-              ))}
-            </VStack>
-          ) : (
-            <DesktopTable />
-          )}
-        </CardBody>
-      </Card>
-    </div>
+    <>
+      <div className="min-h-screen bg-gray-50 p-4">
+        <Box p={6}>
+          <VStack align="start" spacing={4}>
+            <Heading size="lg">USER MANAGEMENT</Heading>
+          </VStack>
+        </Box>
+        <Card bg={bgCard} borderColor={borderColor} borderWidth="1px">
+          <CardBody>
+            {isLoading ? (
+              <Flex justify="center" align="center" minH="200px">
+                <Spinner size="xl" />
+              </Flex>
+            ) : isMobile ? (
+              <VStack spacing={4} align="stretch">
+                {users?.map((user, index) => (
+                  <MobileUserCard key={user.id} user={user} index={index} />
+                ))}
+              </VStack>
+            ) : (
+              <DesktopTable />
+            )}
+          </CardBody>
+        </Card>
+      </div>
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              Delete User
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              Are you sure? You can't undo this action afterwards.
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose}>
+                Cancel
+              </Button>
+              <Button colorScheme='red' onClick={handleDeleteUser} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+    </>
   );
 };
 

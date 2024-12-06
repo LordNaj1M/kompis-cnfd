@@ -9,8 +9,12 @@ import CrowdDetection from './pages/CrowdDetection';
 import FatigueDetection from './pages/FatigueDetection';
 import UsersManagement from './pages/usersManagement/UsersManagement';
 import ViewUserProfile from './pages/usersManagement/ViewUserProfile';
+import EditUserProfile from './pages/usersManagement/EditUserProfile';
+import ChangeUserPassword from './pages/usersManagement/ChangeUserPassword';
 import Configuration from './pages/Configuration';
 import Profile from './pages/profile/Profile';
+import EditProfile from './pages/profile/EditProfile';
+import ChangePassword from './pages/profile/ChangePassword';
 import ErrorPage from './pages/ErrorPage';
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -57,8 +61,8 @@ const routes = createBrowserRouter([
           { path: "profile",
             children: [
               { path: "", element: <Profile /> },
-              { path: "edit", element: '<EditProfile />' },
-              { path: "change-password", element: '<ChangePassword />' }
+              { path: "edit", element: <EditProfile /> },
+              { path: "change-password", element: <ChangePassword /> }
             ]
           }
         ]
@@ -73,8 +77,8 @@ const routes = createBrowserRouter([
         children: [
           { path: "users-management", element: <UsersManagement /> },
           { path: "view/:userId", element: <ViewUserProfile /> },
-          { path: "edit/:userId", element: '<EditUserProfile />' },
-          { path: "change-password/:userId", element: '<ChangeUserPassword />' },
+          { path: "edit/:userId", element: <EditUserProfile /> },
+          { path: "change-password/:userId", element: <ChangeUserPassword /> },
           { path: "configuration", element: <Configuration /> }
         ]
       }

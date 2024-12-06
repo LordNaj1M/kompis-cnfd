@@ -2,14 +2,30 @@
 import { io, Socket } from 'socket.io-client';
 
 interface ServerToClientEvents {
-  crowd_update: (data: {
-    count: number;
-    status: 'sepi' | 'sedang' | 'padat';
-    timestamp: string;
-  }) => void;
+  'analysis-result': (result: AnalysisResult) => void;
   connect_error: (error: Error) => void;
   disconnect: (reason: string) => void;
 }
+
+interface AnalysisResult { 
+  data: {
+    num_people: number;
+    detections: Detection[];
+  };
+  statusCrowd: 'kosong' | 'sepi' | 'sedang' | 'padat' | 'over';
+  timestamp: string; 
+}
+
+interface Detection { 
+  bounding_box: BoundingBox; 
+}
+
+interface BoundingBox { 
+  x_min: number; 
+  y_min: number; 
+  x_max: number; 
+  y_max: number; 
+} 
 
 interface ClientToServerEvents {
   frame: (imageData: string) => void;
@@ -21,7 +37,10 @@ class SocketClient {
 
   public static getInstance(): Socket<ServerToClientEvents, ClientToServerEvents> {
     if (!SocketClient.instance) {
-      SocketClient.instance = io(import.meta.env.VITE_APP_SOCKET_URL, {
+      const socketUrl = import.meta.env.VITE_APP_SOCKET_URL || 'http://localhost:3000';
+      console.log('Connecting to socket URL:', socketUrl);
+
+      SocketClient.instance = io(socketUrl, {
         autoConnect: false,
         reconnection: true,
         reconnectionAttempts: 5,
@@ -41,7 +60,7 @@ class SocketClient {
       });
 
       SocketClient.instance.on('connect_error', (error) => {
-        console.error('Socket Connection Error:', error);
+        console.error('Socket Connection Error:', error.message);
       });
     }
 
