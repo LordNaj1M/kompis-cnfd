@@ -27,7 +27,7 @@ import { FiMenu } from 'react-icons/fi';
 export function Navbar() {
   const { onOpen } = useSidenav();
   const navigate = useNavigate();
-  const { logout, error } = useAuth();
+  const { logout } = useAuth();
   const { user, isLoading, isError } = useUser();
   const toast = useToast();
 
@@ -36,44 +36,23 @@ export function Navbar() {
 
   const handleLogout = async (e: React.FormEvent) => {
     e.preventDefault();
-    // eslint-disable-next-line no-async-promise-executor
-    const logoutPromise = new Promise(async (resolve, reject) => {
-      try {
-        // Simulasi delay 2 detik untuk proses logout
-        await new Promise((res) => setTimeout(res, 2000));
-
-        const success = await logout(); // Panggil fungsi logout dari useAuth
-        if (success) {
-          resolve(true);
-        } else {
-          reject(error);
-        }
-      } catch (error) {
-        reject(error);
-      }
-    });
-
-    // const logoutPromise = () => {
-    //   return new Promise<boolean>((resolve, reject) => {
-    //     // Gunakan IIFE async untuk menjalankan async logic
-    //     (async () => {
-    //       try {
-    //         await new Promise((res) => setTimeout(res, 2000));
-    //         logout();
-    //         resolve(true);
-    //       } catch (err) {
-    //         reject(err);
-    //       }
-    //     })();
-    //   });
-    // };
-  
-    // Menampilkan toast selama proses logout
-    toast.promise(logoutPromise, {
-      loading: {title: 'Logging out', description: 'Please wait while we log you out.',},
-      success: {title: 'Logout Successful', description: 'See you back!', duration: 3000, isClosable: true},
-      error: {title: 'Logout Failed', description: 'An error occurred during logout: ' + error, duration: 5000, isClosable: true},
-    });
+    
+    try {
+      const logoutPromise = logout();
+      toast.promise(logoutPromise, {
+        loading: {title: 'Logging out', description: 'Please wait while we log you out.',},
+        success: {title: 'Logout Successful', description: 'See you back!', duration: 1000, isClosable: true, onCloseComplete() {navigate('/login')},},
+        error: (error) => ({title: 'Logout Failed', description: 'An error occurred during logout: ' + error, duration: 5000, isClosable: true}),
+      });
+    } catch (error) {
+      toast({
+        title: 'Logout Failed',
+        description: `An error occurred during logout: ${error}`,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }    
   };
 
   if (isLoading) {

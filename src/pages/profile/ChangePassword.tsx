@@ -51,11 +51,11 @@ const ChangePassword = () => {
       }      
     } else {
       toast({
-          title: 'Change Password Failed',
-          description: 'Your retype password is not the same!',
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
+        title: 'Change Password Failed',
+        description: 'Your retype password is not the same!',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
       });
     }
   };

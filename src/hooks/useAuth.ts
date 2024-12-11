@@ -60,15 +60,20 @@ export const useAuth = () => {
   };
 
   const logout = () => {
-    try {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userData');
-      return true;
-    } catch {
-        throw new Error('Logout failed. Please try again.');
-    } finally {
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve, reject) => {
+      try {
+        await new Promise((res) => setTimeout(res, 1000));
+
+        localStorage.removeItem('token');
+        localStorage.removeItem('userData');
+        resolve(true);
+      } catch (error) {
+        reject(new Error('Logout failed. Please try again. ' + error));
+      } finally {
         navigate('/login');
-    }
+      }
+    });
   };
 
   return {
