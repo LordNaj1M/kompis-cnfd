@@ -67,39 +67,35 @@ const ChangeUserPassword = () => {
         </Container>
     );
   }
-
+  
   const handleChangeUserPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (passwordInput === newUserPassword) {
-        // eslint-disable-next-line no-async-promise-executor
-        const changePasswordPromise = new Promise(async (resolve, reject) => {
-        try {
-            await new Promise((res) => setTimeout(res, 2000));
-
-            const success = await editPasswordByAdmin(user?.id, { passwordAdmin, newUserPassword });
-            if (success) {
-            resolve(true);
-            navigate('/profile');
-            }
-        } catch (error) {
-            reject(error);
-        }
-        });
-
-        toast.promise(changePasswordPromise, {
-            loading: { title: 'Updating User Password', description: `Please wait while we update the User's new password.` },
-            success: { title: 'Change User Password Success', description: `The User's new password has been successfully updated!`, duration: 3000, isClosable: true },
-            error: { title: 'Change User Password Failed', description: 'An error occurred while updating the password!', duration: 5000, isClosable: true },
-        });
-    } else {
+      try {
+        const changeUserPasswordPromise = editPasswordByAdmin(user?.id, { passwordAdmin, newUserPassword });
+        toast.promise(changeUserPasswordPromise, {
+          loading: { title: 'Updating User Password', description: `Please wait while we update the User's new password.` },
+          success: { title: 'Change User Password Success', description: `The User's new password has been successfully updated!`, duration: 1000, isClosable: true, onCloseComplete() {navigate(`/admin/view/${user?.id}`)},},
+          error: (error) => ({ title: 'Change User Password Failed', description: 'An error occurred while updating the password: ' + error, duration: 5000, isClosable: true}),
+      });
+      } catch (error) {
         toast({
-            title: 'Change Password Failed',
-            description: `The User's new password you retyped is not the same!`,
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
+          title: 'Change User Password Failed',
+          description: `An error occurred: ${error}`,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
         });
+      }        
+    } else {
+      toast({
+        title: 'Change Password Failed',
+        description: `The User's new password you retyped is not the same!`,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
@@ -130,6 +126,7 @@ const ChangeUserPassword = () => {
                     value={passwordAdmin}
                     onChange={(e) => setPasswordAdmin(e.target.value)}
                     placeholder="Enter Admin Password"
+                    required
                 />
               </FormControl>
 

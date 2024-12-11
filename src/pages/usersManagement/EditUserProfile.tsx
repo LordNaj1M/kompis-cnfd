@@ -75,39 +75,35 @@ const EditUserProfile = () => {
         </Container>
     );
   }
-
+  
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (name !== user?.name || email !== user?.email) {
-        // eslint-disable-next-line no-async-promise-executor
-        const updatePromise = new Promise(async (resolve, reject) => {
-          try {
-            await new Promise((res) => setTimeout(res, 2000));
-  
-            const success = await editProfileByAdmin(user?.id, { passwordAdmin, name, email });
-            if (success) {
-              resolve(true);
-              navigate(`/admin/view/${user?.id}`);
-            }
-          } catch (error) {
-            reject(error);
-          }
-        });
-      
-  
-        toast.promise(updatePromise, {
-          loading: {title: 'Updating', description: 'Please wait while we update User profile data.',},
-          success: {title: 'Edit User Profile Successful', description: 'User profile data has been updated!', duration: 3000, isClosable: true},
-          error: {title: 'Edit user Profile Failed', description: 'An error occurred during edit User profile: ', duration: 5000, isClosable: true},
-        });
+      try {
+          const updatePromise = editProfileByAdmin(user?.id, { passwordAdmin, name, email });
+          toast.promise(updatePromise, {
+            loading: {title: 'Updating', description: 'Please wait while we update User profile data.',},
+            success: {title: 'Edit User Profile Successful', description: 'User profile data has been updated!', duration: 1000, isClosable: true, onCloseComplete() {navigate(`/admin/view/${user?.id}`)},},
+            error: (error) => ({title: 'Edit User Profile Failed', description: 'An error occurred during edit User profile: ' + error, duration: 5000, isClosable: true}),
+          });
+        } catch (error) {
+          toast({
+            title: 'Edit User Profile Failed',
+            description: `An error occurred during edit User profile: ${error}`,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+        }
     } else {
-        toast({
-          title: 'Edit User Profile Failed',
-          description: 'You enter the same data, no need to update!',
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
+      toast({
+        title: 'Edit User Profile Failed',
+        description: 'You enter the same data, no need to update!',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
@@ -136,6 +132,7 @@ const EditUserProfile = () => {
                     value={passwordAdmin}
                     onChange={(e) => setPasswordAdmin(e.target.value)}
                     placeholder="Enter Admin Password"
+                    required
                 />
               </FormControl>
 

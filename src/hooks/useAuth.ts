@@ -1,5 +1,4 @@
 // src/hooks/useAuth.ts
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../lib/axios';
 import { AxiosError } from 'axios';
@@ -18,72 +17,57 @@ interface ApiErrorResponse {
 
 export const useAuth = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>('');
 
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    setError('');
+  const login = async (
+    email: string, password: string
+  ) => {
     try {
       const response = await axiosInstance.post('/login', { email, password });
       const { token, data: userData } = response.data;
       
       localStorage.setItem('token', token);
       localStorage.setItem('userData', JSON.stringify(userData));
-      navigate('/');
-      return true;
+
+      return response.data;
     } catch (e) {
-        const error = e as AxiosError<ApiErrorResponse>;
-        setError(error.response?.data?.message || 'Login failed. Please try again.');
-        return false;
-    } finally {
-        setIsLoading(false);
+      const error = e as AxiosError<ApiErrorResponse>;
+      throw new Error(error.response?.data?.message || 'Login failed. Please try again.');
     }
   };
 
-  const register = async (data: { name: string; email: string; password: string; security_answer: string }) => {
-    setIsLoading(true);
-    setError('');
+  const register = async (
+    data: { name: string; email: string; password: string; security_answer: string }
+  ) => {
     try {
-      await axiosInstance.post('/register', data);
-      return true;
+      const response = await axiosInstance.post('/register', data);
+      return response;
     } catch (e) {
-        const error = e as AxiosError<ApiErrorResponse>;
-        setError(error.response?.data?.message || 'Registration failed. Please try again.');
-        return false;
-    } finally {
-        setIsLoading(false);
+      const error = e as AxiosError<ApiErrorResponse>;
+      throw new Error(error.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
 
-  const resetPassword = async (data: { email: string; newPassword: string; security_answer: string }) => {
-    setIsLoading(true);
-    setError('');
+  const resetPassword = async (
+    data: { email: string; newPassword: string; security_answer: string }
+  ) => {
     try {
-      await axiosInstance.patch('/resetPassword', data);
-      return true;
+      const response = await axiosInstance.patch('/resetPassword', data);
+      return response;
     } catch (e) {
-        const error = e as AxiosError<ApiErrorResponse>;
-        setError(error.response?.data?.message || 'Password reset failed. Please try again.');
-        return false;
-    } finally {
-        setIsLoading(false);
+      const error = e as AxiosError<ApiErrorResponse>;
+      throw new Error(error.response?.data?.message || 'Password reset failed. Please try again.');
     }
   };
 
   const logout = () => {
-    setIsLoading(true);
-    setError('');
     try {
       localStorage.removeItem('token');
       localStorage.removeItem('userData');
       return true;
-    } catch (e) {
-        setError("Error: " + e || 'Logout failed. Please try again.');
-        return false;
+    } catch {
+        throw new Error('Logout failed. Please try again.');
     } finally {
         navigate('/login');
-        setIsLoading(false);
     }
   };
 
@@ -91,9 +75,6 @@ export const useAuth = () => {
     login,
     register,
     resetPassword,
-    logout,
-    isLoading,
-    error,
-    setError
+    logout
   };
 };

@@ -14,18 +14,18 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../hooks/useUser';
-import { FiEdit2, FiUser } from 'react-icons/fi';
+import { FiEdit2 } from 'react-icons/fi';
 import { RiLockPasswordLine } from 'react-icons/ri';
 
 const Profile = () => {
+  const { user, isLoading, isError } = useUser();
   const navigate = useNavigate();
+
   const bgCard = useColorModeValue('white', 'gray.700');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const labelColor = useColorModeValue('gray.600', 'gray.400');
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
   
-  const { user, isLoading, isError } = useUser();
-
   // Handle edit user
   const handleEditProfile = () => {
     navigate('/profile/edit');
@@ -61,7 +61,6 @@ const Profile = () => {
         <VStack spacing={4}>
           <Text color="red.500">Error loading profile data...</Text>
           <Button
-            leftIcon={<FiUser />}
             onClick={() => navigate(0)}
             colorScheme="blue"
           >

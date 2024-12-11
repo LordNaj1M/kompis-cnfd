@@ -61,28 +61,24 @@ const EditProfile = () => {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (name !== user?.name || email !== user?.email) {
-      // eslint-disable-next-line no-async-promise-executor
-      const updatePromise = new Promise(async (resolve, reject) => {
-        try {
-          await new Promise((res) => setTimeout(res, 2000));
-
-          const success = await editProfile({ name, email });
-          if (success) {
-            resolve(true);
-            navigate('/profile');
-          }
+      try {
+          const updatePromise = editProfile({ name, email });
+          toast.promise(updatePromise, {
+            loading: {title: 'Updating', description: 'Please wait while we update your profile data.',},
+            success: {title: 'Edit Profile Successful', description: 'Your profile data has been updated!', duration: 1000, isClosable: true, onCloseComplete() {navigate('/profile')},},
+            error: (error) => ({title: 'Edit Profile Failed', description: 'An error occurred during edit profile: ' + error, duration: 5000, isClosable: true}),
+          });
         } catch (error) {
-          reject(error);
+          toast({
+            title: 'Edit Profile Failed',
+            description: `An error occurred during edit profile: ${error}`,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
         }
-      });
-    
-
-      toast.promise(updatePromise, {
-        loading: {title: 'Updating', description: 'Please wait while we update your profile data.',},
-        success: {title: 'Edit Profile Successful', description: 'Your profile data has been updated!', duration: 3000, isClosable: true},
-        error: {title: 'Edit Profile Failed', description: 'An error occurred during edit profile: ', duration: 5000, isClosable: true},
-      });
     } else {
       toast({
         title: 'Edit Profile Failed',

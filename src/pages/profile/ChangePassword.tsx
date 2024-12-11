@@ -33,34 +33,30 @@ const ChangePassword = () => {
     e.preventDefault();
     
     if (passwordInput === newPassword) {
-        // eslint-disable-next-line no-async-promise-executor
-        const changePasswordPromise = new Promise(async (resolve, reject) => {
-        try {
-            await new Promise((res) => setTimeout(res, 2000));
-
-            const success = await editPassword({ oldPassword, newPassword });
-            if (success) {
-            resolve(true);
-            navigate('/profile');
-            }
-        } catch (error) {
-            reject(error);
-        }
-        });
-
+      try {
+        const changePasswordPromise = editPassword({ oldPassword, newPassword });
         toast.promise(changePasswordPromise, {
-            loading: { title: 'Updating Password', description: 'Please wait while we update your password.' },
-            success: { title: 'Change Password Success', description: 'Your password has been successfully updated!', duration: 3000, isClosable: true },
-            error: { title: 'Change Password Failed', description: 'An error occurred during password update: ', duration: 5000, isClosable: true },
+          loading: { title: 'Updating Password', description: 'Please wait while we update your password.' },
+          success: { title: 'Change Password Success', description: 'Your password has been successfully updated!', duration: 1000, isClosable: true, onCloseComplete() {navigate('/profile')},},
+          error: (error) => ({ title: 'Change Password Failed', description: 'An error occurred during password update: ' + error, duration: 5000, isClosable: true }),
         });
-    } else {
+      } catch (error) {
         toast({
-            title: 'Change Password Failed',
-            description: 'Your retype password is not the same!',
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
+          title: 'Change Password Failed',
+          description: `An error occurred: ${error}`,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
         });
+      }      
+    } else {
+      toast({
+          title: 'Change Password Failed',
+          description: 'Your retype password is not the same!',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+      });
     }
   };
 
@@ -92,7 +88,6 @@ const ChangePassword = () => {
                     placeholder="Enter your old password"
                     required
                     autoComplete="off"
-                    
                 />
               </FormControl>
 

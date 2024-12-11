@@ -15,20 +15,16 @@ axiosInstance.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  console.log("REQUEST API")
   return config;
 }, (error) => {
-  return Promise.reject(error);
-});
+    return Promise.reject(error);
+  }
+);
 
 // Handle response errors
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 400) {
-      localStorage.clear();
-      window.location.href = '/';
-    }
-    return Promise.reject(error); //Jika kesalahan bukan 401, maka promise akan ditolak dengan objek kesalahan. Ini memungkinkan kode yang memanggil Axios untuk menangani kesalahan lainnya secara terpisah.
+    return Promise.reject(error);
   }
 );

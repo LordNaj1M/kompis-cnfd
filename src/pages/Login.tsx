@@ -8,8 +8,6 @@ import {
   CardBody,
   Stack,
   Flex,
-  Alert,
-  AlertIcon,
   Link,
   Checkbox,
   Text,
@@ -19,17 +17,18 @@ import {
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const { login, register, resetPassword, setError, error } = useAuth();
+  const { login, register, resetPassword } = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [security_answer, setSecurityAnswer] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const [activeTab, setActiveTab] = useState('login');
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
@@ -47,33 +46,27 @@ const Login = () => {
     setPassword('');
     setSecurityAnswer('');
     setAgreeToTerms(false);
-    setError('');
-  }, [activeTab, setError]);
+  }, [activeTab]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // eslint-disable-next-line no-async-promise-executor
-    const loginPromise = new Promise(async (resolve, reject) => {
-      try {
-        await new Promise((res) => setTimeout(res, 2000));
-
-        const success = await login(email, password);
-        if (success) {
-          resolve(true);
-        } else {
-          reject(error);
-        }
-      } catch (error) {
-        reject(error);
-      }
-    });
-
-    toast.promise(loginPromise, {
-      loading: {title: 'Logging in', description: 'Please wait while we log you in.',},
-      success: {title: 'Login Successful', description: 'Welcome back!', duration: 3000, isClosable: true},
-      error: {title: 'Login Failed', description: 'An error occurred during login: ' + error, duration: 5000, isClosable: true},
-    });
+    try {
+      const loginPromise = login(email, password);
+      toast.promise(loginPromise, {
+        loading: {title: 'Logging in', description: 'Please wait while we log you in.'},
+        success: {title: 'Login Successful', description: 'Welcome back!', duration: 1000, isClosable: true, onCloseComplete() {navigate('/')}},
+        error: (error) => ({title: 'Login Failed', description: 'An error occurred during login: ' + error, duration: 5000, isClosable: true}),
+      });
+    } catch (error) {
+      toast({
+        title: 'Login Failed',
+        description: `An error occurred during login: ${error}`,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -90,32 +83,27 @@ const Login = () => {
       return;
     }
 
-    // eslint-disable-next-line no-async-promise-executor
-    const registerPromise = new Promise(async (resolve, reject) => {
-      try {
-        await new Promise((res) => setTimeout(res, 2000));
-
-        const success = await register({ name, email, password, security_answer });
-        if (success) {
-          resolve(true);
-          setActiveTab('login');
-        } else {
-          reject(error);
-        }
-      } catch (error) {
-        reject(error);
-      }
-    });
-
-    toast.promise(registerPromise, {
-      loading: {title: 'Registration Process', description: 'Please wait while we register you.',},
-      success: {title: 'Registration Successful', description: 'You can now log in with your new account.', duration: 3000, isClosable: true},
-      error: {title: 'Registration Failed', description: 'An error occurred during register: ' + error, duration: 5000, isClosable: true},
-    });
+    try {
+      const registerPromise = register({ name, email, password, security_answer });
+      toast.promise(registerPromise, {
+        loading: {title: 'Registration Process', description: 'Please wait while we register you.',},
+        success: {title: 'Registration Successful', description: 'You can now log in with your new account.', duration: 1000, isClosable: true, onCloseComplete() {setActiveTab('login')}},
+        error: (error) => ({title: 'Registration Failed', description: 'An error occurred during register: ' + error, duration: 5000, isClosable: true}),
+      });
+    } catch (error) {
+      toast({
+        title: 'Registration Failed',
+        description: `An error occurred during register: ${error}`,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }    
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!agreeToTerms) {
       toast({
         title: 'Error',
@@ -127,36 +115,30 @@ const Login = () => {
       return;
     }
 
-    // eslint-disable-next-line no-async-promise-executor
-    const registerPromise = new Promise(async (resolve, reject) => {
-      try {
-        await new Promise((res) => setTimeout(res, 2000));
-
-        const success = await resetPassword({ email, newPassword, security_answer });
-        if (success) {
-          resolve(true);
-          handleCancel();
-        } else {
-          reject(error);
-        }
-      } catch (error) {
-        reject(error);
-      }
-    });
-
-    toast.promise(registerPromise, {
-      loading: {title: 'Reset Password Process', description: 'Please wait while we reset your password.',},
-      success: {title: 'Password Reset Successful', description: 'You can now log in with your new password.', duration: 3000, isClosable: true},
-      error: {title: 'Password Reset Failed', description: 'An error occurred during reset password: ' + error, duration: 5000, isClosable: true},
-    });
+    try {
+      const resetPasswordPromise = resetPassword({ email, newPassword, security_answer });
+      toast.promise(resetPasswordPromise, {
+        loading: {title: 'Reset Password Process', description: 'Please wait while we reset your password.',},
+        success: {title: 'Password Reset Successful', description: 'You can now log in with your new password.', duration: 1000, isClosable: true, onCloseComplete() {handleCancel()}},
+        error: (error) => ({title: 'Password Reset Failed', description: 'An error occurred during reset password: ' + error, duration: 5000, isClosable: true}),
+      });
+    } catch (error) {
+      toast({
+        title: 'Registration Failed',
+        description: `An error occurred during register: ${error}`,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   const handleCancel = () => {
     setShowResetPassword(false);
     setNewPassword('');
+    setPassword('');
     setSecurityAnswer('');
     setAgreeToTerms(false);
-    setErrorMessage('');
     setActiveTab('login');
   };
 
@@ -185,13 +167,6 @@ const Login = () => {
             required
           />
         </FormControl>
-
-        {errorMessage && (
-          <Alert status="error">
-            <AlertIcon />
-            {errorMessage}
-          </Alert>
-        )}
 
         <Button
           type="submit"
@@ -276,13 +251,6 @@ const Login = () => {
           </Checkbox>
         </FormControl>
 
-        {errorMessage && (
-          <Alert status="error">
-            <AlertIcon />
-            {errorMessage}
-          </Alert>
-        )}
-
         <Button
           type="submit"
           w="full"
@@ -344,13 +312,6 @@ const Login = () => {
             </Checkbox>
           </FormControl>
 
-          {errorMessage && (
-            <Alert status="error">
-              <AlertIcon />
-              {errorMessage}
-            </Alert>
-          )}
-
           <Flex justifyContent="space-between" mt={4}>
             <Button
               variant="ghost"
@@ -373,32 +334,32 @@ const Login = () => {
   );
 
   return (
-    <Box 
-      minH="100vh" 
-      bg={bgColor} 
-      display="flex" 
-      alignItems="center" 
-      justifyContent="center" 
+    <Box
+      minH="100vh"
+      bg={bgColor}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
       p={[4, 6, 8]}
-    >      
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 1 }}
       >
-        <Card 
-          maxW="450px" 
-          w="full" 
-          boxShadow="xl" 
-          borderRadius="xl" 
+        <Card
+          maxW="450px"
+          w="full"
+          boxShadow="xl"
+          borderRadius="xl"
           bg={cardBg}
           overflow="hidden"
         >
           <CardBody p={[4, 6, 8]}>
             {!showResetPassword && (
-              <Flex 
-                mb={6} 
-                borderBottom="2px" 
+              <Flex
+                mb={6}
+                borderBottom="2px"
                 borderColor={buttonBoxBorder}
                 pb={2}
               >
@@ -413,12 +374,11 @@ const Login = () => {
                     color={activeTab === tab ? 'blue.500' : textColor}
                     onClick={() => {
                       setActiveTab(tab);
-                      setErrorMessage('');
                       setShowResetPassword(false);
                     }}
-                    _hover={{ 
+                    _hover={{
                       bg: buttonHover,
-                      color: activeTab === tab ? 'blue.600' : 'inherit'
+                      color: activeTab === tab ? 'blue.600' : 'inherit',
                     }}
                   >
                     {tab.toUpperCase()}
@@ -426,19 +386,47 @@ const Login = () => {
                 ))}
               </Flex>
             )}
-
-            {showResetPassword ? (
-              resetPasswordForm()
-            ) : (
-              activeTab === 'login' ? loginForm() : registerForm()
-            )}
+  
+            <AnimatePresence mode="wait">
+              {showResetPassword ? (
+                <motion.div
+                  key="reset-password"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {resetPasswordForm()}
+                </motion.div>
+              ) : activeTab === 'login' ? (
+                <motion.div
+                  key="login"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {loginForm()}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="register"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {registerForm()}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </CardBody>
         </Card>
-        
-        <Flex 
-          justifyContent="center" 
-          mt={4} 
-          color={textColor} 
+  
+        <Flex
+          justifyContent="center"
+          mt={4}
+          color={textColor}
           fontSize="sm"
           textAlign="center"
         >

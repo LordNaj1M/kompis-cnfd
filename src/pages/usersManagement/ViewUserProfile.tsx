@@ -22,6 +22,7 @@ const ViewUserProfile = () => {
   const { userId } = useParams();
   const { user, isLoading, isError } = useUserById(userId || '');
   const navigate = useNavigate();
+  
   const bgCard = useColorModeValue('white', 'gray.700');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const labelColor = useColorModeValue('gray.600', 'gray.400');

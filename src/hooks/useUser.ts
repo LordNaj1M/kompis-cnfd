@@ -2,6 +2,7 @@
 import useSWR from 'swr';
 import { axiosInstance } from '../lib/axios';
 import { AxiosError } from 'axios';
+import { useToast } from '@chakra-ui/react';
 
 export interface User {
   id: string;
@@ -39,21 +40,24 @@ const usersFetcher = async (url: string): Promise<User[]> => {
 
 // Hook untuk mendapatkan data user yang sedang login
 export const useUser = () => {
+  const toast = useToast();
   const { data, error, mutate } = useSWR<User>('/users/profile', userFetcher, {
     refreshInterval: 300000, 
     errorRetryCount: 3,
     revalidateOnFocus: true,
 
-    // Gunakan data dari localStorage sebagai fallback
+    /// Gunakan data dari localStorage sebagai fallback
     fallbackData: localStorage.getItem('userData') 
-      ? JSON.parse(localStorage.getItem('userData') || '{}')
-      : undefined,
+    ? JSON.parse(localStorage.getItem('userData') || '{}')
+    : undefined,
     onError: (error) => {
-      console.error("Request Error:", error);
-      if (error.response?.status === 400) {
-        localStorage.clear();
-        window.location.href = '/';
-      }
+      toast({
+        title: "ERROR",
+        description: `Request Error: ${error.response?.message}`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   });
 
@@ -99,73 +103,70 @@ export const useUserById = (userId: string) => {
   };
 };
 
-export const editProfile = async (data: { name?: string; email?: string }) => {
+export const editProfile = async (
+  data: { name?: string; email?: string }
+) => {
   try {
-    await axiosInstance.patch('/users/profile', data);
+    const response = await axiosInstance.patch('/users/profile', data);
 
-    // Update localStorage with the new data
+    // Update localStorage dengan data baru
     const currentUserData = JSON.parse(localStorage.getItem('userData') || '{}');
     const updatedUserData = { ...currentUserData, ...data };
     localStorage.setItem('userData', JSON.stringify(updatedUserData));
 
-    return true;
-  } catch (error) {
-    const apiError = error as AxiosError<ApiErrorResponse>;
-    console.error('Error editing profile: ', apiError);
-    return false;
+    return response.data;
+  } catch (e) {
+    const error = e as AxiosError<ApiErrorResponse>;
+    throw new Error(error.response?.data?.message || 'Error editing profile!');
   }
 };
 
-export const editPassword = async (data: { oldPassword: string; newPassword: string }) => {
+export const editPassword = async (
+  data: { oldPassword: string; newPassword: string }
+) => {
   try {
-    await axiosInstance.patch('/users/editPassword', data);
-    
-    return true;
-  } catch (error) {
-    const apiError = error as AxiosError<ApiErrorResponse>;
-    console.error('Error editing password: ', apiError);
-    return false;
+    const response = await axiosInstance.patch('/users/editPassword', data);
+    return response.data;
+  } catch (e) {
+    const error = e as AxiosError<ApiErrorResponse>;
+    throw new Error(error.response?.data?.message || 'Failed to update password!');
   }
 };
 
 export const editProfileByAdmin = async (
   userId: string, 
   data: { passwordAdmin?:string; name?: string; email?: string }
-  ) => {
+) => {
   try {
-    await axiosInstance.patch(`/admin/users/${userId}`, data);
-
-    return true;
-  } catch (error) {
-    const apiError = error as AxiosError<ApiErrorResponse>;
-    console.error('Error editing user profile: ', apiError);
-    return false;
+    const response = await axiosInstance.patch(`/admin/users/${userId}`, data);
+    return response.data;
+  } catch (e) {
+    const error = e as AxiosError<ApiErrorResponse>;
+    throw new Error(error.response?.data?.message || 'Failed to editing user profile!');
   }
 };
 
 export const editPasswordByAdmin = async (
   userId: string, 
   data: { passwordAdmin?:string; newUserPassword?: string; }
-  ) => {
+) => {
   try {
-    await axiosInstance.patch(`/admin/users/${userId}/editPassword`, data);
-
-    return true;
-  } catch (error) {
-    const apiError = error as AxiosError<ApiErrorResponse>;
-    console.error('Error editing user profile: ', apiError);
-    return false;
+    const response = await axiosInstance.patch(`/admin/users/${userId}/editPassword`, data);
+    return response.data;
+  } catch (e) {
+    const error = e as AxiosError<ApiErrorResponse>;
+    throw new Error(error.response?.data?.message || 'Failed to editing user password!');
   }
 };
 
-export const deleteUserByAdmin = async (userId: string) => {
+export const deleteUserByAdmin = async (
+  userId: string
+) => {
   try {
-    await axiosInstance.delete(`/admin/users/${userId}`);
-
-    return true;
-  } catch (error) {
-    const apiError = error as AxiosError<ApiErrorResponse>;
-    console.error('Error editing user profile: ', apiError);
-    return false;
+    const response = await axiosInstance.delete(`/admin/users/${userId}`);
+    return response.data;
+  } catch (e) {
+    const error = e as AxiosError<ApiErrorResponse>;
+    throw new Error(error.response?.data?.message || 'Failed to deleting user!');
   }
 };

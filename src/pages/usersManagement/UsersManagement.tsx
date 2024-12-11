@@ -75,31 +75,29 @@ const UserManagementTable = () => {
     setUserToDelete(userId);
     onOpen();
   };
+  
   // Handle delete user
   const handleDeleteUser = () => {
     if (!userToDelete) return;
 
-    // eslint-disable-next-line no-async-promise-executor
-    const deleteUserPromise = new Promise(async (resolve, reject) => {
-      try {
-        await new Promise((res) => setTimeout(res, 2000));
-
-        const success = await deleteUserByAdmin(userToDelete);
-        if (success) {
-          resolve(true);
-          navigate(0);
-        }
-      } catch (error) {
-        reject(error);
-      }
-    });
-      
-    toast.promise(deleteUserPromise, {
-      loading: {title: 'Deleting User', description: 'Please wait while we delete User_' + userToDelete},
-      success: {title: 'Delete User Successful', description: 'User_' + userToDelete + ' has been updated!', duration: 3000, isClosable: true},
-      error: {title: 'Delete User Failed', description: 'An error occurred during delete User_' + userToDelete, duration: 5000, isClosable: true},
-    });
-    onClose();
+    try {
+      const deleteUserPromise = deleteUserByAdmin(userToDelete);
+      toast.promise(deleteUserPromise, {
+        loading: {title: 'Deleting User', description: 'Please wait while we delete User_' + userToDelete},
+        success: {title: 'Delete User Successful', description: 'User_' + userToDelete + ' has been deleted!', duration: 1000, isClosable: true, onCloseComplete() {navigate(0)},},
+        error: (error) => ({title: 'Delete User Failed', description: 'An error occurred during delete User_' + userToDelete + ': ' + error, duration: 5000, isClosable: true}),
+      });
+    } catch (error) {
+      toast({
+        title: 'Delete User Failed',
+        description: 'An error occurred during delete User_' + userToDelete + ': ' + error,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      onClose();
+    }
   };
 
   // Action buttons component
