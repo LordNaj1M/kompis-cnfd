@@ -5,13 +5,14 @@ import { Navigate, Outlet, RouterProvider, createBrowserRouter } from "react-rou
 import App from './App';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import CrowdDetection from './pages/CrowdDetection';
-import FatigueDetection from './pages/FatigueDetection';
+import CrowdDetection from './pages/crowdDetection/CrowdDetection';
+import CrowdConfiguration from './pages/crowdDetection/CrowdConfiguration';
+import FatigueDetection from './pages/fatigueDetection/FatigueDetection';
+import FatigueConfiguration from './pages/fatigueDetection/FatigueConfiguration';
 import UsersManagement from './pages/usersManagement/UsersManagement';
 import ViewUserProfile from './pages/usersManagement/ViewUserProfile';
 import EditUserProfile from './pages/usersManagement/EditUserProfile';
 import ChangeUserPassword from './pages/usersManagement/ChangeUserPassword';
-import Configuration from './pages/Configuration';
 import Profile from './pages/profile/Profile';
 import EditProfile from './pages/profile/EditProfile';
 import ChangePassword from './pages/profile/ChangePassword';
@@ -75,11 +76,28 @@ const routes = createBrowserRouter([
     children: [
       { path: "", element: <App />, 
         children: [
-          { path: "users-management", element: <UsersManagement /> },
-          { path: "view/:userId", element: <ViewUserProfile /> },
-          { path: "edit/:userId", element: <EditUserProfile /> },
-          { path: "change-password/:userId", element: <ChangeUserPassword /> },
-          { path: "configuration", element: <Configuration /> }
+          { path: "users-management",
+            children: [
+              { path: "", element: <UsersManagement /> },
+              { path: "view/:userId", element: <ViewUserProfile /> },
+              { path: "edit/:userId", element: <EditUserProfile /> },
+              { path: "change-password/:userId", element: <ChangeUserPassword /> }
+            ]
+          },
+          { path: "crowd-configuration",
+            children: [
+              { path: "", element: <CrowdConfiguration /> },
+              { path: "view/:areaId", element: "<EditProfile />" },
+              { path: "edit/:areaId", element: "<ChangePassword />" }
+            ]
+          },
+          { path: "fatigue-configuration",
+            children: [
+              { path: "", element: <FatigueConfiguration /> },
+              { path: "view/:areaId", element: "<EditProfile />" },
+              { path: "edit/:areaId", element: "<ChangePassword />" }
+            ]
+          }
         ]
       }
     ]

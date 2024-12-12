@@ -128,7 +128,7 @@ export function Navbar() {
           <MenuButton>
             <HStack spacing={3}>
               <Box 
-                border={['/profile', '/admin/configuration', '/profile/edit', '/profile/change-password'].includes(location.pathname) ? "5px solid" : "none"}
+                border={location.pathname.startsWith("/profile") ? "5px solid" : "none"}
                 borderRadius="3xl"
                 borderColor='orange.500'
               >
@@ -151,18 +151,6 @@ export function Navbar() {
               borderRadius="2xl"
             >
               Profile
-            </MenuItem>
-            <MenuItem
-              as={NavLink}
-              to={'/admin/configuration'}
-              _focus={{ bg: "gray.100" }}
-              _hover={{ bg: "gray.200" }}
-              _activeLink={{ bg: "orange.500", color: "white" }}
-              w="full"
-              borderRadius="2xl"
-              display={user.role==="admin" ? "flex" : "none"}
-            >
-              Configuration
             </MenuItem>
             <MenuItem
               _hover={{ bg: "gray.200" }}

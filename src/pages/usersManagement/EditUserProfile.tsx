@@ -84,7 +84,7 @@ const EditUserProfile = () => {
           const updatePromise = editProfileByAdmin(user?.id, { passwordAdmin, name, email });
           toast.promise(updatePromise, {
             loading: {title: 'Updating', description: 'Please wait while we update User profile data.',},
-            success: {title: 'Edit User Profile Successful', description: 'User profile data has been updated!', duration: 1000, isClosable: true, onCloseComplete() {navigate(`/admin/view/${user?.id}`)},},
+            success: {title: 'Edit User Profile Successful', description: 'User profile data has been updated!', duration: 1000, isClosable: true, onCloseComplete() {navigate(`/admin/users-management/view/${user?.id}`)},},
             error: (error) => ({title: 'Edit User Profile Failed', description: 'An error occurred during edit User profile: ' + error, duration: 5000, isClosable: true}),
           });
         } catch (error) {
@@ -183,7 +183,7 @@ const EditUserProfile = () => {
                   _hover={{ bg: 'gray.800' }}
                   size={isMobile ? 'md' : 'lg'}
                   width={isMobile ? 'full' : 'auto'}
-                  onClick={()=>navigate(`/admin/view/${user?.id}`)}
+                  onClick={()=>navigate(`/admin/users-management/view/${user?.id}`)}
                 >
                   Cancel
                 </Button>
@@ -204,7 +204,7 @@ const EditUserProfile = () => {
                   _hover={{ bg: 'gray.800' }}
                   size={isMobile ? 'md' : 'lg'}
                   width={isMobile ? 'full' : 'auto'}
-                  onClick={()=>navigate(`/admin/view/${user?.id}`)}
+                  onClick={()=>navigate(`/admin/users-management/view/${user?.id}`)}
                 >
                   Cancel
                 </Button>

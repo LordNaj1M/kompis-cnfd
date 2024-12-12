@@ -42,11 +42,11 @@ const ViewUserProfile = () => {
   }, [userId, navigate]);
   
   const handleEditProfile = () => {
-    navigate(`/admin/edit/${userId}`);
+    navigate(`/admin/users-management/edit/${userId}`);
   };
   
   const handleChangePasswordProfile = () => {
-    navigate(`/admin/change-password/${userId}`);
+    navigate(`/admin/users-management/change-password/${userId}`);
   };
   
   const ProfileField = ({ label, value }: { label: string; value: string }) => (

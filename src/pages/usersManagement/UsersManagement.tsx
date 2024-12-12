@@ -51,6 +51,7 @@ const UserManagementTable = () => {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [userId, setUserId] = useState('');
   
   const bgCard = useColorModeValue('white', 'gray.700');
   const bgHover = useColorModeValue('gray.50', 'gray.600');
@@ -62,16 +63,17 @@ const UserManagementTable = () => {
   
   // Handle view profile user
   const handleViewUserProfile = (userId: string) => {
-    navigate(`/admin/view/${userId}`);
+    navigate(`/admin/users-management/view/${userId}`);
   };
 
   // Handle edit user
   const handleEditUser = (userId: string) => {
-    navigate(`/admin/edit/${userId}`);
+    navigate(`/admin/users-management/edit/${userId}`);
   };
 
   // Handle delete user confirmation
   const handleDeleteUserConfirmation = (userId: string) => {
+    setUserId(userId);
     setUserToDelete(userId);
     onOpen();
   };
@@ -261,11 +263,13 @@ const UserManagementTable = () => {
         isOpen={isOpen}
         leastDestructiveRef={cancelRef}
         onClose={onClose}
+        closeOnOverlayClick={false}
+        closeOnEsc={false}
       >
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              Delete User
+              Delete User_{userId}
             </AlertDialogHeader>
             <AlertDialogBody>
               Are you sure? You can't undo this action afterwards.

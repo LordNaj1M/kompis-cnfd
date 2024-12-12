@@ -1,5 +1,4 @@
 import { Box, Heading, VStack, Text } from '@chakra-ui/react';
-
 const CrowdDetection = () => {
   return (
     <Box p={6}>

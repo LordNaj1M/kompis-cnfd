@@ -76,7 +76,7 @@ const ChangeUserPassword = () => {
         const changeUserPasswordPromise = editPasswordByAdmin(user?.id, { passwordAdmin, newUserPassword });
         toast.promise(changeUserPasswordPromise, {
           loading: { title: 'Updating User Password', description: `Please wait while we update the User's new password.` },
-          success: { title: 'Change User Password Success', description: `The User's new password has been successfully updated!`, duration: 1000, isClosable: true, onCloseComplete() {navigate(`/admin/view/${user?.id}`)},},
+          success: { title: 'Change User Password Success', description: `The User's new password has been successfully updated!`, duration: 1000, isClosable: true, onCloseComplete() {navigate(`/admin/users-management/view/${user?.id}`)},},
           error: (error) => ({ title: 'Change User Password Failed', description: 'An error occurred while updating the password: ' + error, duration: 5000, isClosable: true}),
       });
       } catch (error) {
@@ -167,7 +167,7 @@ const ChangeUserPassword = () => {
                   _hover={{ bg: 'gray.800' }}
                   size={isMobile ? 'md' : 'lg'}
                   width={isMobile ? 'full' : 'auto'}
-                  onClick={()=>navigate(`/admin/view/${user?.id}`)}
+                  onClick={()=>navigate(`/admin/users-management/view/${user?.id}`)}
                 >
                   Cancel
                 </Button>
@@ -189,7 +189,7 @@ const ChangeUserPassword = () => {
                   _hover={{ bg: 'gray.800' }}
                   size={isMobile ? 'md' : 'lg'}
                   width={isMobile ? 'full' : 'auto'}
-                  onClick={()=>navigate(`/admin/view/${user?.id}`)}
+                  onClick={()=>navigate(`/admin/users-management/view/${user?.id}`)}
                 >
                   Cancel
                 </Button>

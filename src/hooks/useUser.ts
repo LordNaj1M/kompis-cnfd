@@ -41,23 +41,31 @@ const usersFetcher = async (url: string): Promise<User[]> => {
 // Hook untuk mendapatkan data user yang sedang login
 export const useUser = () => {
   const toast = useToast();
+
   const { data, error, mutate } = useSWR<User>('/users/profile', userFetcher, {
     refreshInterval: 300000, 
     errorRetryCount: 3,
     revalidateOnFocus: true,
 
-    /// Gunakan data dari localStorage sebagai fallback
-    fallbackData: localStorage.getItem('userData') 
-    ? JSON.parse(localStorage.getItem('userData') || '{}')
-    : undefined,
+    // /// Gunakan data dari localStorage sebagai fallback
+    // fallbackData: localStorage.getItem('userData') 
+    // ? JSON.parse(localStorage.getItem('userData') || '{}')
+    // : undefined,
+    onSuccess: (data) => {
+      localStorage.setItem("userData", JSON.stringify(data));
+    },
     onError: (error) => {
-      toast({
-        title: "ERROR",
-        description: `Request Error: ${error.response?.message}`,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      if(error.response?.data.message === "jwt expired") {
+        return error;
+      } else {
+        toast({
+          title: "ERROR",
+          description: `Request Error: ${error.response?.message}`,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     }
   });
 

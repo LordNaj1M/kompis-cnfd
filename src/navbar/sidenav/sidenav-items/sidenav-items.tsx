@@ -10,7 +10,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { IconType } from "react-icons";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useSidenav } from "../sidenav-context/sidenav-context";
   
 export interface SidenavItem {
@@ -28,20 +28,8 @@ export function SidenavItems({ navItems, mode = "semi" }: SidenavItemsProps) {
   const { onClose } = useSidenav();
   const focusLink = useColorModeValue('gray.100', 'gray.700');
   const hoverLink = useColorModeValue('gray.200', 'gray.600');
-
-  const location = useLocation();
-  const isUserManagementActive = 
-    location.pathname === "/admin/users-management" || 
-    location.pathname.startsWith("/admin/view/") || 
-    location.pathname.startsWith("/admin/edit/") || 
-    location.pathname.startsWith("/admin/change-password/");
  
   const sidebarItemInOverMode = (item: SidenavItem, index: number) => {
-    const isActive = 
-      item.to === "/admin/users-management" 
-        ? isUserManagementActive 
-        : location.pathname === item.to;
-
     return (
       <ListItem key={index} w="full">
         <Link
@@ -63,8 +51,7 @@ export function SidenavItems({ navItems, mode = "semi" }: SidenavItemsProps) {
           }}
           w="full"
           borderRadius="md"
-          bg={isActive ? "orange.500" : "transparent"}
-          color={isActive ? "white" : "inherit"}
+          bg={"black.500"}
         >
           <Flex alignItems="center" p={2}>
             <Icon boxSize="5" as={item.icon} />
@@ -79,11 +66,6 @@ export function SidenavItems({ navItems, mode = "semi" }: SidenavItemsProps) {
     { icon: Icon, ...item }: SidenavItem,
     index: number
   ) => {
-    const isActive = 
-      item.to === "/admin/users-management" 
-        ? isUserManagementActive 
-        : location.pathname === item.to;
-
     return (
       <ListItem key={index}>
         <Tooltip label={item.label} placement="right">
@@ -103,8 +85,7 @@ export function SidenavItems({ navItems, mode = "semi" }: SidenavItemsProps) {
             borderRadius="xl"
             icon={<Icon />}
             transition="all 0.2s"
-            bg={isActive ? "orange.500" : "transparent"}
-            color={isActive ? "white" : "inherit"}
+            bg={"black.500"}
           />
         </Tooltip>
       </ListItem>
