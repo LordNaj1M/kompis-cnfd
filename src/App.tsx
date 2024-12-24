@@ -24,7 +24,6 @@ import {
 } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 import { useAuth } from './hooks/useAuth';
-import { mutate } from 'swr';
 
 const App = () => {
   const { user, isError } = useUser();
@@ -34,7 +33,6 @@ const App = () => {
 
   const handleLogout = () => {
     onClose();
-    mutate('/users/profile', () => null, { revalidate: false });
     logout();
   };
 

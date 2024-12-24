@@ -28,7 +28,8 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   Button,
-  useDisclosure
+  useDisclosure,
+  Container
 } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
 import { useUsers, deleteUserByAdmin } from '../../hooks/useUser';
@@ -44,7 +45,7 @@ interface User {
   role: string;
 }
 
-const UserManagementTable = () => {
+const UsersManagement = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -201,10 +202,10 @@ const UserManagementTable = () => {
       <Table variant="simple">
         <Thead>
           <Tr>
-            <Th>No</Th>
-            <Th>Name</Th>
-            <Th>Email</Th>
-            <Th>Role</Th>
+            <Th textAlign="center">No</Th>
+            <Th textAlign="center">Name</Th>
+            <Th textAlign="center">Email</Th>
+            <Th textAlign="center">Role</Th>
             <Th textAlign="center">Action</Th>
           </Tr>
         </Thead>
@@ -215,15 +216,15 @@ const UserManagementTable = () => {
               _hover={{ bg: bgHover }}
               transition="background 0.2s"
             >
-              <Td>{index + 1}</Td>
-              <Td>{user.name}</Td>
-              <Td>{user.email}</Td>
-              <Td>
+              <Td textAlign="center">{index + 1}</Td>
+              <Td textAlign="center">{user.name}</Td>
+              <Td textAlign="center">{user.email}</Td>
+              <Td textAlign="center">
                 <Badge colorScheme={user.role === 'admin' ? 'purple' : 'blue'}>
                   {user.role}
                 </Badge>
               </Td>
-              <Td>
+              <Td textAlign="center">
                 <ActionButtons user={user} />
               </Td>
             </Tr>
@@ -244,9 +245,9 @@ const UserManagementTable = () => {
         <Card bg={bgCard} borderColor={borderColor} borderWidth="1px">
           <CardBody>
             {isLoading ? (
-              <Flex justify="center" align="center" minH="200px">
+              <Container centerContent py={10}>
                 <Spinner size="xl" />
-              </Flex>
+              </Container>
             ) : isMobile ? (
               <VStack spacing={4} align="stretch">
                 {users?.map((user, index) => (
@@ -289,4 +290,4 @@ const UserManagementTable = () => {
   );
 };
 
-export default UserManagementTable;
+export default UsersManagement;

@@ -47,10 +47,10 @@ export const useUser = () => {
     errorRetryCount: 3,
     revalidateOnFocus: true,
 
-    // /// Gunakan data dari localStorage sebagai fallback
-    // fallbackData: localStorage.getItem('userData') 
-    // ? JSON.parse(localStorage.getItem('userData') || '{}')
-    // : undefined,
+    // Gunakan data dari localStorage sebagai fallback
+    fallbackData: localStorage.getItem('userData') 
+    ? JSON.parse(localStorage.getItem('userData') || '{}')
+    : undefined,
     onSuccess: (data) => {
       localStorage.setItem("userData", JSON.stringify(data));
     },

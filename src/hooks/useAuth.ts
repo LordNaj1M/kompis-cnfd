@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../lib/axios';
 import { AxiosError } from 'axios';
+import { cache } from "swr/_internal";
 
 export interface UserData {
   id: string;
@@ -67,6 +68,8 @@ export const useAuth = () => {
 
         localStorage.removeItem('token');
         localStorage.removeItem('userData');
+        cache.delete('/users/profile');
+        
         resolve(true);
       } catch (error) {
         reject(new Error('Logout failed. Please try again. ' + error));

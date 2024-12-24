@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CrowdDetection from './pages/crowdDetection/CrowdDetection';
 import CrowdConfiguration from './pages/crowdDetection/CrowdConfiguration';
+import CreateArea from './pages/crowdDetection/CreateArea';
 import FatigueDetection from './pages/fatigueDetection/FatigueDetection';
 import FatigueConfiguration from './pages/fatigueDetection/FatigueConfiguration';
 import UsersManagement from './pages/usersManagement/UsersManagement';
@@ -58,6 +59,7 @@ const routes = createBrowserRouter([
         children: [
           { path: "", element: <Dashboard /> },
           { path: "crowd-detection", element: <CrowdDetection /> },
+          { path: "crowd-detection/:areaId", element: <CrowdDetection /> },
           { path: "fatigue-detection", element: <FatigueDetection /> },
           { path: "profile",
             children: [
@@ -87,6 +89,7 @@ const routes = createBrowserRouter([
           { path: "crowd-configuration",
             children: [
               { path: "", element: <CrowdConfiguration /> },
+              { path: "create", element: <CreateArea /> },
               { path: "view/:areaId", element: "<EditProfile />" },
               { path: "edit/:areaId", element: "<ChangePassword />" }
             ]

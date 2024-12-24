@@ -39,7 +39,7 @@ const Login = () => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const textColor = useColorModeValue('gray.600', 'gray.200');
   const buttonBoxBorder = useColorModeValue('gray.200', 'gray.700');
-  const buttonHover = useColorModeValue('gray.50', 'gray.900');
+  const buttonHover = useColorModeValue('gray.100', 'gray.900');
 
   // Reset form ketika pindah tab
   useEffect(() => {
@@ -171,9 +171,8 @@ const Login = () => {
         <Button
           type="submit"
           w="full"
-          bg="black"
+          colorScheme="green"
           color="white"
-          _hover={{ bg: 'gray.800' }}
         >
           Sign In
         </Button>
@@ -182,7 +181,7 @@ const Login = () => {
           <Link
             fontSize="sm"
             color="gray.600"
-            _hover={{ color:"blue.500 ", textDecoration: 'underline' }}
+            _hover={{ color:"red.500 ", textDecoration: 'underline' }}
             onClick={() => setShowResetPassword(true)}
           >
             Forgot password?
@@ -254,9 +253,9 @@ const Login = () => {
         <Button
           type="submit"
           w="full"
-          bg="black"
+          bg="blue.500"
           color="white"
-          _hover={{ bg: 'gray.800' }}
+          _hover={{ bg: 'blue.800' }}
         >
           Register
         </Button>
@@ -321,9 +320,9 @@ const Login = () => {
             </Button>
             <Button
               type="submit"
-              bg="black"
+              bg="red.500"
               color="white"
-              _hover={{ bg: 'gray.800' }}
+              _hover={{ bg: 'red.800' }}
             >
               Reset Password
             </Button>
@@ -368,17 +367,16 @@ const Login = () => {
                     key={tab}
                     flex="1"
                     variant="ghost"
-                    borderBottom={activeTab === tab ? '2px solid' : 'none'}
-                    borderColor={activeTab === tab ? 'blue.500' : 'transparent'}
-                    bg={activeTab === tab ? 'gray.100' : 'transparent'}
-                    color={activeTab === tab ? 'blue.500' : textColor}
+                    borderBottom={activeTab === tab ? '3px solid' : 'none'}
+                    borderColor={activeTab === tab && tab === 'login' ? 'green.500' : 'blue.500'}
+                    bg={activeTab === tab && tab === 'login' ? 'green.50' : activeTab === tab && tab === 'register' ? 'blue.50' : 'transparent'}
+                    color={tab === 'login' ? 'green.500' : 'blue.500'}
                     onClick={() => {
                       setActiveTab(tab);
                       setShowResetPassword(false);
                     }}
                     _hover={{
                       bg: buttonHover,
-                      color: activeTab === tab ? 'blue.600' : 'inherit',
                     }}
                   >
                     {tab.toUpperCase()}

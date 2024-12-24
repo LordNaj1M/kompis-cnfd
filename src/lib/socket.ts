@@ -2,33 +2,33 @@
 import { io, Socket } from 'socket.io-client';
 
 interface ServerToClientEvents {
-  'analysis-result': (result: AnalysisResult) => void;
+  'io-crowd-result': (result: string) => void;
   connect_error: (error: Error) => void;
   disconnect: (reason: string) => void;
 }
 
-interface AnalysisResult { 
-  data: {
-    num_people: number;
-    detections: Detection[];
-  };
-  statusCrowd: 'kosong' | 'sepi' | 'sedang' | 'padat' | 'over';
-  timestamp: string; 
-}
+// interface CrowdResult { 
+//   data: {
+//     num_people: number;
+//     detections: Detection[];
+//   };
+//   statusCrowd: 'kosong' | 'sepi' | 'sedang' | 'padat' | 'over';
+//   timestamp: string; 
+// }
 
-interface Detection { 
-  bounding_box: BoundingBox; 
-}
+// interface Detection { 
+//   bounding_box: BoundingBox; 
+// }
 
-interface BoundingBox { 
-  x_min: number; 
-  y_min: number; 
-  x_max: number; 
-  y_max: number; 
-} 
+// interface BoundingBox { 
+//   x_min: number; 
+//   y_min: number; 
+//   x_max: number; 
+//   y_max: number; 
+// } 
 
 interface ClientToServerEvents {
-  frame: (imageData: string) => void;
+  'io-crowd-frame': (imageData: string) => void;
 }
 
 // Singleton instance untuk socket connection
@@ -37,7 +37,7 @@ class SocketClient {
 
   public static getInstance(): Socket<ServerToClientEvents, ClientToServerEvents> {
     if (!SocketClient.instance) {
-      const socketUrl = import.meta.env.VITE_APP_SOCKET_URL || 'http://localhost:3000';
+      const socketUrl = import.meta.env.VITE_APP_SOCKET_URL || 'ws://localhost:3000';
       console.log('Connecting to socket URL:', socketUrl);
 
       SocketClient.instance = io(socketUrl, {
