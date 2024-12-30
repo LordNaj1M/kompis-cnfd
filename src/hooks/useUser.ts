@@ -43,7 +43,7 @@ export const useUser = () => {
   const toast = useToast();
 
   const { data, error, mutate } = useSWR<User>('/users/profile', userFetcher, {
-    refreshInterval: 300000, 
+    // refreshInterval: 300000, 
     errorRetryCount: 3,
     revalidateOnFocus: true,
 
@@ -79,7 +79,7 @@ export const useUser = () => {
 
 export const useUsers = () => {
   const { data, error, mutate } = useSWR<User[]>('/admin/users', usersFetcher, {
-    refreshInterval: 300000,   
+    // refreshInterval: 300000,   
     errorRetryCount: 3,
     revalidateOnFocus: true,
   });
@@ -96,7 +96,7 @@ export const useUsers = () => {
 
 export const useUserById = (userId: string) => {
   const { data, error, mutate } = useSWR<User>(`/admin/users/${userId}`, userFetcher, {
-    refreshInterval: 300000,    
+    // refreshInterval: 300000,    
     errorRetryCount: 3,    
     revalidateOnFocus: true,
   });

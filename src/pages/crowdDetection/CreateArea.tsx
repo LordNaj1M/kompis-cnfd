@@ -76,7 +76,6 @@ const CreateArea = () => {
                     onChange={(e) => setName(e.target.value)}
                     placeholder='Enter Area name'
                     required
-                    autoComplete="email"
                 />
               </FormControl>
 
@@ -111,8 +110,9 @@ const CreateArea = () => {
                 )}
                 <Button
                   type="submit"
-                  colorScheme="green"
-                  color="white"
+                  bg="orange.300"
+                  color="black"
+                  _hover={{ bg: 'orange.100' }}
                   size={isMobile ? 'md' : 'lg'}
                   width={isMobile ? 'full' : 'auto'}
                 >

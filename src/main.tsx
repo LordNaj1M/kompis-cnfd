@@ -8,6 +8,8 @@ import Dashboard from './pages/Dashboard';
 import CrowdDetection from './pages/crowdDetection/CrowdDetection';
 import CrowdConfiguration from './pages/crowdDetection/CrowdConfiguration';
 import CreateArea from './pages/crowdDetection/CreateArea';
+import ViewDetailArea from './pages/crowdDetection/ViewDetailArea';
+import EditArea from './pages/crowdDetection/EditArea';
 import FatigueDetection from './pages/fatigueDetection/FatigueDetection';
 import FatigueConfiguration from './pages/fatigueDetection/FatigueConfiguration';
 import UsersManagement from './pages/usersManagement/UsersManagement';
@@ -90,8 +92,8 @@ const routes = createBrowserRouter([
             children: [
               { path: "", element: <CrowdConfiguration /> },
               { path: "create", element: <CreateArea /> },
-              { path: "view/:areaId", element: "<EditProfile />" },
-              { path: "edit/:areaId", element: "<ChangePassword />" }
+              { path: "view/:areaId", element: <ViewDetailArea /> },
+              { path: "edit/:areaId", element: <EditArea /> }
             ]
           },
           { path: "fatigue-configuration",

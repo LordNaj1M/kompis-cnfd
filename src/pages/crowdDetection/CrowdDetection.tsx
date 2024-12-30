@@ -1,5 +1,5 @@
 // pages/CrowdDetection.tsx
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState,  } from 'react';
 import { 
   Box, 
   VStack, 
@@ -23,24 +23,24 @@ import { socket } from '../../lib/socket';
 import { useAreas, useAreaById } from '../../hooks/useArea';
 import { useNavigate, useParams } from 'react-router-dom';
 
-interface AnalysisResult { 
-  data: {
-    num_people: number;
-    detections: Detection[];
-  };
-  statusCrowd: 'kosong' | 'sepi' | 'sedang' | 'padat' | 'over';
-  timestamp: string; 
+interface CrowdResult { 
+  detection_data: Detection_Data[];
+  status: '';
+  count: number;
+  area_id: string;
+  createdAt: string; 
 }
 
-interface Detection { 
+interface Detection_Data { 
   bounding_box: BoundingBox; 
 }
+
 interface BoundingBox { 
   x_min: number; 
   y_min: number; 
   x_max: number; 
   y_max: number; 
-}
+} 
 
 const CrowdDetection = () => {
   const { areaId } = useParams();
@@ -52,17 +52,169 @@ const CrowdDetection = () => {
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const processingRef = useRef(false);
   
   // const [areaId, setAreaId] = useState('');
   const { areas, isLoading, isError } = useAreas();
   const [selectedAreaId, setSelectedAreaId] = useState<string>(areaId || '');
   const { areaById } = useAreaById(areaId || '');
 
+  const [crowdData, setCrowdData] = useState<CrowdResult>({
+    detection_data: [],
+    status: '',
+    count: 0,
+    area_id: '',
+    createdAt: ''
+  });
+
   const handleChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newAreaId = event.target.value;
     setSelectedAreaId(newAreaId);
     await navigate(`/crowd-detection/${newAreaId}`, { replace: true });
   };
+
+  // Fungsi untuk menggambar bounding box
+  const drawBoundingBoxes = useCallback(() => {
+      const video = webcamRef.current?.video;
+      const canvas = canvasRef.current;
+  
+      if (video && canvas && crowdData.detection_data) {
+        const context = canvas.getContext('2d');
+        
+        // Pastikan dimensi canvas sesuai
+        canvas.width = 640;
+        canvas.height = 480;
+  
+        if (context) {
+          // Clear the previous drawing
+          context.clearRect(0, 0, canvas.width, canvas.height);
+
+          // Draw video frame
+          context.drawImage(video, 0, 0, 640, 480);
+  
+          // Draw all bounding boxes
+          crowdData.detection_data.forEach((det) => {
+            // Set warna dan gaya
+            context.strokeStyle = 'red';
+            context.lineWidth = 2;
+  
+            // Gambar kotak
+            context.strokeRect(
+              det.bounding_box.x_min, 
+              det.bounding_box.y_min, 
+              det.bounding_box.x_max - det.bounding_box.x_min, 
+              det.bounding_box.y_max - det.bounding_box.y_min
+            );
+          });
+        }
+      }
+    }, [crowdData.detection_data]);
+
+  // Fungsi untuk capture dan kirim frame
+  const processFrame = () => {
+    if (processingRef.current) {
+      console.log('Still processing previous frame, skipping...');
+      return;
+    }
+
+    const video = webcamRef.current?.video;
+    const canvas = canvasRef.current;
+
+    if (video && canvas && socket.connected) {
+      try {
+        processingRef.current = true;  // Set flag before processing
+        console.log('Processing frame at:', new Date().toISOString());
+
+        const context = canvas.getContext('2d');
+        if (context) {
+          // Set canvas dimensions once
+          canvas.width = 640;
+          canvas.height = 480;
+
+          // Draw video frame
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          // // Draw bounding boxes if available
+          // if (crowdData.detection_data?.length > 0) {
+          //   drawBoundingBoxes(context, crowdData.detection_data);
+          // }
+
+          // Send frame to server
+          const frame = canvas.toDataURL("image/jpeg", 0.8);
+          socket.emit("io-crowd-frame", frame);
+          console.log('send');
+        }
+      } finally {
+        processingRef.current = false;  // Reset flag after processing
+      }
+    }
+  };
+
+  // Toggle camera function
+  const toggleCamera = () => {
+    console.log('Toggle camera called, current state:', isCameraActive);
+    setIsCameraActive(prev => {
+      console.log('Setting camera state to:', !prev);
+      if (!prev) {
+        // Start processing frames
+        intervalRef.current = setInterval(processFrame, 1000);
+      } else {
+        // Stop processing frames
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      }
+      return !prev;
+    });
+  };
+
+  // Socket connection effect
+  useEffect(() => {
+    // Connect socket if not connected
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    // Set up socket event listeners
+    const onCrowdResult = (result: CrowdResult) => {
+      console.log('YOLO Detection:', result);
+      setCrowdData(result);
+    };
+
+    socket.on('io-crowd-result', onCrowdResult);
+
+    // Cleanup function
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      socket.off('io-crowd-result', onCrowdResult);
+      socket.disconnect();
+    };
+  }, []); // Empty dependency array - only run once on mount
+
+  useEffect(() => {
+    if (isCameraActive && crowdData.detection_data?.length > 0) {
+      // Set up an animation frame loop
+      let animationFrameId: number;
+      
+      const updateCanvas = () => {
+        drawBoundingBoxes();
+        animationFrameId = requestAnimationFrame(updateCanvas);
+      };
+      
+      // Start the animation loop
+      updateCanvas();
+      
+      // Cleanup function to cancel animation frame
+      return () => {
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+        }
+      };
+    }
+  }, [isCameraActive, crowdData, drawBoundingBoxes]);
 
   useEffect(() => {
     if (!areaId) {
@@ -75,7 +227,7 @@ const CrowdDetection = () => {
     } else {
       setSelectedAreaId(areaId);
     }
-  }, [areaId, areaById, navigate]);
+  }, [areaId, navigate]);
 
   useEffect(() => {
     if (areaId && !isLoading) {
@@ -89,166 +241,143 @@ const CrowdDetection = () => {
           isClosable: true
         });
         navigate('/crowd-detection', { replace: true });
+        setSelectedAreaId('');
       }
     }
   }, [areaId, areas, isLoading, navigate, toast]);
-
-  // State untuk menyimpan data crowd
-  const [crowdData, setCrowdData] = useState<AnalysisResult>({
-    data: {
-      num_people: 2,
-      detections: [
-        {
-          bounding_box: {
-            x_min: 50, 
-            y_min: 100, 
-            x_max: 200, 
-            y_max: 300
-          }
-        },
-        {
-          bounding_box: {
-            x_min: 300, 
-            y_min: 50, 
-            x_max: 500, 
-            y_max: 200
-          }
-        }
-      ]
-    },
-    statusCrowd: 'sedang',
-    timestamp: new Date().toISOString()
-  });
-
-  // Fungsi untuk mengirim frame ke server
-  const captureAndDrawFrame = useCallback(() => {
-    const video = webcamRef.current?.video;
-    const canvas = canvasRef.current;
-
-    if (video && canvas) {
-      const context = canvas.getContext('2d');
-      
-      // Pastikan dimensi canvas sesuai
-      canvas.width = 640;
-      canvas.height = 480;
-
-      if (context) {
-        // Gambar video ke canvas
-        context.drawImage(video, 0, 0, 640, 480);
-
-        const detections = crowdData.data.detections || [];
-        detections.forEach((det) => {
-          // Set warna dan gaya
-          context.strokeStyle = 'red';
-          context.lineWidth = 2;
-
-          // Gambar kotak
-          context.strokeRect(
-            det.bounding_box.x_min, 
-            det.bounding_box.y_min, 
-            det.bounding_box.x_max - det.bounding_box.x_min, 
-            det.bounding_box.y_max - det.bounding_box.y_min
-          );
-        });
-      }
-    }
-  }, [crowdData.data.detections]);
   
-  // Fungsi untuk mengirim frame ke server
-  const sendFrameToServer = useCallback(() => {
-    const video = webcamRef.current?.video;
-    const canvas = canvasRef.current;
+
+  // // Fungsi lanjutan menerima frame dari server
+  // const captureAndDrawFrame = () => {
+  //   const video = webcamRef.current?.video;
+  //   const canvas = canvasRef.current;
+
+  //   if (video && canvas) {
+  //     const context = canvas.getContext('2d');
+      
+  //     // Pastikan dimensi canvas sesuai
+  //     canvas.width = 640;
+  //     canvas.height = 480;
+
+  //     if (context) {
+  //       // Gambar video ke canvas
+  //       context.drawImage(video, 0, 0, 640, 480);
+
+  //       const detection_datas = crowdData.detection_data || [];
+  //       detection_datas.forEach((det) => {
+  //         // Set warna dan gaya
+  //         context.strokeStyle = 'red';
+  //         context.lineWidth = 2;
+
+  //         // Gambar kotak
+  //         context.strokeRect(
+  //           det.bounding_box.x_min, 
+  //           det.bounding_box.y_min, 
+  //           det.bounding_box.x_max - det.bounding_box.x_min, 
+  //           det.bounding_box.y_max - det.bounding_box.y_min
+  //         );
+  //       });
+  //     }
+  //   }
+  // };
+  
+  // // Fungsi untuk mengirim frame ke server
+  // const sendFrameToServer = () => {
+  //   const video = webcamRef.current?.video;
+  //   const canvas = canvasRef.current;
     
-    if (video && canvas) {
-      const context = canvas.getContext("2d");
-      // Pastikan dimensi canvas sesuai
-      canvas.width = 640;
-      canvas.height = 480;
+  //   if (video && canvas) {
+  //     const context = canvas.getContext("2d");
+  //     // Pastikan dimensi canvas sesuai
+  //     canvas.width = 640;
+  //     canvas.height = 480;
 
-      if (context) {
-        // Konversi canvas ke data URL
-        const frame = canvas.toDataURL("image/jpeg", 1);
-        
-        // Kirim frame ke server
-        if (socket.connected && areaId) {
-          socket.emit("io-crowd-frame", frame);
-          console.log('send');
+  //     if (context) {
+  //       context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  //       // Konversi canvas ke data URL
+  //       const frame = canvas.toDataURL("image/jpeg", 1);
+  //       let i=0;
+  //       // Kirim frame ke server
+  //       if (socket.connected) {
+  //         socket.emit("io-crowd-frame", frame);
+  //         console.log('send '+ i++);
           
-        } else {
-          console.warn("Socket not connected. Attempting to reconnect...");
-          socket.connect();
-        }
-      }
-    }
-  }, [areaId]);
+  //       } else {
+  //         console.warn("Socket not connected. Attempting to reconnect...");
+  //         socket.connect();
+  //       }
+  //     }
+  //   }
+  // };
 
-  // Fungsi untuk toggle camera
-  const toggleCamera = useCallback(() => {
-    setIsCameraActive(prev => {
-      if (!prev) {
-        // Aktifkan kamera dan mulai menggambar bounding box
-        const draw = () => {
-          captureAndDrawFrame(); // Menggambar bounding box
-          requestAnimationFrame(draw);
-        };
-        draw();
+  // // Fungsi untuk toggle camera
+  // const toggleCamera = () => {
+  //   setIsCameraActive(prev => {
+  //     if (!prev) {
+  //       // Aktifkan kamera dan mulai menggambar bounding box
+  //       const draw = () => {
+  //         captureAndDrawFrame(); // Menggambar bounding box
+  //         requestAnimationFrame(draw);
+  //       };
+  //       draw();
 
-        // Kirim frame ke server setiap 1 detik
-        intervalRef.current = setInterval(() => {
-          sendFrameToServer(); // Mengirim frame ke server
-        }, 1000);
-      } else {
-        // Matikan kamera
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
-        }
-      }
-      return !prev;
-    });
-  }, [captureAndDrawFrame, sendFrameToServer]);
+  //       // Kirim frame ke server setiap 1 detik
+  //       intervalRef.current = setInterval(() => {
+  //         sendFrameToServer(); // Mengirim frame ke server
+  //       }, 1000);
+  //     } else {
+  //       // Matikan kamera
+  //       if (intervalRef.current) {
+  //         clearInterval(intervalRef.current);
+  //         intervalRef.current = null;
+  //       }
+  //     }
+  //     return !prev;
+  //   });
+  // };
 
-  useEffect(() => {
-    // console.log('Socket URL:', import.meta.env.VITE_APP_SOCKET_URL);
+  // useEffect(() => {
+  //   // console.log('Socket URL:', import.meta.env.VITE_APP_SOCKET_URL);
 
-    // Inisialisasi socket
-    if (!socket.connected) {
-      socket.connect();
-    }
+  //   // Inisialisasi socket
+  //   if (!socket.connected) {
+  //     socket.connect();
+  //   }
 
-    socket.on('connect', () => {
-      // toast({
-      //   title: 'Terhubung ke server',
-      //   status: 'success',
-      //   duration: 3000,
-      // });
-    });
+  //   socket.on('connect', () => {
+  //     // toast({
+  //     //   title: 'Terhubung ke server',
+  //     //   status: 'success',
+  //     //   duration: 3000,
+  //     // });
+  //   });
 
-    socket.on('connect_error', () => {
-      // toast({
-      //   title: 'Gagal terhubung ke server',
-      //   status: 'error',
-      //   duration: 3000,
-      // });
-    });
+  //   socket.on('connect_error', () => {
+  //     // toast({
+  //     //   title: 'Gagal terhubung ke server',
+  //     //   status: 'error',
+  //     //   duration: 3000,
+  //     // });
+  //   });
 
-    // Tambahkan listener untuk hasil analisis YOLO
-    socket.on('io-crowd-result', (result) => {
-      console.log('YOLO Detection:', result);
-      // setCrowdData(result);
-      // Tambahkan logika untuk menangani hasil deteksi di sini
-    });
+  //   // Tambahkan listener untuk hasil analisis YOLO
+  //   socket.on('io-crowd-result', (result) => {
+  //     console.log('YOLO Detection:', result);
+  //     setCrowdData(result);
+  //     // Tambahkan logika untuk menangani hasil deteksi di sini
+  //   });
 
-    return () => {
-      // Bersihkan interval jika ada
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      if (socket.connected) {
-        socket.disconnect();
-      }      
-    };
-  });
+  //   return () => {
+  //     // Bersihkan interval jika ada
+  //     if (intervalRef.current) {
+  //       clearInterval(intervalRef.current);
+  //     }
+  //     if (socket.connected) {
+  //       socket.disconnect();
+  //     }      
+  //   };
+  // });
 
   if (isError) {
     return (
@@ -356,9 +485,9 @@ const CrowdDetection = () => {
 
         <Box w="full" borderWidth={1} borderRadius="lg" p={4} bg={'white'}>
           <Heading size="md" p={1}>ANALYTIC RESULT</Heading>
-          <Text>Jumlah: {crowdData.data.num_people}</Text>
-          <Text>Status: {crowdData.statusCrowd}</Text>
-          <Text>Terakhir Diperbarui: {crowdData.timestamp}</Text>
+          <Text>Jumlah: {crowdData.count}</Text>
+          <Text>Status: {crowdData.status}</Text>
+          <Text>Terakhir Diperbarui: {crowdData.createdAt}</Text>
         </Box>
       </VStack>
     </>

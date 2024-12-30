@@ -38,7 +38,7 @@ return response.data.data;
 
 export const useAreas = () => {
   const { data, error, mutate } = useSWR<Area[]>('/areas', areasFetcher, {
-    refreshInterval: 300000,   
+    // refreshInterval: 300000,   
     errorRetryCount: 3,
     revalidateOnFocus: true,
   });
@@ -55,7 +55,7 @@ export const useAreas = () => {
 
 export const useAreaById = (areaId: string) => {
   const { data, error, mutate } = useSWR<Area>(`/areas/${areaId}`, areaFetcher, {
-    refreshInterval: 300000,    
+    // refreshInterval: 300000,    
     errorRetryCount: 3,    
     revalidateOnFocus: true,
   });
@@ -96,7 +96,7 @@ export const editArea = async (
   data: { name?:string; capacity?: number }
 ) => {
   try {
-    const response = await axiosInstance.patch(`/areas/${areaId}`, data);
+    const response = await axiosInstance.put(`/areas/${areaId}`, data);
     return response.data;
   } catch (e) {
     const error = e as AxiosError<ApiErrorResponse>;
