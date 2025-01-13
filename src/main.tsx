@@ -4,7 +4,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { Navigate, Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import App from './App';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard/Dashboard';
 import CrowdDetection from './pages/crowdDetection/CrowdDetection';
 import CrowdConfiguration from './pages/crowdDetection/CrowdConfiguration';
 import CreateArea from './pages/crowdDetection/CreateArea';

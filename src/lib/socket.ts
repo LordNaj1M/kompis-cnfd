@@ -37,7 +37,7 @@ class SocketClient {
 
   public static getInstance(): Socket<ServerToClientEvents, ClientToServerEvents> {
     if (!this.isInitialized) {
-      const socketUrl = import.meta.env.VITE_APP_SOCKET_URL || 'ws://localhost:3000';
+      const socketUrl = import.meta.env.VITE_APP_SOCKET_URL;
       console.log('Connecting to socket URL:', socketUrl);
 
       SocketClient.instance = io(socketUrl, {

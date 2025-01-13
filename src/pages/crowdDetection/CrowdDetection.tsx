@@ -18,6 +18,15 @@ import {
   Spinner,
   useMediaQuery
 } from '@chakra-ui/react';
+import {
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line} from 'recharts';
 import Webcam from 'react-webcam';
 import { socket } from '../../lib/socket';
 import { useAreas, useAreaById } from '../../hooks/useArea';
@@ -28,7 +37,7 @@ interface CrowdResult {
   status: '';
   count: number;
   area_id: string;
-  createdAt: string; 
+  createdAt: string;
 }
 
 interface Detection_Data { 
@@ -52,7 +61,6 @@ const CrowdDetection = () => {
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   const [isCameraActive, setIsCameraActive] = useState(false);
-  const processingRef = useRef(false);
   
   // const [areaId, setAreaId] = useState('');
   const { areas, isLoading, isError } = useAreas();
@@ -66,6 +74,22 @@ const CrowdDetection = () => {
     area_id: '',
     createdAt: ''
   });
+
+  const [crowdDataArray, setCrowdDataArray] = useState<CrowdResult[]>([]);
+  useEffect(() => {
+    setCrowdDataArray((prevArray) => {
+      const newArray = [
+        ...prevArray,
+        {
+          ...crowdData,
+          createdAt: new Date(crowdData.createdAt).toLocaleString('id-ID', {
+            timeZone: 'Asia/Jakarta',
+          }),
+        },
+      ];
+      return newArray.length > 10 ? newArray.slice(1) : newArray;
+    });
+  }, [crowdData]);
 
   const handleChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newAreaId = event.target.value;
@@ -112,49 +136,29 @@ const CrowdDetection = () => {
 
   // Fungsi untuk capture dan kirim frame
   const processFrame = () => {
-    if (processingRef.current) {
-      console.log('Still processing previous frame, skipping...');
-      return;
-    }
-
     const video = webcamRef.current?.video;
     const canvas = canvasRef.current;
 
     if (video && canvas && socket.connected) {
-      try {
-        processingRef.current = true;  // Set flag before processing
-        console.log('Processing frame at:', new Date().toISOString());
+      const context = canvas.getContext('2d');
+      if (context) {
+        // Set canvas dimensions once
+        canvas.width = 640;
+        canvas.height = 480;
 
-        const context = canvas.getContext('2d');
-        if (context) {
-          // Set canvas dimensions once
-          canvas.width = 640;
-          canvas.height = 480;
+        // Draw video frame
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-          // Draw video frame
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-          // // Draw bounding boxes if available
-          // if (crowdData.detection_data?.length > 0) {
-          //   drawBoundingBoxes(context, crowdData.detection_data);
-          // }
-
-          // Send frame to server
-          const frame = canvas.toDataURL("image/jpeg", 0.8);
-          socket.emit("io-crowd-frame", frame);
-          console.log('send');
-        }
-      } finally {
-        processingRef.current = false;  // Reset flag after processing
+        // Send frame to server
+        const frame = canvas.toDataURL("image/jpeg", 0.8);
+        socket.emit("io-crowd-frame", frame);
       }
     }
   };
 
   // Toggle camera function
   const toggleCamera = () => {
-    console.log('Toggle camera called, current state:', isCameraActive);
     setIsCameraActive(prev => {
-      console.log('Setting camera state to:', !prev);
       if (!prev) {
         // Start processing frames
         intervalRef.current = setInterval(processFrame, 1000);
@@ -178,7 +182,6 @@ const CrowdDetection = () => {
 
     // Set up socket event listeners
     const onCrowdResult = (result: CrowdResult) => {
-      console.log('YOLO Detection:', result);
       setCrowdData(result);
     };
 
@@ -245,139 +248,6 @@ const CrowdDetection = () => {
       }
     }
   }, [areaId, areas, isLoading, navigate, toast]);
-  
-
-  // // Fungsi lanjutan menerima frame dari server
-  // const captureAndDrawFrame = () => {
-  //   const video = webcamRef.current?.video;
-  //   const canvas = canvasRef.current;
-
-  //   if (video && canvas) {
-  //     const context = canvas.getContext('2d');
-      
-  //     // Pastikan dimensi canvas sesuai
-  //     canvas.width = 640;
-  //     canvas.height = 480;
-
-  //     if (context) {
-  //       // Gambar video ke canvas
-  //       context.drawImage(video, 0, 0, 640, 480);
-
-  //       const detection_datas = crowdData.detection_data || [];
-  //       detection_datas.forEach((det) => {
-  //         // Set warna dan gaya
-  //         context.strokeStyle = 'red';
-  //         context.lineWidth = 2;
-
-  //         // Gambar kotak
-  //         context.strokeRect(
-  //           det.bounding_box.x_min, 
-  //           det.bounding_box.y_min, 
-  //           det.bounding_box.x_max - det.bounding_box.x_min, 
-  //           det.bounding_box.y_max - det.bounding_box.y_min
-  //         );
-  //       });
-  //     }
-  //   }
-  // };
-  
-  // // Fungsi untuk mengirim frame ke server
-  // const sendFrameToServer = () => {
-  //   const video = webcamRef.current?.video;
-  //   const canvas = canvasRef.current;
-    
-  //   if (video && canvas) {
-  //     const context = canvas.getContext("2d");
-  //     // Pastikan dimensi canvas sesuai
-  //     canvas.width = 640;
-  //     canvas.height = 480;
-
-  //     if (context) {
-  //       context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  //       // Konversi canvas ke data URL
-  //       const frame = canvas.toDataURL("image/jpeg", 1);
-  //       let i=0;
-  //       // Kirim frame ke server
-  //       if (socket.connected) {
-  //         socket.emit("io-crowd-frame", frame);
-  //         console.log('send '+ i++);
-          
-  //       } else {
-  //         console.warn("Socket not connected. Attempting to reconnect...");
-  //         socket.connect();
-  //       }
-  //     }
-  //   }
-  // };
-
-  // // Fungsi untuk toggle camera
-  // const toggleCamera = () => {
-  //   setIsCameraActive(prev => {
-  //     if (!prev) {
-  //       // Aktifkan kamera dan mulai menggambar bounding box
-  //       const draw = () => {
-  //         captureAndDrawFrame(); // Menggambar bounding box
-  //         requestAnimationFrame(draw);
-  //       };
-  //       draw();
-
-  //       // Kirim frame ke server setiap 1 detik
-  //       intervalRef.current = setInterval(() => {
-  //         sendFrameToServer(); // Mengirim frame ke server
-  //       }, 1000);
-  //     } else {
-  //       // Matikan kamera
-  //       if (intervalRef.current) {
-  //         clearInterval(intervalRef.current);
-  //         intervalRef.current = null;
-  //       }
-  //     }
-  //     return !prev;
-  //   });
-  // };
-
-  // useEffect(() => {
-  //   // console.log('Socket URL:', import.meta.env.VITE_APP_SOCKET_URL);
-
-  //   // Inisialisasi socket
-  //   if (!socket.connected) {
-  //     socket.connect();
-  //   }
-
-  //   socket.on('connect', () => {
-  //     // toast({
-  //     //   title: 'Terhubung ke server',
-  //     //   status: 'success',
-  //     //   duration: 3000,
-  //     // });
-  //   });
-
-  //   socket.on('connect_error', () => {
-  //     // toast({
-  //     //   title: 'Gagal terhubung ke server',
-  //     //   status: 'error',
-  //     //   duration: 3000,
-  //     // });
-  //   });
-
-  //   // Tambahkan listener untuk hasil analisis YOLO
-  //   socket.on('io-crowd-result', (result) => {
-  //     console.log('YOLO Detection:', result);
-  //     setCrowdData(result);
-  //     // Tambahkan logika untuk menangani hasil deteksi di sini
-  //   });
-
-  //   return () => {
-  //     // Bersihkan interval jika ada
-  //     if (intervalRef.current) {
-  //       clearInterval(intervalRef.current);
-  //     }
-  //     if (socket.connected) {
-  //       socket.disconnect();
-  //     }      
-  //   };
-  // });
 
   if (isError) {
     return (
@@ -398,31 +268,35 @@ const CrowdDetection = () => {
         <Flex justify="space-between" align="center" flexDirection={isMobile ? 'column' : 'row'}>
           <VStack align="start" spacing={4}>
             <Heading size="lg">CROWD DETECTION</Heading>
-            <Text>name={areaById?.name}</Text>
           </VStack>
 
           <Box marginBlockStart={isMobile ? 2 : 0} p={2} bg={'yellow.200'} borderWidth={1} borderRadius="lg">
             <FormControl>
-            <FormLabel>Selected Area</FormLabel>
-              {isLoading ? (
-                <Flex justify="center" align="center">
-                  <Spinner size="xl" />
-                </Flex>
-              ) : (
-                <Select value={selectedAreaId} onChange={handleChange} bg={'white'}>
-                  {!selectedAreaId && (
-                    <option value="" disabled>
-                      Select Area
-                    </option>
-                  )}
-
-                  {areas.map((area) => (
-                    <option key={area.id} value={area.id}>
-                      {area.name}
-                    </option>
-                  ))}
-                </Select>
-              )}
+              <Flex align='center' gap={2}>
+                <FormLabel margin={0} whiteSpace="nowrap">Selected Area</FormLabel>
+                {isLoading ? (
+                  <Flex justify="center" align="center">
+                    <Spinner size="xl" />
+                  </Flex>
+                ) : (
+                  <Select 
+                    value={selectedAreaId} 
+                    onChange={handleChange} 
+                    bg={'white'}
+                  >
+                    {!selectedAreaId && (
+                      <option value="" disabled>
+                        Select Area
+                      </option>
+                    )}
+                    {areas.map((area) => (
+                      <option key={area.id} value={area.id}>
+                        {area.name}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Flex>
             </FormControl>
           </Box>
         </Flex>
@@ -487,7 +361,29 @@ const CrowdDetection = () => {
           <Heading size="md" p={1}>ANALYTIC RESULT</Heading>
           <Text>Jumlah: {crowdData.count}</Text>
           <Text>Status: {crowdData.status}</Text>
-          <Text>Terakhir Diperbarui: {crowdData.createdAt}</Text>
+          <Text>Terakhir Diperbarui: {new Date(crowdData.createdAt).toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'})}</Text>
+        </Box>
+
+        <Box w="full" borderWidth={1} borderRadius="lg" p={4} bg={'white'}>
+          <Heading size="md" p={1}>Crowd Data Log {areaById?.name}</Heading>
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart
+              data={crowdDataArray}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="createdAt"/>
+              <YAxis />
+              <Tooltip/>
+              <Legend />
+              <Line type="monotone" dataKey="count" fill="#8884d8" name="Crowd Area Count" />
+            </LineChart>
+          </ResponsiveContainer>
         </Box>
       </VStack>
     </>

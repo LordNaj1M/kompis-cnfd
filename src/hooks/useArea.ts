@@ -68,17 +68,6 @@ export const useAreaById = (areaId: string) => {
   };
 };
 
-// export const useAreaById = async (areaId: string) => {
-//     try {
-//       const response = await axiosInstance.get<Area>(`/areas/${areaId}`);
-//       const area = response.data;
-//       return area;
-//     } catch (e) {
-//       const error = e as AxiosError<ApiErrorResponse>;
-//       throw new Error(error.response?.data?.message || 'Failed to create Area!');
-//     }
-//   };
-
 export const createArea = async (
     data: { name?:string; capacity?: number }
   ) => {
