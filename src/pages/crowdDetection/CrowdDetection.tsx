@@ -1,10 +1,10 @@
 // pages/CrowdDetection.tsx
-import { useCallback, useEffect, useRef, useState,  } from 'react';
-import { 
-  Box, 
-  VStack, 
-  Heading, 
-  Text, 
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Box,
+  VStack,
+  Heading,
+  Text,
   Button,
   Center,
   Flex,
@@ -16,8 +16,8 @@ import {
   FormLabel,
   Select,
   Spinner,
-  useMediaQuery
-} from '@chakra-ui/react';
+  useMediaQuery,
+} from "@chakra-ui/react";
 import {
   XAxis,
   YAxis,
@@ -26,30 +26,31 @@ import {
   Legend,
   ResponsiveContainer,
   LineChart,
-  Line} from 'recharts';
-import Webcam from 'react-webcam';
-import { socket } from '../../lib/socket';
-import { useAreas, useAreaById } from '../../hooks/useArea';
-import { useNavigate, useParams } from 'react-router-dom';
+  Line,
+} from "recharts";
+import Webcam from "react-webcam";
+import { socket } from "../../lib/socket";
+import { useAreas, useAreaById } from "../../hooks/useArea";
+import { useNavigate, useParams } from "react-router-dom";
 
-interface CrowdResult { 
+interface CrowdResult {
   detection_data: Detection_Data[];
-  status: '';
+  status: "";
   count: number;
   area_id: string;
   createdAt: string;
 }
 
-interface Detection_Data { 
-  bounding_box: BoundingBox; 
+interface Detection_Data {
+  bounding_box: BoundingBox;
 }
 
-interface BoundingBox { 
-  x_min: number; 
-  y_min: number; 
-  x_max: number; 
-  y_max: number; 
-} 
+interface BoundingBox {
+  x_min: number;
+  y_min: number;
+  x_max: number;
+  y_max: number;
+}
 
 const CrowdDetection = () => {
   const { areaId } = useParams();
@@ -61,18 +62,18 @@ const CrowdDetection = () => {
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   const [isCameraActive, setIsCameraActive] = useState(false);
-  
+
   // const [areaId, setAreaId] = useState('');
   const { areas, isLoading, isError } = useAreas();
-  const [selectedAreaId, setSelectedAreaId] = useState<string>(areaId || '');
-  const { areaById } = useAreaById(areaId || '');
+  const [selectedAreaId, setSelectedAreaId] = useState<string>(areaId || "");
+  const { areaById } = useAreaById(areaId || "");
 
   const [crowdData, setCrowdData] = useState<CrowdResult>({
     detection_data: [],
-    status: '',
+    status: "",
     count: 0,
-    area_id: '',
-    createdAt: ''
+    area_id: "",
+    createdAt: "",
   });
 
   const [crowdDataArray, setCrowdDataArray] = useState<CrowdResult[]>([]);
@@ -82,8 +83,8 @@ const CrowdDetection = () => {
         ...prevArray,
         {
           ...crowdData,
-          createdAt: new Date(crowdData.createdAt).toLocaleString('id-ID', {
-            timeZone: 'Asia/Jakarta',
+          createdAt: new Date(crowdData.createdAt).toLocaleString("id-ID", {
+            timeZone: "Asia/Jakarta",
           }),
         },
       ];
@@ -99,40 +100,40 @@ const CrowdDetection = () => {
 
   // Fungsi untuk menggambar bounding box
   const drawBoundingBoxes = useCallback(() => {
-      const video = webcamRef.current?.video;
-      const canvas = canvasRef.current;
-  
-      if (video && canvas && crowdData.detection_data) {
-        const context = canvas.getContext('2d');
-        
-        // Pastikan dimensi canvas sesuai
-        canvas.width = 640;
-        canvas.height = 480;
-  
-        if (context) {
-          // Clear the previous drawing
-          context.clearRect(0, 0, canvas.width, canvas.height);
+    const video = webcamRef.current?.video;
+    const canvas = canvasRef.current;
 
-          // Draw video frame
-          context.drawImage(video, 0, 0, 640, 480);
-  
-          // Draw all bounding boxes
-          crowdData.detection_data.forEach((det) => {
-            // Set warna dan gaya
-            context.strokeStyle = 'red';
-            context.lineWidth = 2;
-  
-            // Gambar kotak
-            context.strokeRect(
-              det.bounding_box.x_min, 
-              det.bounding_box.y_min, 
-              det.bounding_box.x_max - det.bounding_box.x_min, 
-              det.bounding_box.y_max - det.bounding_box.y_min
-            );
-          });
-        }
+    if (video && canvas && crowdData.detection_data) {
+      const context = canvas.getContext("2d");
+
+      // Pastikan dimensi canvas sesuai
+      canvas.width = 640;
+      canvas.height = 480;
+
+      if (context) {
+        // Clear the previous drawing
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw video frame
+        context.drawImage(video, 0, 0, 640, 480);
+
+        // Draw all bounding boxes
+        crowdData.detection_data.forEach((det) => {
+          // Set warna dan gaya
+          context.strokeStyle = "red";
+          context.lineWidth = 2;
+
+          // Gambar kotak
+          context.strokeRect(
+            det.bounding_box.x_min,
+            det.bounding_box.y_min,
+            det.bounding_box.x_max - det.bounding_box.x_min,
+            det.bounding_box.y_max - det.bounding_box.y_min
+          );
+        });
       }
-    }, [crowdData.detection_data]);
+    }
+  }, [crowdData.detection_data]);
 
   // Fungsi untuk capture dan kirim frame
   const processFrame = () => {
@@ -140,7 +141,7 @@ const CrowdDetection = () => {
     const canvas = canvasRef.current;
 
     if (video && canvas && socket.connected) {
-      const context = canvas.getContext('2d');
+      const context = canvas.getContext("2d");
       if (context) {
         // Set canvas dimensions once
         canvas.width = 640;
@@ -158,7 +159,7 @@ const CrowdDetection = () => {
 
   // Toggle camera function
   const toggleCamera = () => {
-    setIsCameraActive(prev => {
+    setIsCameraActive((prev) => {
       if (!prev) {
         // Start processing frames
         intervalRef.current = setInterval(processFrame, 1000);
@@ -185,14 +186,14 @@ const CrowdDetection = () => {
       setCrowdData(result);
     };
 
-    socket.on('io-crowd-result', onCrowdResult);
+    socket.on("io-crowd-result", onCrowdResult);
 
     // Cleanup function
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
-      socket.off('io-crowd-result', onCrowdResult);
+      socket.off("io-crowd-result", onCrowdResult);
       socket.disconnect();
     };
   }, []); // Empty dependency array - only run once on mount
@@ -201,15 +202,15 @@ const CrowdDetection = () => {
     if (isCameraActive && crowdData.detection_data?.length > 0) {
       // Set up an animation frame loop
       let animationFrameId: number;
-      
+
       const updateCanvas = () => {
         drawBoundingBoxes();
         animationFrameId = requestAnimationFrame(updateCanvas);
       };
-      
+
       // Start the animation loop
       updateCanvas();
-      
+
       // Cleanup function to cancel animation frame
       return () => {
         if (animationFrameId) {
@@ -221,12 +222,12 @@ const CrowdDetection = () => {
 
   useEffect(() => {
     if (!areaId) {
-        <VStack spacing={4}>
-          <Text>Invalid area ID.</Text>
-          <Button onClick={() => navigate(-1)} colorScheme="red">
-            Go Back
-          </Button>
-        </VStack>
+      <VStack spacing={4}>
+        <Text>Invalid area ID.</Text>
+        <Button onClick={() => navigate(-1)} colorScheme="red">
+          Go Back
+        </Button>
+      </VStack>;
     } else {
       setSelectedAreaId(areaId);
     }
@@ -234,24 +235,24 @@ const CrowdDetection = () => {
 
   useEffect(() => {
     if (areaId && !isLoading) {
-      const areaExists = areas?.some(area => area.id === areaId);
+      const areaExists = areas?.some((area) => area.id === areaId);
       if (!areaExists) {
         toast({
           title: "Invalid Area",
           description: "The selected area does not exist",
           status: "error",
           duration: 3000,
-          isClosable: true
+          isClosable: true,
         });
-        navigate('/crowd-detection', { replace: true });
-        setSelectedAreaId('');
+        navigate("/crowd-detection", { replace: true });
+        setSelectedAreaId("");
       }
     }
   }, [areaId, areas, isLoading, navigate, toast]);
 
   if (isError) {
     return (
-      <Card bg='white' borderColor='black' borderWidth="1px">
+      <Card bg="white" borderColor="black" borderWidth="1px">
         <CardHeader>
           <Heading size="lg">CROWD AREA LIST</Heading>
         </CardHeader>
@@ -265,24 +266,36 @@ const CrowdDetection = () => {
   return (
     <>
       <Box p={6}>
-        <Flex justify="space-between" align="center" flexDirection={isMobile ? 'column' : 'row'}>
+        <Flex
+          justify="space-between"
+          align="center"
+          flexDirection={isMobile ? "column" : "row"}
+        >
           <VStack align="start" spacing={4}>
             <Heading size="lg">CROWD DETECTION</Heading>
           </VStack>
 
-          <Box marginBlockStart={isMobile ? 2 : 0} p={2} bg={'yellow.200'} borderWidth={1} borderRadius="lg">
+          <Box
+            marginBlockStart={isMobile ? 2 : 0}
+            p={2}
+            bg={"yellow.200"}
+            borderWidth={1}
+            borderRadius="lg"
+          >
             <FormControl>
-              <Flex align='center' gap={2}>
-                <FormLabel margin={0} whiteSpace="nowrap">Selected Area</FormLabel>
+              <Flex align="center" gap={2}>
+                <FormLabel margin={0} whiteSpace="nowrap">
+                  Selected Area
+                </FormLabel>
                 {isLoading ? (
                   <Flex justify="center" align="center">
                     <Spinner size="xl" />
                   </Flex>
                 ) : (
-                  <Select 
-                    value={selectedAreaId} 
-                    onChange={handleChange} 
-                    bg={'white'}
+                  <Select
+                    value={selectedAreaId}
+                    onChange={handleChange}
+                    bg={"white"}
                   >
                     {!selectedAreaId && (
                       <option value="" disabled>
@@ -303,7 +316,13 @@ const CrowdDetection = () => {
       </Box>
 
       <VStack spacing={4} w="full" maxW="1200px" mx="auto">
-        <Box w="full" borderWidth={1} borderRadius="lg" overflow="hidden" bg={'white'}>
+        <Box
+          w="full"
+          borderWidth={1}
+          borderRadius="lg"
+          overflow="hidden"
+          bg={"white"}
+        >
           <Heading size="md" p={4}>
             CAMERA
           </Heading>
@@ -317,29 +336,29 @@ const CrowdDetection = () => {
                   videoConstraints={{
                     width: 640,
                     height: 480,
-                    facingMode: "environment"
+                    facingMode: "environment",
                   }}
-                  style={{ width: '100%', maxWidth: '640px' }}
+                  style={{ width: "100%", maxWidth: "640px" }}
                 />
                 {/* Canvas untuk bounding box */}
-                <canvas 
-                  ref={canvasRef} 
-                  style={{ 
-                    position: 'absolute', 
-                    width: '640px', 
-                    height: '480px', 
-                    pointerEvents: 'none' 
-                  }} 
+                <canvas
+                  ref={canvasRef}
+                  style={{
+                    position: "absolute",
+                    width: "640px",
+                    height: "480px",
+                    pointerEvents: "none",
+                  }}
                 />
               </>
             ) : (
-              <Box 
-                w="100%" 
-                maxW="640px" 
-                h="480px" 
-                bg="gray.100" 
-                display="flex" 
-                alignItems="center" 
+              <Box
+                w="100%"
+                maxW="640px"
+                h="480px"
+                bg="gray.100"
+                display="flex"
+                alignItems="center"
                 justifyContent="center"
               >
                 <Text>Kamera tidak aktif</Text>
@@ -348,24 +367,43 @@ const CrowdDetection = () => {
           </Center>
           <Flex justify="center" p={4}>
             <Button
-              colorScheme={!areaId ? 'yellow' : isCameraActive ? 'red' : 'green'}
+              colorScheme={
+                !areaId && !areaById?.id
+                  ? "yellow"
+                  : isCameraActive
+                  ? "red"
+                  : "green"
+              }
               onClick={toggleCamera}
-              isDisabled={!areaId}
+              isDisabled={!areaId && !areaById?.id}
             >
-              {!areaId ? 'Please Select Area' : isCameraActive ? 'Turn Off Camera' : 'Turn On Camera'}
+              {!areaId && !areaById?.id
+                ? "Please Select Area"
+                : isCameraActive
+                ? "Turn Off Camera"
+                : "Turn On Camera"}
             </Button>
           </Flex>
         </Box>
 
-        <Box w="full" borderWidth={1} borderRadius="lg" p={4} bg={'white'}>
-          <Heading size="md" p={1}>ANALYTIC RESULT</Heading>
+        <Box w="full" borderWidth={1} borderRadius="lg" p={4} bg={"white"}>
+          <Heading size="md" p={1}>
+            ANALYTIC RESULT
+          </Heading>
           <Text>Jumlah: {crowdData.count}</Text>
           <Text>Status: {crowdData.status}</Text>
-          <Text>Terakhir Diperbarui: {new Date(crowdData.createdAt).toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'})}</Text>
+          <Text>
+            Terakhir Diperbarui:{" "}
+            {new Date(crowdData.createdAt).toLocaleString("id-ID", {
+              timeZone: "Asia/Jakarta",
+            })}
+          </Text>
         </Box>
 
-        <Box w="full" borderWidth={1} borderRadius="lg" p={4} bg={'white'}>
-          <Heading size="md" p={1}>Crowd Data Log {areaById?.name}</Heading>
+        <Box w="full" borderWidth={1} borderRadius="lg" p={4} bg={"white"}>
+          <Heading size="md" p={1}>
+            Crowd Data Log
+          </Heading>
           <ResponsiveContainer width="100%" height={400}>
             <LineChart
               data={crowdDataArray}
@@ -377,11 +415,16 @@ const CrowdDetection = () => {
               }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="createdAt"/>
+              <XAxis dataKey="createdAt" />
               <YAxis />
-              <Tooltip/>
+              <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="count" fill="#8884d8" name="Crowd Area Count" />
+              <Line
+                type="monotone"
+                dataKey="count"
+                fill="#8884d8"
+                name="Crowd Area Count"
+              />
             </LineChart>
           </ResponsiveContainer>
         </Box>

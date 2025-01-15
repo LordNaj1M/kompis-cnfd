@@ -12,8 +12,8 @@ export interface UserData {
 }
 
 interface ApiErrorResponse {
-    message: string;
-    status?: number;
+  message: string;
+  status?: number;
 }
 
 export const useAuth = () => {
@@ -36,12 +36,14 @@ export const useAuth = () => {
     }
   };
 
-  const register = async (
-    data: { name: string; email: string; password: string; security_answer: string }
-  ) => {
+  const register = async (formData: FormData) => {
     try {
-      const response = await axiosInstance.post('/register', data);
-      return response;
+      const response = await axiosInstance.post('/register', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
     } catch (e) {
       const error = e as AxiosError<ApiErrorResponse>;
       throw new Error(error.response?.data?.message || 'Registration failed. Please try again.');

@@ -110,7 +110,7 @@ const Dashboard = () => {
           <CardBody>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart
-                data={crowds.filter((crowd) => crowd.area_id === area.id).slice(0, 10)}
+                data={crowds.filter((crowd) => crowd.area_id === area.id).slice(0, 10).reverse()}
                 margin={{
                   top: 5,
                   right: 30,
