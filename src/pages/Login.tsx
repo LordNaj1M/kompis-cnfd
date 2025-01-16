@@ -441,9 +441,8 @@ const Login = () => {
                 facingMode: "user",
               }}
               style={{
-                width: "640px",
-                height: "480px",
-                // borderRadius: "8px",
+                width: "100%",
+                borderRadius: "10px",
               }}
             />
 
