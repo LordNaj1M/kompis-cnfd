@@ -29,11 +29,11 @@ import {
   AlertDialogOverlay,
   Button,
   useDisclosure,
-  Container
-} from '@chakra-ui/react';
-import { useRef, useState } from 'react';
-import { useUsers, deleteUserByAdmin } from '../../hooks/useUser';
-import { useNavigate } from 'react-router-dom';
+  Container,
+} from "@chakra-ui/react";
+import { useRef, useState } from "react";
+import { useUsers, deleteUserByAdmin } from "../../hooks/useUser";
+import { useNavigate } from "react-router-dom";
 import { HiOutlineInformationCircle } from "react-icons/hi";
 import { CiEdit } from "react-icons/ci";
 import { RiDeleteBin5Line } from "react-icons/ri";
@@ -52,16 +52,16 @@ const UsersManagement = () => {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
-  const [userId, setUserId] = useState('');
-  
-  const bgCard = useColorModeValue('white', 'gray.700');
-  const bgHover = useColorModeValue('gray.50', 'gray.600');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const labelColor = useColorModeValue('gray.600', 'gray.400');
+  const [userId, setUserId] = useState("");
+
+  const bgCard = useColorModeValue("white", "gray.700");
+  const bgHover = useColorModeValue("gray.50", "gray.600");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const labelColor = useColorModeValue("gray.600", "gray.400");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   const { users, isLoading, isError } = useUsers();
-  
+
   // Handle view profile user
   const handleViewUserProfile = (userId: string) => {
     navigate(`/admin/users-management/view/${userId}`);
@@ -78,7 +78,7 @@ const UsersManagement = () => {
     setUserToDelete(userId);
     onOpen();
   };
-  
+
   // Handle delete user
   const handleDeleteUser = () => {
     if (!userToDelete) return;
@@ -86,15 +86,36 @@ const UsersManagement = () => {
     try {
       const deleteUserPromise = deleteUserByAdmin(userToDelete);
       toast.promise(deleteUserPromise, {
-        loading: {title: 'Deleting User', description: 'Please wait while we delete User_' + userToDelete},
-        success: {title: 'Delete User Successful', description: 'User_' + userToDelete + ' has been deleted!', duration: 1000, isClosable: true, onCloseComplete() {navigate(0)},},
-        error: (error) => ({title: 'Delete User Failed', description: 'An error occurred during delete User_' + userToDelete + ': ' + error, duration: 5000, isClosable: true}),
+        loading: {
+          title: "Deleting User",
+          description: "Please wait while we delete User_" + userToDelete,
+        },
+        success: {
+          title: "Delete User Successful",
+          description: "User_" + userToDelete + " has been deleted!",
+          duration: 1000,
+          isClosable: true,
+          onCloseComplete() {
+            navigate(0);
+          },
+        },
+        error: (error) => ({
+          title: "Delete User Failed",
+          description:
+            "An error occurred during delete User_" +
+            userToDelete +
+            ": " +
+            error,
+          duration: 5000,
+          isClosable: true,
+        }),
       });
     } catch (error) {
       toast({
-        title: 'Delete User Failed',
-        description: 'An error occurred during delete User_' + userToDelete + ': ' + error,
-        status: 'error',
+        title: "Delete User Failed",
+        description:
+          "An error occurred during delete User_" + userToDelete + ": " + error,
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -104,16 +125,16 @@ const UsersManagement = () => {
   };
 
   // Action buttons component
-  const ActionButtons = ({ user }: { user: User}) => (
-    <HStack 
-      spacing={2} 
-      justify={isMobile ? "flex-start" : "center"}      
-      display={user.role==="admin" ? "none" : "flex"}
+  const ActionButtons = ({ user }: { user: User }) => (
+    <HStack
+      spacing={2}
+      justify={isMobile ? "flex-start" : "center"}
+      display={user.role === "admin" ? "none" : "flex"}
     >
       <Tooltip label="View" placement="bottom">
         <IconButton
           aria-label="View profile"
-          icon={<HiOutlineInformationCircle/>}
+          icon={<HiOutlineInformationCircle />}
           fontSize="xl"
           colorScheme="blue"
           variant="ghost"
@@ -142,7 +163,7 @@ const UsersManagement = () => {
           size={isMobile ? "sm" : "md"}
           onClick={() => handleDeleteUserConfirmation(user.id)}
         />
-      </Tooltip>  
+      </Tooltip>
     </HStack>
   );
 
@@ -161,9 +182,9 @@ const UsersManagement = () => {
 
   // Mobile card view for each user
   const MobileUserCard = ({ user, index }: { user: User; index: number }) => (
-    <Card 
-      bg={bgCard} 
-      borderColor={borderColor} 
+    <Card
+      bg={bgCard}
+      borderColor={borderColor}
       borderWidth="1px"
       mb={4}
       _hover={{ bg: bgHover }}
@@ -172,22 +193,28 @@ const UsersManagement = () => {
       <CardBody>
         <VStack align="stretch" spacing={3}>
           <Flex justify="space-between" align="center">
-            <Text fontSize="sm" color={labelColor}>#{index + 1}</Text>
-            <Badge colorScheme={user.role === 'admin' ? 'purple' : 'blue'}>
+            <Text fontSize="sm" color={labelColor}>
+              #{index + 1}
+            </Text>
+            <Badge colorScheme={user.role === "admin" ? "purple" : "blue"}>
               {user.role}
             </Badge>
           </Flex>
-          
+
           <Box>
-            <Text fontSize="sm" color={labelColor}>Name</Text>
+            <Text fontSize="sm" color={labelColor}>
+              Name
+            </Text>
             <Text fontWeight="medium">{user.name}</Text>
           </Box>
-          
+
           <Box>
-            <Text fontSize="sm" color={labelColor}>Email</Text>
+            <Text fontSize="sm" color={labelColor}>
+              Email
+            </Text>
             <Text fontWeight="medium">{user.email}</Text>
           </Box>
-          
+
           <Flex justifyContent="flex-end">
             <ActionButtons user={user} />
           </Flex>
@@ -211,7 +238,7 @@ const UsersManagement = () => {
         </Thead>
         <Tbody>
           {users?.map((user, index) => (
-            <Tr 
+            <Tr
               key={user?.id}
               _hover={{ bg: bgHover }}
               transition="background 0.2s"
@@ -220,7 +247,7 @@ const UsersManagement = () => {
               <Td textAlign="center">{user.name}</Td>
               <Td textAlign="center">{user.email}</Td>
               <Td textAlign="center">
-                <Badge colorScheme={user.role === 'admin' ? 'purple' : 'blue'}>
+                <Badge colorScheme={user.role === "admin" ? "purple" : "blue"}>
                   {user.role}
                 </Badge>
               </Td>
@@ -269,7 +296,7 @@ const UsersManagement = () => {
       >
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Delete User_{userId}
             </AlertDialogHeader>
             <AlertDialogBody>
@@ -279,7 +306,7 @@ const UsersManagement = () => {
               <Button ref={cancelRef} onClick={onClose}>
                 Cancel
               </Button>
-              <Button colorScheme='red' onClick={handleDeleteUser} ml={3}>
+              <Button colorScheme="red" onClick={handleDeleteUser} ml={3}>
                 Delete
               </Button>
             </AlertDialogFooter>

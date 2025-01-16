@@ -11,22 +11,22 @@ import {
   Flex,
   useColorModeValue,
   useMediaQuery,
-} from '@chakra-ui/react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useUserById } from '../../hooks/useUser';
-import { FiEdit2 } from 'react-icons/fi';
-import { RiLockPasswordLine } from 'react-icons/ri';
-import { useEffect } from 'react';
-  
+} from "@chakra-ui/react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useUserById } from "../../hooks/useUser";
+import { FiEdit2 } from "react-icons/fi";
+import { RiLockPasswordLine } from "react-icons/ri";
+import { useEffect } from "react";
+
 const ViewUserProfile = () => {
   const { userId } = useParams();
-  const { user, isLoading, isError } = useUserById(userId || '');
+  const { user, isLoading, isError } = useUserById(userId || "");
   const navigate = useNavigate();
-  
-  const bgCard = useColorModeValue('white', 'gray.700');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const labelColor = useColorModeValue('gray.600', 'gray.400');
-  const isMobile = useMediaQuery('(max-width: 768px)')[0];
+
+  const bgCard = useColorModeValue("white", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const labelColor = useColorModeValue("gray.600", "gray.400");
+  const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   useEffect(() => {
     if (!userId) {
@@ -37,29 +37,29 @@ const ViewUserProfile = () => {
             Go Back
           </Button>
         </VStack>
-      </Container>
+      </Container>;
     }
   }, [userId, navigate]);
-  
+
   const handleEditProfile = () => {
     navigate(`/admin/users-management/edit/${userId}`);
   };
-  
+
   const handleChangePasswordProfile = () => {
     navigate(`/admin/users-management/change-password/${userId}`);
   };
-  
+
   const ProfileField = ({ label, value }: { label: string; value: string }) => (
     <Box>
       <Text fontSize="sm" color={labelColor} mb={1}>
         {label}
       </Text>
-      <Text fontSize={isMobile ? 'md' : 'lg'} fontWeight="medium">
+      <Text fontSize={isMobile ? "md" : "lg"} fontWeight="medium">
         {value}
       </Text>
     </Box>
   );
-  
+
   if (isLoading) {
     return (
       <Container centerContent py={10}>
@@ -67,8 +67,8 @@ const ViewUserProfile = () => {
       </Container>
     );
   }
-  
-  if (isError || !user || typeof user === 'string') {
+
+  if (isError || !user || typeof user === "string") {
     return (
       <Container centerContent py={10}>
         <VStack spacing={4}>
@@ -78,7 +78,7 @@ const ViewUserProfile = () => {
       </Container>
     );
   }
-  
+
   return (
     <Box p={isMobile ? 4 : 6}>
       <VStack align="stretch" spacing={6}>
@@ -95,27 +95,27 @@ const ViewUserProfile = () => {
               <Flex
                 mt={4}
                 gap={4}
-                direction={isMobile ? 'column' : 'row'}
+                direction={isMobile ? "column" : "row"}
                 justify="flex-start"
               >
                 {!isMobile && (
-                <Button 
-                  bg="gray" 
-                  color="white" 
-                  _hover={{ bg: 'gray.800' }} 
-                  size={isMobile ? 'md' : 'lg'}
-                  width={isMobile ? 'full' : 'auto'}
-                  onClick={() => navigate('/admin/users-management')} 
-                > 
-                  Back 
-                </Button>
+                  <Button
+                    bg="gray"
+                    color="white"
+                    _hover={{ bg: "gray.800" }}
+                    size={isMobile ? "md" : "lg"}
+                    width={isMobile ? "full" : "auto"}
+                    onClick={() => navigate("/admin/users-management")}
+                  >
+                    Back
+                  </Button>
                 )}
                 <Button
                   leftIcon={<FiEdit2 />}
                   variant="solid"
                   colorScheme="green"
-                  size={isMobile ? 'md' : 'lg'}
-                  width={isMobile ? 'full' : 'auto'}
+                  size={isMobile ? "md" : "lg"}
+                  width={isMobile ? "full" : "auto"}
                   onClick={handleEditProfile}
                   ml="auto"
                 >
@@ -125,24 +125,24 @@ const ViewUserProfile = () => {
                   leftIcon={<RiLockPasswordLine />}
                   bg="blue.500"
                   color="white"
-                  _hover={{ bg: 'blue.800' }}
-                  size={isMobile ? 'md' : 'lg'}
-                  width={isMobile ? 'full' : 'auto'}
+                  _hover={{ bg: "blue.800" }}
+                  size={isMobile ? "md" : "lg"}
+                  width={isMobile ? "full" : "auto"}
                   onClick={handleChangePasswordProfile}
                 >
                   Change Password
                 </Button>
                 {isMobile && (
-                <Button 
-                  bg="gray" 
-                  color="white" 
-                  _hover={{ bg: 'gray.800' }} 
-                  size={isMobile ? 'md' : 'lg'}
-                  width={isMobile ? 'full' : 'auto'}
-                  onClick={() => navigate('/admin/users-management')} 
-                > 
-                  Back 
-                </Button>
+                  <Button
+                    bg="gray"
+                    color="white"
+                    _hover={{ bg: "gray.800" }}
+                    size={isMobile ? "md" : "lg"}
+                    width={isMobile ? "full" : "auto"}
+                    onClick={() => navigate("/admin/users-management")}
+                  >
+                    Back
+                  </Button>
                 )}
               </Flex>
             </VStack>
@@ -152,6 +152,5 @@ const ViewUserProfile = () => {
     </Box>
   );
 };
-  
+
 export default ViewUserProfile;
-    

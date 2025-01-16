@@ -8,7 +8,7 @@ import {
   VStack,
   DrawerBody,
   Image,
-  useColorModeValue
+  useColorModeValue,
 } from "@chakra-ui/react";
 import LogoAnaheim from "./../../assets/logo-anaheim.svg";
 import { useSidenav } from "./sidenav-context/sidenav-context";
@@ -20,8 +20,8 @@ export interface SidenavProps {
 
 export function Sidenav({ navItems }: SidenavProps) {
   const { isOpen, onClose } = useSidenav();
-  const headerColor = useColorModeValue('gray.200', 'gray.700');
-  
+  const headerColor = useColorModeValue("gray.200", "gray.700");
+
   return (
     <React.Fragment>
       <VStack spacing="5" as="nav" display={{ base: "none", md: "flex" }}>
@@ -32,10 +32,7 @@ export function Sidenav({ navItems }: SidenavProps) {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader
-            borderBottom="1px solid" 
-            borderColor={headerColor}          
-          >
+          <DrawerHeader borderBottom="1px solid" borderColor={headerColor}>
             COMVIS-CNFD APP
           </DrawerHeader>
           <DrawerBody>

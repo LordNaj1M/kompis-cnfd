@@ -2,7 +2,7 @@ import {
   SidenavProvider,
   SidenavContainer,
   SidenavItem,
-  Sidenav
+  Sidenav,
 } from "./navbar/sidenav";
 import { Navbar } from "./navbar/navbar";
 import { useUser } from "./hooks/useUser";
@@ -20,10 +20,10 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   Button,
-  useDisclosure
-} from '@chakra-ui/react';
-import { useEffect, useRef } from 'react';
-import { useAuth } from './hooks/useAuth';
+  useDisclosure,
+} from "@chakra-ui/react";
+import { useEffect, useRef } from "react";
+import { useAuth } from "./hooks/useAuth";
 
 const App = () => {
   const { user, isError } = useUser();
@@ -38,31 +38,55 @@ const App = () => {
 
   const CrowdConfigIcon = () => {
     return (
-    <Box position="relative" display="inline-block" boxSize={5}>
-      <FaPeopleGroup/>
-      <Icon as={GrConfigure} position="absolute" transform="translate(50%, -60%)"/>
-    </Box>
+      <Box position="relative" display="inline-block" boxSize={5}>
+        <FaPeopleGroup />
+        <Icon
+          as={GrConfigure}
+          position="absolute"
+          transform="translate(50%, -60%)"
+        />
+      </Box>
     );
   };
   const FatigueConfigIcon = () => {
     return (
-    <Box position="relative" display="inline-block" boxSize={5}>
-      <FaUserInjured size={13}/>
-      <Icon as={GrConfigure} position="absolute" transform="translate(50%, -60%)"/>
-    </Box>
+      <Box position="relative" display="inline-block" boxSize={5}>
+        <FaUserInjured size={13} />
+        <Icon
+          as={GrConfigure}
+          position="absolute"
+          transform="translate(50%, -60%)"
+        />
+      </Box>
     );
   };
 
   const navItems: SidenavItem[] = [
     { icon: MdDashboard, label: "Dashboard", to: "/" },
     { icon: FaPeopleGroup, label: "Crowd Detection", to: "/crowd-detection" },
-    { icon: FaUserInjured, label: "Fatigue Detection", to: "/fatigue-detection" },
+    {
+      icon: FaUserInjured,
+      label: "Fatigue Detection",
+      to: "/fatigue-detection",
+    },
   ];
 
   if (user?.role === "admin") {
-    navItems.push({ icon: FaUsersGear, label: "Users Management", to: "/admin/users-management" });
-    navItems.push({ icon: CrowdConfigIcon, label: "Crowd Configuration", to: "/admin/crowd-configuration" });
-    navItems.push({ icon: FatigueConfigIcon, label: "Fatigue Configuration", to: "/admin/fatigue-configuration" });
+    navItems.push({
+      icon: FaUsersGear,
+      label: "Users Management",
+      to: "/admin/users-management",
+    });
+    navItems.push({
+      icon: CrowdConfigIcon,
+      label: "Crowd Configuration",
+      to: "/admin/crowd-configuration",
+    });
+    navItems.push({
+      icon: FatigueConfigIcon,
+      label: "Fatigue Configuration",
+      to: "/admin/fatigue-configuration",
+    });
   }
 
   useEffect(() => {
@@ -90,14 +114,14 @@ const App = () => {
       >
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Session Expired
             </AlertDialogHeader>
             <AlertDialogBody>
               Your session has expired. Please log in again to continue.
             </AlertDialogBody>
             <AlertDialogFooter>
-              <Button colorScheme='orange' onClick={handleLogout} ml={3}>
+              <Button colorScheme="orange" onClick={handleLogout} ml={3}>
                 Log In Again
               </Button>
             </AlertDialogFooter>

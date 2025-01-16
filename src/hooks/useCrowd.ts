@@ -1,7 +1,7 @@
 // src/hooks/useCrowd.ts
-import useSWR from 'swr';
-import { axiosInstance } from '../lib/axios';
-import { useAreas } from './useArea';
+import useSWR from "swr";
+import { axiosInstance } from "../lib/axios";
+import { useAreas } from "./useArea";
 
 interface Crowd {
   id: string;
@@ -34,38 +34,42 @@ const crowdFetcher = async (url: string): Promise<Crowd> => {
 };
 
 export const useCrowds = () => {
-  const { data, error, mutate } = useSWR<Crowd[]>('/crowds', crowdsFetcher, {
-    // refreshInterval: 300000,   
+  const { data, error, mutate } = useSWR<Crowd[]>("/crowds", crowdsFetcher, {
+    // refreshInterval: 300000,
     errorRetryCount: 3,
     revalidateOnFocus: true,
   });
   const areas = useAreas();
   const areaMap = new Map<string, string>();
-    areas.areas?.forEach((area) => {
-      areaMap.set(area.id, area.name);
-    });
+  areas.areas?.forEach((area) => {
+    areaMap.set(area.id, area.name);
+  });
 
-  const sortedData = data ? [...data]
-                            // .sort((a, b) => a.id.localeCompare(b.id))
-                            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                            .map((item) => ({
-                              ...item,
-                              createdAt: new Date(item.createdAt)
-                              .toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'}),
-                            }))
-                          : [];
+  const sortedData = data
+    ? [...data]
+        // .sort((a, b) => a.id.localeCompare(b.id))
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+        .map((item) => ({
+          ...item,
+          createdAt: new Date(item.createdAt).toLocaleString("id-ID", {
+            timeZone: "Asia/Jakarta",
+          }),
+        }))
+    : [];
 
   const getLastCrowdPerArea = new Map<string, Crowd & { areaName: string }>();
-  [...sortedData].forEach(crowd => {
+  [...sortedData].forEach((crowd) => {
     if (!getLastCrowdPerArea.has(crowd.area_id)) {
-
       getLastCrowdPerArea.set(crowd.area_id, {
         ...crowd,
-        areaName: areaMap.get(crowd.area_id) || 'Unknown Area',
+        areaName: areaMap.get(crowd.area_id) || "Unknown Area",
       });
     }
   });
-  
+
   const lastCrowdPerArea = Array.from(getLastCrowdPerArea.values());
 
   return {
@@ -80,9 +84,13 @@ export const useCrowds = () => {
 export const useCrowdSortById = (areaId: string) => {
   const { crowds, isError, mutate } = useCrowds();
 
-  const crowdSortById = crowds ? 
-      crowds.filter((crowd) => crowd.area_id === areaId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) 
+  const crowdSortById = crowds
+    ? crowds
+        .filter((crowd) => crowd.area_id === areaId)
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
     : [];
 
   return {
@@ -94,11 +102,15 @@ export const useCrowdSortById = (areaId: string) => {
 };
 
 export const useCrowdById = (areaId: string) => {
-  const { data, error, mutate } = useSWR<Crowd>(`/crowds/${areaId}`, crowdFetcher, {
-    // refreshInterval: 300000,    
-    errorRetryCount: 3,    
-    revalidateOnFocus: true,
-  });
+  const { data, error, mutate } = useSWR<Crowd>(
+    `/crowds/${areaId}`,
+    crowdFetcher,
+    {
+      // refreshInterval: 300000,
+      errorRetryCount: 3,
+      revalidateOnFocus: true,
+    }
+  );
 
   return {
     crowdById: data,

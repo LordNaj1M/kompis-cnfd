@@ -10,30 +10,30 @@ import {
   Heading,
   Flex,
   useColorModeValue,
-  useMediaQuery
-} from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
-import { useUser } from '../../hooks/useUser';
-import { FiEdit2 } from 'react-icons/fi';
-import { RiLockPasswordLine } from 'react-icons/ri';
+  useMediaQuery,
+} from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../../hooks/useUser";
+import { FiEdit2 } from "react-icons/fi";
+import { RiLockPasswordLine } from "react-icons/ri";
 
 const Profile = () => {
   const { user, isLoading, isError } = useUser();
   const navigate = useNavigate();
 
-  const bgCard = useColorModeValue('white', 'gray.700');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const labelColor = useColorModeValue('gray.600', 'gray.400');
+  const bgCard = useColorModeValue("white", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const labelColor = useColorModeValue("gray.600", "gray.400");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
-  
+
   // Handle edit user
   const handleEditProfile = () => {
-    navigate('/profile/edit');
+    navigate("/profile/edit");
   };
 
   // Handle delete user
   const handleChangePasswordProfile = () => {
-    navigate('/profile/change-password');
+    navigate("/profile/change-password");
   };
 
   const ProfileField = ({ label, value }: { label: string; value: string }) => (
@@ -60,10 +60,7 @@ const Profile = () => {
       <Container centerContent py={10}>
         <VStack spacing={4}>
           <Text color="red.500">Error loading profile data...</Text>
-          <Button
-            onClick={() => navigate(0)}
-            colorScheme="blue"
-          >
+          <Button onClick={() => navigate(0)} colorScheme="blue">
             Retry
           </Button>
         </VStack>
@@ -84,8 +81,8 @@ const Profile = () => {
                 <ProfileField label="Role" value={user.role} />
               </VStack>
 
-              <Flex 
-                mt={4} 
+              <Flex
+                mt={4}
                 gap={4}
                 direction={isMobile ? "column" : "row"}
                 justify="flex-start"
@@ -104,7 +101,7 @@ const Profile = () => {
                   leftIcon={<RiLockPasswordLine />}
                   bg="blue.500"
                   color="white"
-                  _hover={{ bg: 'blue.800' }}
+                  _hover={{ bg: "blue.800" }}
                   size={isMobile ? "md" : "lg"}
                   width={isMobile ? "full" : "auto"}
                   onClick={() => handleChangePasswordProfile()}

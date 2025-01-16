@@ -1,4 +1,4 @@
-import { Box, Heading, VStack, Text } from '@chakra-ui/react';
+import { Box, Heading, VStack, Text } from "@chakra-ui/react";
 
 const FatigueDetection = () => {
   return (

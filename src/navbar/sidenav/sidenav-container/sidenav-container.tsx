@@ -7,12 +7,16 @@ export interface SidenavContainerProps {
 }
 
 export function SidenavContainer({ children, sidenav }: SidenavContainerProps) {
-  const bgColor = useColorModeValue('gray.50', 'gray.900');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const bgBox = useColorModeValue('white', 'gray.800');
+  const bgColor = useColorModeValue("gray.50", "gray.900");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const bgBox = useColorModeValue("white", "gray.800");
 
   return (
-    <Grid templateAreas={`'sidebar main'`} templateColumns="auto 1fr" bg={bgColor}>
+    <Grid
+      templateAreas={`'sidebar main'`}
+      templateColumns="auto 1fr"
+      bg={bgColor}
+    >
       <GridItem area="sidebar" as="aside" w="full" p={0}>
         <Box
           pos="sticky"
@@ -29,20 +33,20 @@ export function SidenavContainer({ children, sidenav }: SidenavContainerProps) {
           overflow="auto"
           css={{
             "&::-webkit-scrollbar": {
-              width: "6px"
+              width: "6px",
             },
             "&::-webkit-scrollbar-thumb": {
               backgroundColor: "var(--chakra-colors-gray-400)",
-              borderRadius: "3px"
-            }
+              borderRadius: "3px",
+            },
           }}
         >
           {sidenav}
         </Box>
       </GridItem>
-      <GridItem 
-        as="main" 
-        area="main" 
+      <GridItem
+        as="main"
+        area="main"
         p={{ base: 6, md: 8 }}
         transition="margin-left 0.3s ease"
       >

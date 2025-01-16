@@ -28,11 +28,11 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   Button,
-  useDisclosure
-} from '@chakra-ui/react';
-import { useRef, useState } from 'react';
-import { useAreas, deleteArea } from '../../hooks/useArea';
-import { useNavigate } from 'react-router-dom';
+  useDisclosure,
+} from "@chakra-ui/react";
+import { useRef, useState } from "react";
+import { useAreas, deleteArea } from "../../hooks/useArea";
+import { useNavigate } from "react-router-dom";
 
 import { BiLayerPlus } from "react-icons/bi";
 import { HiOutlineInformationCircle } from "react-icons/hi";
@@ -52,16 +52,16 @@ const CrowdConfiguration = () => {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   const [areaToDelete, setAreaToDelete] = useState<string | null>(null);
-  const [areaId, setAreaId] = useState('');
-  
-  const bgCard = useColorModeValue('white', 'gray.700');
-  const bgHover = useColorModeValue('gray.50', 'gray.600');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const labelColor = useColorModeValue('gray.600', 'gray.400');
+  const [areaId, setAreaId] = useState("");
+
+  const bgCard = useColorModeValue("white", "gray.700");
+  const bgHover = useColorModeValue("gray.50", "gray.600");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const labelColor = useColorModeValue("gray.600", "gray.400");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   const { areas, isLoading, isError } = useAreas();
-  
+
   const handleCreateArea = () => {
     navigate(`/admin/crowd-configuration/create`);
   };
@@ -79,22 +79,43 @@ const CrowdConfiguration = () => {
     setAreaToDelete(areaId);
     onOpen();
   };
-  
+
   const handleDeleteArea = () => {
     if (!areaToDelete) return;
 
     try {
       const deleteAreaPromise = deleteArea(areaToDelete);
       toast.promise(deleteAreaPromise, {
-        loading: {title: 'Deleting Area', description: 'Please wait while we delete Area_' + areaToDelete},
-        success: {title: 'Delete Area Successful', description: 'Area_' + areaToDelete + ' has been deleted!', duration: 1000, isClosable: true, onCloseComplete() {navigate(0)},},
-        error: (error) => ({title: 'Delete Area Failed', description: 'An error occurred during delete Area_' + areaToDelete + ': ' + error, duration: 5000, isClosable: true}),
+        loading: {
+          title: "Deleting Area",
+          description: "Please wait while we delete Area_" + areaToDelete,
+        },
+        success: {
+          title: "Delete Area Successful",
+          description: "Area_" + areaToDelete + " has been deleted!",
+          duration: 1000,
+          isClosable: true,
+          onCloseComplete() {
+            navigate(0);
+          },
+        },
+        error: (error) => ({
+          title: "Delete Area Failed",
+          description:
+            "An error occurred during delete Area_" +
+            areaToDelete +
+            ": " +
+            error,
+          duration: 5000,
+          isClosable: true,
+        }),
       });
     } catch (error) {
       toast({
-        title: 'Delete Area Failed',
-        description: 'An error occurred during delete Area_' + areaToDelete + ': ' + error,
-        status: 'error',
+        title: "Delete Area Failed",
+        description:
+          "An error occurred during delete Area_" + areaToDelete + ": " + error,
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -104,16 +125,16 @@ const CrowdConfiguration = () => {
   };
 
   // Action buttons component
-  const ActionButtons = ({ area }: { area: Area}) => (
-    <HStack 
-      spacing={2} 
-      justify={isMobile ? "flex-start" : "center"}      
+  const ActionButtons = ({ area }: { area: Area }) => (
+    <HStack
+      spacing={2}
+      justify={isMobile ? "flex-start" : "center"}
       display={"flex"}
     >
       <Tooltip label="View" placement="bottom">
         <IconButton
           aria-label="View Area"
-          icon={<HiOutlineInformationCircle/>}
+          icon={<HiOutlineInformationCircle />}
           fontSize="xl"
           colorScheme="blue"
           variant="ghost"
@@ -142,7 +163,7 @@ const CrowdConfiguration = () => {
           size={isMobile ? "sm" : "md"}
           onClick={() => handleDeleteAreaConfirmation(area.id)}
         />
-      </Tooltip>  
+      </Tooltip>
     </HStack>
   );
 
@@ -161,9 +182,9 @@ const CrowdConfiguration = () => {
 
   // Mobile card view for each area
   const MobileAreaCard = ({ area, index }: { area: Area; index: number }) => (
-    <Card 
-      bg={bgCard} 
-      borderColor={borderColor} 
+    <Card
+      bg={bgCard}
+      borderColor={borderColor}
       borderWidth="1px"
       mb={4}
       _hover={{ bg: bgHover }}
@@ -172,19 +193,25 @@ const CrowdConfiguration = () => {
       <CardBody>
         <VStack align="stretch" spacing={3}>
           <Flex justify="space-between" align="center">
-            <Text fontSize="sm" color={labelColor}>#{index + 1}</Text>
+            <Text fontSize="sm" color={labelColor}>
+              #{index + 1}
+            </Text>
           </Flex>
-          
+
           <Box>
-            <Text fontSize="sm" color={labelColor}>Name</Text>
+            <Text fontSize="sm" color={labelColor}>
+              Name
+            </Text>
             <Text fontWeight="medium">{area.name}</Text>
           </Box>
-          
+
           <Box>
-            <Text fontSize="sm" color={labelColor}>Capacity</Text>
+            <Text fontSize="sm" color={labelColor}>
+              Capacity
+            </Text>
             <Text fontWeight="medium">{area.capacity}</Text>
           </Box>
-          
+
           <Flex justifyContent="flex-end">
             <ActionButtons area={area} />
           </Flex>
@@ -207,7 +234,7 @@ const CrowdConfiguration = () => {
         </Thead>
         <Tbody>
           {areas?.map((area, index) => (
-            <Tr 
+            <Tr
               key={area?.id}
               _hover={{ bg: bgHover }}
               transition="background 0.2s"
@@ -230,17 +257,19 @@ const CrowdConfiguration = () => {
       <div className="min-h-screen bg-gray-50 p-4">
         <Box p={6}>
           <Flex justify="space-between" align="center">
-            <Heading size={isMobile ? 'md' : 'lg'}>CROWD AREA CONFIGURATION</Heading>
+            <Heading size={isMobile ? "md" : "lg"}>
+              CROWD AREA CONFIGURATION
+            </Heading>
             <Button
               leftIcon={<BiLayerPlus />}
               bg="orange.300"
               color="black"
-              _hover={{ bg: 'orange.100' }}
-              size={isMobile ? 'xl' : 'md'}
-              padding={isMobile ? 3 : ''}
+              _hover={{ bg: "orange.100" }}
+              size={isMobile ? "xl" : "md"}
+              padding={isMobile ? 3 : ""}
               onClick={handleCreateArea}
             >
-              {isMobile ? '' : 'Create Area'}
+              {isMobile ? "" : "Create Area"}
             </Button>
           </Flex>
         </Box>
@@ -271,7 +300,7 @@ const CrowdConfiguration = () => {
       >
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Delete Area_{areaId}
             </AlertDialogHeader>
             <AlertDialogBody>
@@ -281,7 +310,7 @@ const CrowdConfiguration = () => {
               <Button ref={cancelRef} onClick={onClose}>
                 Cancel
               </Button>
-              <Button colorScheme='red' onClick={handleDeleteArea} ml={3}>
+              <Button colorScheme="red" onClick={handleDeleteArea} ml={3}>
                 Delete
               </Button>
             </AlertDialogFooter>

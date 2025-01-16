@@ -424,7 +424,8 @@ const Login = () => {
   const cameraSection = () => (
     <>
       <Text fontSize="sm" mb={2}>
-        Fitur <i>Fatigue Detection</i> memerlukan foto wajah Anda untuk memastikan keamanan dan keakuratan deteksi.
+        Fitur <i>Fatigue Detection</i> memerlukan foto wajah Anda untuk
+        memastikan keamanan dan keakuratan deteksi.
       </Text>
       <Center p={4} position="relative">
         {isCameraActive ? (
@@ -439,12 +440,23 @@ const Login = () => {
                 height: 480,
                 facingMode: "user",
               }}
-              style={{ width: "100%", borderRadius: "8px" }}
+              style={{
+                width: "640px",
+                height: "480px",
+                // borderRadius: "8px",
+              }}
             />
 
-            <Text as={'sub'}>* Pastikan wajah Anda terlihat jelas tanpa halangan, bayangan, dan dengan pencahayaan yang baik serta latar belakang netral.</Text>
+            <Text as={"sub"}>
+              * Pastikan wajah Anda terlihat jelas tanpa halangan, bayangan, dan
+              dengan pencahayaan yang baik serta latar belakang netral.
+            </Text>
 
-            {countdown && <Center p={4}><Text>Countdown: {countdown}</Text></Center>}
+            {countdown && (
+              <Center p={4}>
+                <Text>Countdown: {countdown}</Text>
+              </Center>
+            )}
 
             <Flex justify="center" mt={4} gap={4}>
               <Button
@@ -459,11 +471,7 @@ const Login = () => {
                   : "Start Automatic Photoshoots"}
               </Button>
               {photos.length >= maxPhotos && !hasStoredPhotos && (
-                <Button
-                  onClick={savePhotos}
-                  colorScheme="green"
-                  width="50%"
-                >
+                <Button onClick={savePhotos} colorScheme="green" width="50%">
                   Save Photos
                 </Button>
               )}
@@ -479,8 +487,8 @@ const Login = () => {
             justifyContent="center"
           >
             <Text>
-              {hasStoredPhotos 
-                ? "Photoshoots has been saved" 
+              {hasStoredPhotos
+                ? "Photoshoots has been saved"
                 : "Camera is not active"}
             </Text>
           </Box>
@@ -489,20 +497,22 @@ const Login = () => {
 
       <Flex justify="center">
         <Button
-          colorScheme={photos.length >= maxPhotos && !countdown && !hasStoredPhotos
-            ? "red" 
-            : isCapturing
-            ? "red"
-            : isCameraActive
-            ? "orange"
-            : "yellow"}
+          colorScheme={
+            photos.length >= maxPhotos && !countdown && !hasStoredPhotos
+              ? "red"
+              : isCapturing
+              ? "red"
+              : isCameraActive
+              ? "orange"
+              : "yellow"
+          }
           onClick={toggleCamera}
         >
           {photos.length >= maxPhotos && !countdown && !hasStoredPhotos
-           ? "Delete Photos n Turn Off Camera" 
-           : isCameraActive
-           ? "Turn Off Camera"
-           : "Turn On Camera"}
+            ? "Delete Photos n Turn Off Camera"
+            : isCameraActive
+            ? "Turn Off Camera"
+            : "Turn On Camera"}
         </Button>
       </Flex>
     </>

@@ -1,7 +1,7 @@
 // src/hooks/useArea.ts
-import useSWR from 'swr';
-import { axiosInstance } from '../lib/axios';
-import { AxiosError } from 'axios';
+import useSWR from "swr";
+import { axiosInstance } from "../lib/axios";
+import { AxiosError } from "axios";
 
 export interface Area {
   id: string;
@@ -32,18 +32,20 @@ const areaFetcher = async (url: string): Promise<Area> => {
 
 // Fungsi fetcher untuk data semua users
 const areasFetcher = async (url: string): Promise<Area[]> => {
-const response = await axiosInstance.get<AreasApiResponse>(url);
-return response.data.data;
+  const response = await axiosInstance.get<AreasApiResponse>(url);
+  return response.data.data;
 };
 
 export const useAreas = () => {
-  const { data, error, mutate } = useSWR<Area[]>('/areas', areasFetcher, {
-    // refreshInterval: 300000,   
+  const { data, error, mutate } = useSWR<Area[]>("/areas", areasFetcher, {
+    // refreshInterval: 300000,
     errorRetryCount: 3,
     revalidateOnFocus: true,
   });
 
-  const sortedAreas = data ? [...data].sort((a, b) => a.id.localeCompare(b.id)) : [];
+  const sortedAreas = data
+    ? [...data].sort((a, b) => a.id.localeCompare(b.id))
+    : [];
 
   return {
     areas: sortedAreas || [],
@@ -54,11 +56,15 @@ export const useAreas = () => {
 };
 
 export const useAreaById = (areaId: string) => {
-  const { data, error, mutate } = useSWR<Area>(`/areas/${areaId}`, areaFetcher, {
-    // refreshInterval: 300000,    
-    errorRetryCount: 3,    
-    revalidateOnFocus: true,
-  });
+  const { data, error, mutate } = useSWR<Area>(
+    `/areas/${areaId}`,
+    areaFetcher,
+    {
+      // refreshInterval: 300000,
+      errorRetryCount: 3,
+      revalidateOnFocus: true,
+    }
+  );
 
   return {
     areaById: data,
@@ -68,39 +74,40 @@ export const useAreaById = (areaId: string) => {
   };
 };
 
-export const createArea = async (
-    data: { name?:string; capacity?: number }
-  ) => {
-    try {
-      const response = await axiosInstance.post(`/areas`, data);
-      return response;
-    } catch (e) {
-      const error = e as AxiosError<ApiErrorResponse>;
-      throw new Error(error.response?.data?.message || 'Failed to create Area!');
-    }
-  };
+export const createArea = async (data: {
+  name?: string;
+  capacity?: number;
+}) => {
+  try {
+    const response = await axiosInstance.post(`/areas`, data);
+    return response;
+  } catch (e) {
+    const error = e as AxiosError<ApiErrorResponse>;
+    throw new Error(error.response?.data?.message || "Failed to create Area!");
+  }
+};
 
 export const editArea = async (
-  areaId: string, 
-  data: { name?:string; capacity?: number }
+  areaId: string,
+  data: { name?: string; capacity?: number }
 ) => {
   try {
     const response = await axiosInstance.put(`/areas/${areaId}`, data);
     return response.data;
   } catch (e) {
     const error = e as AxiosError<ApiErrorResponse>;
-    throw new Error(error.response?.data?.message || 'Failed to editing area!');
+    throw new Error(error.response?.data?.message || "Failed to editing area!");
   }
 };
 
-export const deleteArea = async (
-  areaId: string
-) => {
+export const deleteArea = async (areaId: string) => {
   try {
     const response = await axiosInstance.delete(`/areas/${areaId}`);
     return response.data;
   } catch (e) {
     const error = e as AxiosError<ApiErrorResponse>;
-    throw new Error(error.response?.data?.message || 'Failed to deleting area!');
+    throw new Error(
+      error.response?.data?.message || "Failed to deleting area!"
+    );
   }
 };

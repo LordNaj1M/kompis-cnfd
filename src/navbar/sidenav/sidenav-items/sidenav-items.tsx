@@ -12,23 +12,23 @@ import {
 import { IconType } from "react-icons";
 import { NavLink } from "react-router-dom";
 import { useSidenav } from "../sidenav-context/sidenav-context";
-  
+
 export interface SidenavItem {
   icon: IconType;
   label: string;
   to: string;
 }
-  
+
 export interface SidenavItemsProps {
   navItems: SidenavItem[];
   mode?: "semi" | "over";
 }
-  
+
 export function SidenavItems({ navItems, mode = "semi" }: SidenavItemsProps) {
   const { onClose } = useSidenav();
-  const focusLink = useColorModeValue('gray.100', 'gray.700');
-  const hoverLink = useColorModeValue('gray.200', 'gray.600');
- 
+  const focusLink = useColorModeValue("gray.100", "gray.700");
+  const hoverLink = useColorModeValue("gray.200", "gray.600");
+
   const sidebarItemInOverMode = (item: SidenavItem, index: number) => {
     return (
       <ListItem key={index} w="full">
@@ -37,17 +37,17 @@ export function SidenavItems({ navItems, mode = "semi" }: SidenavItemsProps) {
           as={NavLink}
           to={item.to}
           onClick={() => onClose()}
-          _focus={{ 
+          _focus={{
             bg: focusLink,
-            outline: 'none'
+            outline: "none",
           }}
-          _hover={{ 
+          _hover={{
             bg: hoverLink,
-            color: 'orange.500'
+            color: "orange.500",
           }}
           _activeLink={{
-            bg: "orange.500", 
-            color: "white"
+            bg: "orange.500",
+            color: "white",
           }}
           w="full"
           borderRadius="md"
@@ -73,13 +73,13 @@ export function SidenavItems({ navItems, mode = "semi" }: SidenavItemsProps) {
             key={index}
             as={NavLink}
             to={item.to}
-            _focus={{ 
+            _focus={{
               bg: focusLink,
-              outline: 'none'
+              outline: "none",
             }}
-            _activeLink={{ 
-              bg: "orange.500", 
-              color: "white"
+            _activeLink={{
+              bg: "orange.500",
+              color: "white",
             }}
             aria-label={item.label}
             borderRadius="xl"
@@ -100,5 +100,5 @@ export function SidenavItems({ navItems, mode = "semi" }: SidenavItemsProps) {
     </List>
   );
 }
-  
+
 export default SidenavItems;
