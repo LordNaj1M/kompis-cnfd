@@ -37,6 +37,7 @@ const Login = () => {
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
 
+  const captureInterval = useRef<NodeJS.Timeout | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -442,13 +443,17 @@ const Login = () => {
               }}
               style={{
                 width: "100%",
+                maxWidth: "640px",
+                height: "100%",
+                maxHeight: "480px",
                 borderRadius: "10px",
               }}
             />
 
             <Text as={"sub"}>
-              * Pastikan wajah Anda terlihat jelas tanpa halangan, bayangan, dan
-              dengan pencahayaan yang baik serta latar belakang netral.
+              * Tunjukkan beberapa angle wajah Anda; terlihat jelas tanpa
+              halangan, bayangan, dan dengan pencahayaan yang baik serta latar
+              belakang netral.
             </Text>
 
             {countdown && (
@@ -521,6 +526,10 @@ const Login = () => {
     setIsCameraActive((prev) => {
       if (prev) {
         // Reset capture-related states when turning off camera
+        if (captureInterval.current) {
+          clearInterval(captureInterval.current);
+          captureInterval.current = null;
+        }
         setIsCapturing(false);
         setCountdown(null);
         if (!hasStoredPhotos) {
@@ -540,10 +549,14 @@ const Login = () => {
   };
 
   const startAutoCapture = async () => {
+    if (captureInterval.current) {
+      clearInterval(captureInterval.current);
+      captureInterval.current = null;
+    }
+
     setIsCapturing(true);
     setPhotos([]);
     setHasStoredPhotos(false);
-    let photoCount = 0;
 
     // Tunggu 3 detik sebelum mulai capture
     setCountdown(3);
@@ -560,23 +573,21 @@ const Login = () => {
       }, 1000);
     });
 
-    const captureInterval = setInterval(() => {
+    captureInterval.current = setInterval(() => {
       const photo = capturePhoto();
       if (photo) {
         photos.push(photo);
         setPhotos((prevPhotos) => [...prevPhotos, photo]);
 
-        photoCount++;
-
-        if (photoCount == maxPhotos) {
-          clearInterval(captureInterval);
+        if (photos.length == maxPhotos) {
+          if (captureInterval.current) {
+            clearInterval(captureInterval.current);
+            captureInterval.current = null;
+          }
           setIsCapturing(false);
-          // Kirim foto ke backend
-          // sendPhotosToBackend([...photos, photo]);
-          // console.log("final:" + JSON.stringify(photos));
         }
       }
-    }, 500); // Ambil foto setiap 500ms
+    }, 1000); // Ambil foto setiap 1000ms
   };
 
   const savePhotos = () => {

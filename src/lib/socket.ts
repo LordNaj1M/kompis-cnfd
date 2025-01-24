@@ -3,15 +3,22 @@ import { io, Socket } from "socket.io-client";
 
 interface ServerToClientEvents {
   "io-crowd-result": (result: CrowdResult) => void;
+  "io-fatigue-result": (result: FatigueResult) => void;
   connect_error: (error: Error) => void;
   disconnect: (reason: string) => void;
 }
 
+interface ClientToServerEvents {
+  // connected: (areaId: string) => void;
+  "io-crowd-frame": (imageData: string) => void;
+  "io-fatigue-frame": (imageData: string) => void;
+}
+
 interface CrowdResult {
   detection_data: Detection_Data[];
-  status: "";
+  // status: "";
   count: number;
-  area_id: string;
+  // area_id: string;
   createdAt: string;
 }
 
@@ -26,8 +33,11 @@ interface BoundingBox {
   y_max: number;
 }
 
-interface ClientToServerEvents {
-  "io-crowd-frame": (imageData: string) => void;
+interface FatigueResult {
+  detection_data: Detection_Data[];
+  status: "";
+  // user_id: string;
+  createdAt: string;
 }
 
 // Singleton instance untuk socket connection

@@ -38,6 +38,7 @@ export const useCrowds = () => {
     // refreshInterval: 300000,
     errorRetryCount: 3,
     revalidateOnFocus: true,
+    fallbackData: [],
   });
   const areas = useAreas();
   const areaMap = new Map<string, string>();
@@ -71,6 +72,17 @@ export const useCrowds = () => {
   });
 
   const lastCrowdPerArea = Array.from(getLastCrowdPerArea.values());
+  lastCrowdPerArea.sort((a, b) => {
+    const nameA = a.areaName.toLowerCase();
+    const nameB = b.areaName.toLowerCase();
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+    return 0;
+  });
 
   return {
     crowds: sortedData || [],
@@ -109,6 +121,13 @@ export const useCrowdById = (areaId: string) => {
       // refreshInterval: 300000,
       errorRetryCount: 3,
       revalidateOnFocus: true,
+      fallbackData: {
+        id: "",
+        status: "unknown",
+        count: 0,
+        createdAt: new Date().toISOString(),
+        area_id: areaId,
+      },
     }
   );
 

@@ -35,9 +35,9 @@ import { useNavigate, useParams } from "react-router-dom";
 
 interface CrowdResult {
   detection_data: Detection_Data[];
-  status: "";
+  // status: "";
   count: number;
-  area_id: string;
+  // area_id: string;
   createdAt: string;
 }
 
@@ -70,9 +70,8 @@ const CrowdDetection = () => {
 
   const [crowdData, setCrowdData] = useState<CrowdResult>({
     detection_data: [],
-    status: "",
+    // status: "",
     count: 0,
-    area_id: "",
     createdAt: "",
   });
 
@@ -83,16 +82,51 @@ const CrowdDetection = () => {
         ...prevArray,
         {
           ...crowdData,
-          createdAt: new Date(crowdData.createdAt).toLocaleString("id-ID", {
-            timeZone: "Asia/Jakarta",
-          }),
+          createdAt:
+            crowdData?.createdAt == ""
+              ? ""
+              : new Date(crowdData.createdAt).toLocaleString("id-ID", {
+                  timeZone: "Asia/Jakarta",
+                }),
         },
       ];
       return newArray.length > 10 ? newArray.slice(1) : newArray;
     });
   }, [crowdData]);
 
-  const handleChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+  // Socket connection effect
+  useEffect(() => {
+    if (areaById?.id) {
+      console.log("cek" + areaById.id);
+      // Connect socket if not connected
+      if (!socket.connected) {
+        socket.connect();
+      }
+
+      // Set up socket event listeners
+      const onCrowdResult = (result: CrowdResult) => {
+        setCrowdData(result);
+      };
+
+      // socket.emit("connected", areaById.id);
+      socket.on("io-crowd-result", onCrowdResult);
+
+      // Cleanup function
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+        socket.off("io-crowd-result", onCrowdResult);
+        socket.disconnect();
+        setCrowdDataArray([]);
+        setIsCameraActive(false);
+      };
+    }
+  }, [areaById?.id]);
+
+  const handleChangeAreaId = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const newAreaId = event.target.value;
     setSelectedAreaId(newAreaId);
     await navigate(`/crowd-detection/${newAreaId}`, { replace: true });
@@ -174,32 +208,8 @@ const CrowdDetection = () => {
     });
   };
 
-  // Socket connection effect
   useEffect(() => {
-    // Connect socket if not connected
-    if (!socket.connected) {
-      socket.connect();
-    }
-
-    // Set up socket event listeners
-    const onCrowdResult = (result: CrowdResult) => {
-      setCrowdData(result);
-    };
-
-    socket.on("io-crowd-result", onCrowdResult);
-
-    // Cleanup function
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      socket.off("io-crowd-result", onCrowdResult);
-      socket.disconnect();
-    };
-  }, []); // Empty dependency array - only run once on mount
-
-  useEffect(() => {
-    if (isCameraActive && crowdData.detection_data?.length > 0) {
+    if (isCameraActive) {
       // Set up an animation frame loop
       let animationFrameId: number;
 
@@ -294,7 +304,7 @@ const CrowdDetection = () => {
                 ) : (
                   <Select
                     value={selectedAreaId}
-                    onChange={handleChange}
+                    onChange={handleChangeAreaId}
                     bg={"white"}
                   >
                     {!selectedAreaId && (
@@ -355,7 +365,7 @@ const CrowdDetection = () => {
               <Box
                 w="100%"
                 maxW="640px"
-                h="480px"
+                h="40px"
                 bg="gray.100"
                 display="flex"
                 alignItems="center"
@@ -390,23 +400,34 @@ const CrowdDetection = () => {
           <Heading size="md" p={1}>
             ANALYTIC RESULT
           </Heading>
-          <Text>Jumlah: {crowdData.count}</Text>
-          <Text>Status: {crowdData.status}</Text>
+          <Text>
+            Jumlah Orang:{" "}
+            {crowdDataArray[0]?.createdAt == "" ? "" : crowdData.count}
+          </Text>
+          {/* <Text>
+            Status: {crowdDataArray[0]?.createdAt == "" ? "" : crowdData.status}
+          </Text> */}
           <Text>
             Terakhir Diperbarui:{" "}
-            {new Date(crowdData.createdAt).toLocaleString("id-ID", {
-              timeZone: "Asia/Jakarta",
-            })}
+            {crowdDataArray[0]?.createdAt == ""
+              ? ""
+              : new Date(crowdData.createdAt).toLocaleString("id-ID", {
+                  timeZone: "Asia/Jakarta",
+                })}
           </Text>
         </Box>
 
         <Box w="full" borderWidth={1} borderRadius="lg" p={4} bg={"white"}>
           <Heading size="md" p={1}>
-            Crowd Data Log
+            CROWD DATA LOG
           </Heading>
           <ResponsiveContainer width="100%" height={400}>
             <LineChart
-              data={crowdDataArray}
+              data={
+                areaById?.id && crowdDataArray[0]?.createdAt != ""
+                  ? crowdDataArray
+                  : []
+              }
               margin={{
                 top: 5,
                 right: 30,
