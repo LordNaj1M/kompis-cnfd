@@ -78,7 +78,7 @@ const Login = () => {
           duration: 1000,
           isClosable: true,
           onCloseComplete() {
-            navigate("/");
+            navigate("/admin/dashboard");
           },
         },
         error: (error) => ({

@@ -13,7 +13,7 @@ import {
   useMediaQuery,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useUserById } from "../../hooks/useUser";
+import { useUserById } from "../../../hooks/useUser";
 import { FiEdit2 } from "react-icons/fi";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { useEffect } from "react";

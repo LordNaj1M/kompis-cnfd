@@ -1,4 +1,3 @@
-// export default CrowdConfiguration;
 import {
   Box,
   Table,
@@ -18,6 +17,7 @@ import {
   HStack,
   Tooltip,
   VStack,
+  Badge,
   Flex,
   useMediaQuery,
   useToast,
@@ -29,30 +29,30 @@ import {
   AlertDialogOverlay,
   Button,
   useDisclosure,
+  Container,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
-import { useAreas, deleteArea } from "../../hooks/useArea";
+import { useUsers, deleteUserByAdmin } from "../../../hooks/useUser";
 import { useNavigate } from "react-router-dom";
-
-import { BiLayerPlus } from "react-icons/bi";
 import { HiOutlineInformationCircle } from "react-icons/hi";
 import { CiEdit } from "react-icons/ci";
 import { RiDeleteBin5Line } from "react-icons/ri";
 
-interface Area {
+interface User {
   id: string;
   name: string;
-  capacity: number;
+  email: string;
+  role: string;
 }
 
-const CrowdConfiguration = () => {
+const UsersManagement = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef<HTMLButtonElement>(null);
 
-  const [areaToDelete, setAreaToDelete] = useState<string | null>(null);
-  const [areaId, setAreaId] = useState("");
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [userId, setUserId] = useState("");
 
   const bgCard = useColorModeValue("white", "gray.700");
   const bgHover = useColorModeValue("gray.50", "gray.600");
@@ -60,39 +60,39 @@ const CrowdConfiguration = () => {
   const labelColor = useColorModeValue("gray.600", "gray.400");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
-  const { areas, isLoading, isError } = useAreas();
+  const { users, isLoading, isError } = useUsers();
 
-  const handleCreateArea = () => {
-    navigate(`/admin/crowd-configuration/create`);
+  // Handle view profile user
+  const handleViewUserProfile = (userId: string) => {
+    navigate(`/admin/users-management/view/${userId}`);
   };
 
-  const handleViewArea = (areaId: string) => {
-    navigate(`/admin/crowd-configuration/view/${areaId}`);
+  // Handle edit user
+  const handleEditUser = (userId: string) => {
+    navigate(`/admin/users-management/edit/${userId}`);
   };
 
-  const handleEditArea = (areaId: string) => {
-    navigate(`/admin/crowd-configuration/edit/${areaId}`);
-  };
-
-  const handleDeleteAreaConfirmation = (areaId: string) => {
-    setAreaId(areaId);
-    setAreaToDelete(areaId);
+  // Handle delete user confirmation
+  const handleDeleteUserConfirmation = (userId: string) => {
+    setUserId(userId);
+    setUserToDelete(userId);
     onOpen();
   };
 
-  const handleDeleteArea = () => {
-    if (!areaToDelete) return;
+  // Handle delete user
+  const handleDeleteUser = () => {
+    if (!userToDelete) return;
 
     try {
-      const deleteAreaPromise = deleteArea(areaToDelete);
-      toast.promise(deleteAreaPromise, {
+      const deleteUserPromise = deleteUserByAdmin(userToDelete);
+      toast.promise(deleteUserPromise, {
         loading: {
-          title: "Deleting Area",
-          description: "Please wait while we delete Area_" + areaToDelete,
+          title: "Deleting User",
+          description: "Please wait while we delete User_" + userToDelete,
         },
         success: {
-          title: "Delete Area Successful",
-          description: "Area_" + areaToDelete + " has been deleted!",
+          title: "Delete User Successful",
+          description: "User_" + userToDelete + " has been deleted!",
           duration: 1000,
           isClosable: true,
           onCloseComplete() {
@@ -100,10 +100,10 @@ const CrowdConfiguration = () => {
           },
         },
         error: (error) => ({
-          title: "Delete Area Failed",
+          title: "Delete User Failed",
           description:
-            "An error occurred during delete Area_" +
-            areaToDelete +
+            "An error occurred during delete User_" +
+            userToDelete +
             ": " +
             error,
           duration: 5000,
@@ -112,9 +112,9 @@ const CrowdConfiguration = () => {
       });
     } catch (error) {
       toast({
-        title: "Delete Area Failed",
+        title: "Delete User Failed",
         description:
-          "An error occurred during delete Area_" + areaToDelete + ": " + error,
+          "An error occurred during delete User_" + userToDelete + ": " + error,
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -125,43 +125,43 @@ const CrowdConfiguration = () => {
   };
 
   // Action buttons component
-  const ActionButtons = ({ area }: { area: Area }) => (
+  const ActionButtons = ({ user }: { user: User }) => (
     <HStack
       spacing={2}
       justify={isMobile ? "flex-start" : "center"}
-      display={"flex"}
+      display={user.role === "admin" ? "none" : "flex"}
     >
       <Tooltip label="View" placement="bottom">
         <IconButton
-          aria-label="View Area"
+          aria-label="View profile"
           icon={<HiOutlineInformationCircle />}
           fontSize="xl"
           colorScheme="blue"
           variant="ghost"
           size={isMobile ? "sm" : "md"}
-          onClick={() => handleViewArea(area.id)}
+          onClick={() => handleViewUserProfile(user.id)}
         />
       </Tooltip>
       <Tooltip label="Edit" placement="bottom">
         <IconButton
-          aria-label="Edit Area"
+          aria-label="Edit user"
           icon={<CiEdit />}
           fontSize="xl"
           colorScheme="green"
           variant="ghost"
           size={isMobile ? "sm" : "md"}
-          onClick={() => handleEditArea(area.id)}
+          onClick={() => handleEditUser(user.id)}
         />
       </Tooltip>
       <Tooltip label="Delete" placement="bottom">
         <IconButton
-          aria-label="Delete Area"
+          aria-label="Delete profile"
           icon={<RiDeleteBin5Line />}
           fontSize="xl"
           colorScheme="red"
           variant="ghost"
           size={isMobile ? "sm" : "md"}
-          onClick={() => handleDeleteAreaConfirmation(area.id)}
+          onClick={() => handleDeleteUserConfirmation(user.id)}
         />
       </Tooltip>
     </HStack>
@@ -171,17 +171,17 @@ const CrowdConfiguration = () => {
     return (
       <Card bg={bgCard} borderColor={borderColor} borderWidth="1px">
         <CardHeader>
-          <Heading size="lg">CROWD AREA CONFIGURATION</Heading>
+          <Heading size="lg">USER MANAGEMENT</Heading>
         </CardHeader>
         <CardBody>
-          <Text color="red.500">Error loading areas: {isError.message}</Text>
+          <Text color="red.500">Error loading users: {isError.message}</Text>
         </CardBody>
       </Card>
     );
   }
 
-  // Mobile card view for each area
-  const MobileAreaCard = ({ area, index }: { area: Area; index: number }) => (
+  // Mobile card view for each user
+  const MobileUserCard = ({ user, index }: { user: User; index: number }) => (
     <Card
       bg={bgCard}
       borderColor={borderColor}
@@ -196,24 +196,27 @@ const CrowdConfiguration = () => {
             <Text fontSize="sm" color={labelColor}>
               #{index + 1}
             </Text>
+            <Badge colorScheme={user.role === "admin" ? "purple" : "blue"}>
+              {user.role}
+            </Badge>
           </Flex>
 
           <Box>
             <Text fontSize="sm" color={labelColor}>
               Name
             </Text>
-            <Text fontWeight="medium">{area.name}</Text>
+            <Text fontWeight="medium">{user.name}</Text>
           </Box>
 
           <Box>
             <Text fontSize="sm" color={labelColor}>
-              Capacity
+              Email
             </Text>
-            <Text fontWeight="medium">{area.capacity}</Text>
+            <Text fontWeight="medium">{user.email}</Text>
           </Box>
 
           <Flex justifyContent="flex-end">
-            <ActionButtons area={area} />
+            <ActionButtons user={user} />
           </Flex>
         </VStack>
       </CardBody>
@@ -228,22 +231,28 @@ const CrowdConfiguration = () => {
           <Tr>
             <Th textAlign="center">No</Th>
             <Th textAlign="center">Name</Th>
-            <Th textAlign="center">Capacity</Th>
+            <Th textAlign="center">Email</Th>
+            <Th textAlign="center">Role</Th>
             <Th textAlign="center">Action</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {areas?.map((area, index) => (
+          {users?.map((user, index) => (
             <Tr
-              key={area?.id}
+              key={user?.id}
               _hover={{ bg: bgHover }}
               transition="background 0.2s"
             >
               <Td textAlign="center">{index + 1}</Td>
-              <Td textAlign="center">{area.name}</Td>
-              <Td textAlign="center">{area.capacity}</Td>
+              <Td textAlign="center">{user.name}</Td>
+              <Td textAlign="center">{user.email}</Td>
               <Td textAlign="center">
-                <ActionButtons area={area} />
+                <Badge colorScheme={user.role === "admin" ? "purple" : "blue"}>
+                  {user.role}
+                </Badge>
+              </Td>
+              <Td textAlign="center">
+                <ActionButtons user={user} />
               </Td>
             </Tr>
           ))}
@@ -256,33 +265,20 @@ const CrowdConfiguration = () => {
     <>
       <div className="min-h-screen bg-gray-50 p-4">
         <Box p={6}>
-          <Flex justify="space-between" align="center">
-            <Heading size={isMobile ? "md" : "lg"}>
-              CROWD AREA CONFIGURATION
-            </Heading>
-            <Button
-              leftIcon={<BiLayerPlus />}
-              bg="orange.300"
-              color="black"
-              _hover={{ bg: "orange.100" }}
-              size={isMobile ? "xl" : "md"}
-              padding={isMobile ? 3 : ""}
-              onClick={handleCreateArea}
-            >
-              {isMobile ? "" : "Create Area"}
-            </Button>
-          </Flex>
+          <VStack align="start" spacing={4}>
+            <Heading size="lg">USER MANAGEMENT</Heading>
+          </VStack>
         </Box>
         <Card bg={bgCard} borderColor={borderColor} borderWidth="1px">
           <CardBody>
             {isLoading ? (
-              <Flex justify="center" align="center" minH="200px">
+              <Container centerContent py={10}>
                 <Spinner size="xl" />
-              </Flex>
+              </Container>
             ) : isMobile ? (
               <VStack spacing={4} align="stretch">
-                {areas?.map((area, index) => (
-                  <MobileAreaCard key={area.id} area={area} index={index} />
+                {users?.map((user, index) => (
+                  <MobileUserCard key={user.id} user={user} index={index} />
                 ))}
               </VStack>
             ) : (
@@ -301,7 +297,7 @@ const CrowdConfiguration = () => {
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete Area_{areaId}
+              Delete User_{userId}
             </AlertDialogHeader>
             <AlertDialogBody>
               Are you sure? You can't undo this action afterwards.
@@ -310,7 +306,7 @@ const CrowdConfiguration = () => {
               <Button ref={cancelRef} onClick={onClose}>
                 Cancel
               </Button>
-              <Button colorScheme="red" onClick={handleDeleteArea} ml={3}>
+              <Button colorScheme="red" onClick={handleDeleteUser} ml={3}>
                 Delete
               </Button>
             </AlertDialogFooter>
@@ -321,4 +317,4 @@ const CrowdConfiguration = () => {
   );
 };
 
-export default CrowdConfiguration;
+export default UsersManagement;

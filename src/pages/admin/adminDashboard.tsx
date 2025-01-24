@@ -29,7 +29,7 @@ import { useNavigate } from "react-router-dom";
 import { useCrowds } from "../../hooks/useCrowd";
 import { useAreas } from "../../hooks/useArea";
 
-const Dashboard = () => {
+const AdminDashboard = () => {
   const navigate = useNavigate();
   const { crowds, lastCrowdPerArea, isLoading, isError } = useCrowds();
   const areas = useAreas();
@@ -63,7 +63,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50 p-4">
       <Box p={6}>
         <VStack align="start" spacing={4}>
-          <Heading size="lg">DASHBOARD</Heading>
+          <Heading size="lg">DASHBOARD ADMIN</Heading>
         </VStack>
       </Box>
 
@@ -163,4 +163,4 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export default Dashboard;
+export default AdminDashboard;

@@ -51,7 +51,7 @@ interface BoundingBox {
   y_max: number;
 }
 
-const FatigueDetection = () => {
+const UserFatigueDetection = () => {
   // const navigate = useNavigate();
   // const toast = useToast();
   const webcamRef = useRef<Webcam>(null);
@@ -434,4 +434,4 @@ const FatigueDetection = () => {
   );
 };
 
-export default FatigueDetection;
+export default UserFatigueDetection;

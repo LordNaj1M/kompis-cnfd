@@ -52,7 +52,7 @@ interface BoundingBox {
   y_max: number;
 }
 
-const CrowdDetection = () => {
+const UserCrowdDetection = () => {
   const { areaId } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
@@ -454,4 +454,4 @@ const CrowdDetection = () => {
   );
 };
 
-export default CrowdDetection;
+export default UserCrowdDetection;

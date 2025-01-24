@@ -9,18 +9,16 @@ import {
 } from "react-router-dom";
 import App from "./App";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import CrowdDetection from "./pages/crowdDetection/CrowdDetection";
-import CrowdConfiguration from "./pages/crowdDetection/CrowdConfiguration";
-import CreateArea from "./pages/crowdDetection/CreateArea";
-import ViewDetailArea from "./pages/crowdDetection/ViewDetailArea";
-import EditArea from "./pages/crowdDetection/EditArea";
-import FatigueDetection from "./pages/fatigueDetection/FatigueDetection";
-import FatigueConfiguration from "./pages/fatigueDetection/FatigueConfiguration";
-import UsersManagement from "./pages/usersManagement/UsersManagement";
-import ViewUserProfile from "./pages/usersManagement/ViewUserProfile";
-import EditUserProfile from "./pages/usersManagement/EditUserProfile";
-import ChangeUserPassword from "./pages/usersManagement/ChangeUserPassword";
+import AdminDashboard from "./pages/admin/adminDashboard";
+import AdminCrowdDetection from "./pages/admin/adminCrowdDetection";
+import AdminFatigueDetection from "./pages/admin/adminFatigueDetection";
+import UsersManagement from "./pages/admin/usersManagement/UsersManagement";
+import ViewUserProfile from "./pages/admin/usersManagement/ViewUserProfile";
+import EditUserProfile from "./pages/admin/usersManagement/EditUserProfile";
+import ChangeUserPassword from "./pages/admin/usersManagement/ChangeUserPassword";
+import UserDashboard from "./pages/user/userDashboard";
+import UserCrowdDetection from "./pages/user/userCrowdDetection";
+import UserFatigueDetection from "./pages/user/userFatigueDetection";
 import Profile from "./pages/profile/Profile";
 import EditProfile from "./pages/profile/EditProfile";
 import ChangePassword from "./pages/profile/ChangePassword";
@@ -66,10 +64,9 @@ const routes = createBrowserRouter([
         path: "",
         element: <App />,
         children: [
-          { path: "", element: <Dashboard /> },
-          { path: "crowd-detection", element: <CrowdDetection /> },
-          { path: "crowd-detection/:areaId", element: <CrowdDetection /> },
-          { path: "fatigue-detection", element: <FatigueDetection /> },
+          { path: "", element: <UserDashboard /> },
+          { path: "crowd-detection", element: <UserCrowdDetection /> },
+          { path: "fatigue-detection", element: <UserFatigueDetection /> },
           {
             path: "profile",
             children: [
@@ -90,6 +87,9 @@ const routes = createBrowserRouter([
         path: "",
         element: <App />,
         children: [
+          { path: "dashboard", element: <AdminDashboard /> },
+          { path: "crowd-detection", element: <AdminCrowdDetection /> },
+          { path: "fatigue-detection", element: <AdminFatigueDetection /> },
           {
             path: "users-management",
             children: [
@@ -100,23 +100,6 @@ const routes = createBrowserRouter([
                 path: "change-password/:userId",
                 element: <ChangeUserPassword />,
               },
-            ],
-          },
-          {
-            path: "crowd-configuration",
-            children: [
-              { path: "", element: <CrowdConfiguration /> },
-              { path: "create", element: <CreateArea /> },
-              { path: "view/:areaId", element: <ViewDetailArea /> },
-              { path: "edit/:areaId", element: <EditArea /> },
-            ],
-          },
-          {
-            path: "fatigue-configuration",
-            children: [
-              { path: "", element: <FatigueConfiguration /> },
-              { path: "view/:areaId", element: "<EditProfile />" },
-              { path: "edit/:areaId", element: "<ChangePassword />" },
             ],
           },
         ],

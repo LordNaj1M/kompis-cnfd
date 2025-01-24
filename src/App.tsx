@@ -10,8 +10,6 @@ import { MdDashboard } from "react-icons/md";
 import { FaPeopleGroup, FaUsersGear } from "react-icons/fa6";
 import { FaUserInjured } from "react-icons/fa";
 import { Outlet } from "react-router-dom";
-import { Box, Icon } from "@chakra-ui/react";
-import { GrConfigure } from "react-icons/gr";
 import {
   AlertDialog,
   AlertDialogBody,
@@ -36,38 +34,25 @@ const App = () => {
     logout();
   };
 
-  const CrowdConfigIcon = () => {
-    return (
-      <Box position="relative" display="inline-block" boxSize={5}>
-        <FaPeopleGroup />
-        <Icon
-          as={GrConfigure}
-          position="absolute"
-          transform="translate(50%, -60%)"
-        />
-      </Box>
-    );
-  };
-  const FatigueConfigIcon = () => {
-    return (
-      <Box position="relative" display="inline-block" boxSize={5}>
-        <FaUserInjured size={13} />
-        <Icon
-          as={GrConfigure}
-          position="absolute"
-          transform="translate(50%, -60%)"
-        />
-      </Box>
-    );
-  };
-
   const navItems: SidenavItem[] = [
-    { icon: MdDashboard, label: "Dashboard", to: "/" },
-    { icon: FaPeopleGroup, label: "Crowd Detection", to: "/crowd-detection" },
+    {
+      icon: MdDashboard,
+      label: "Dashboard",
+      to: user?.role === "admin" ? "/admin/dashboard" : "/",
+    },
+    {
+      icon: FaPeopleGroup,
+      label: "Crowd Detection",
+      to:
+        user?.role === "admin" ? "/admin/crowd-detection" : "/crowd-detection",
+    },
     {
       icon: FaUserInjured,
       label: "Fatigue Detection",
-      to: "/fatigue-detection",
+      to:
+        user?.role === "admin"
+          ? "/admin/fatigue-detection"
+          : "/fatigue-detection",
     },
   ];
 
@@ -76,16 +61,6 @@ const App = () => {
       icon: FaUsersGear,
       label: "Users Management",
       to: "/admin/users-management",
-    });
-    navItems.push({
-      icon: CrowdConfigIcon,
-      label: "Crowd Configuration",
-      to: "/admin/crowd-configuration",
-    });
-    navItems.push({
-      icon: FatigueConfigIcon,
-      label: "Fatigue Configuration",
-      to: "/admin/fatigue-configuration",
     });
   }
 

@@ -1,58 +1,53 @@
-// src/pages/crowdDetection/EditArea.tsx
+// src/pages/profile/ChangeUserPassword.tsx
 import { useEffect, useState } from "react";
 import {
-  Text,
   Box,
   Button,
   Card,
   CardBody,
-  Container,
   FormControl,
   FormLabel,
   Heading,
   Input,
-  Spinner,
   Stack,
   useColorModeValue,
   useToast,
   VStack,
   useMediaQuery,
   Flex,
+  Container,
+  Spinner,
+  Text,
+  Divider,
 } from "@chakra-ui/react";
-import { editArea, useAreaById } from "../../hooks/useArea";
+import { editPasswordByAdmin, useUserById } from "../../../hooks/useUser";
 import { useNavigate, useParams } from "react-router-dom";
 
-const EditUserProfile = () => {
-  const { areaId } = useParams();
-  const { areaById, isLoading, isError } = useAreaById(areaId || "");
+const ChangeUserPassword = () => {
+  const { userId } = useParams();
+  const { user, isLoading, isError } = useUserById(userId || "");
   const navigate = useNavigate();
   const toast = useToast();
 
-  const [name, setName] = useState("");
-  const [capacity, setCapacity] = useState(0);
+  const [passwordAdmin, setPasswordAdmin] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
+  const [newUserPassword, setNewPassword] = useState("");
 
   const cardBg = useColorModeValue("white", "gray.800");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   useEffect(() => {
-    if (areaById) {
-      setName(areaById.name);
-      setCapacity(areaById.capacity);
-    }
-  }, [areaById]);
-
-  useEffect(() => {
-    if (!areaId) {
+    if (!userId) {
       <Container centerContent py={10}>
         <VStack spacing={4}>
-          <Text>Invalid Area ID.</Text>
+          <Text>Invalid user ID.</Text>
           <Button onClick={() => navigate(-1)} colorScheme="red">
             Go Back
           </Button>
         </VStack>
       </Container>;
     }
-  }, [areaId, navigate]);
+  }, [userId, navigate]);
 
   if (isLoading) {
     return (
@@ -62,7 +57,7 @@ const EditUserProfile = () => {
     );
   }
 
-  if (isError || !areaById || typeof areaById === "string") {
+  if (isError || !user || typeof user === "string") {
     return (
       <Container centerContent py={10}>
         <VStack spacing={4}>
@@ -73,37 +68,41 @@ const EditUserProfile = () => {
     );
   }
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleChangeUserPassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (name !== areaById?.name || capacity !== areaById?.capacity) {
+    if (passwordInput === newUserPassword) {
       try {
-        const updatePromise = editArea(areaById?.id, { name, capacity });
-        toast.promise(updatePromise, {
+        const changeUserPasswordPromise = editPasswordByAdmin(user?.id, {
+          passwordAdmin,
+          newUserPassword,
+        });
+        toast.promise(changeUserPasswordPromise, {
           loading: {
-            title: "Updating",
-            description: "Please wait while we update Area data.",
+            title: "Updating User Password",
+            description: `Please wait while we update the User's new password.`,
           },
           success: {
-            title: "Edit Area Successful",
-            description: "Area data has been updated!",
+            title: "Change User Password Success",
+            description: `The User's new password has been successfully updated!`,
             duration: 1000,
             isClosable: true,
             onCloseComplete() {
-              navigate(`/admin/crowd-configuration/view/${areaId}`);
+              navigate(`/admin/users-management/view/${user?.id}`);
             },
           },
           error: (error) => ({
-            title: "Edit Area Failed",
-            description: "An error occurred during edit Area: " + error,
+            title: "Change User Password Failed",
+            description:
+              "An error occurred while updating the password: " + error,
             duration: 5000,
             isClosable: true,
           }),
         });
       } catch (error) {
         toast({
-          title: "Edit Area Failed",
-          description: `An error occurred during edit Area: ${error}`,
+          title: "Change User Password Failed",
+          description: `An error occurred: ${error}`,
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -111,8 +110,8 @@ const EditUserProfile = () => {
       }
     } else {
       toast({
-        title: "Edit Area Failed",
-        description: "You enter the same data, no need to update!",
+        title: "Change Password Failed",
+        description: `The User's new password you retyped is not the same!`,
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -124,7 +123,9 @@ const EditUserProfile = () => {
     <VStack spacing={6} p={4} w="full" maxW="1200px" mx="auto">
       <Box p={6}>
         <VStack align="start" spacing={4}>
-          <Heading size="lg">EDIT AREA</Heading>
+          <Heading size={isMobile ? "md" : "lg"} textAlign="center">
+            CHANGE PASSWORD USER_{user?.email}
+          </Heading>
         </VStack>
       </Box>
       <Card
@@ -136,25 +137,39 @@ const EditUserProfile = () => {
         overflow="hidden"
       >
         <CardBody p={[4, 6, 8]}>
-          <form onSubmit={handleUpdate} name="editForm">
+          <form onSubmit={handleChangeUserPassword} name="editForm">
             <Stack spacing={4}>
               <FormControl>
-                <FormLabel>Area Name</FormLabel>
+                <FormLabel>Admin Password</FormLabel>
                 <Input
-                  type="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={areaById?.name}
+                  type="password"
+                  value={passwordAdmin}
+                  onChange={(e) => setPasswordAdmin(e.target.value)}
+                  placeholder="Enter Admin Password"
                   required
                 />
               </FormControl>
+
+              <Divider borderColor="blackAlpha.900" />
+
               <FormControl>
-                <FormLabel>Area Capacity</FormLabel>
+                <FormLabel>New Password</FormLabel>
                 <Input
-                  type="capacity"
-                  value={capacity}
-                  onChange={(e) => setCapacity(Number(e.target.value))}
-                  placeholder={areaById?.capacity.toString()}
+                  type="password"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="Enter the User's new password"
+                  required
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Retype New Password</FormLabel>
+                <Input
+                  type="password"
+                  value={newUserPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Retype the User's new password"
                   required
                 />
               </FormControl>
@@ -173,7 +188,7 @@ const EditUserProfile = () => {
                     size={isMobile ? "md" : "lg"}
                     width={isMobile ? "full" : "auto"}
                     onClick={() =>
-                      navigate(`/admin/crowd-configuration/view/${areaId}`)
+                      navigate(`/admin/users-management/view/${user?.id}`)
                     }
                   >
                     Cancel
@@ -181,12 +196,13 @@ const EditUserProfile = () => {
                 )}
                 <Button
                   type="submit"
-                  colorScheme="green"
+                  bg="blue.500"
                   color="white"
+                  _hover={{ bg: "blue.800" }}
                   size={isMobile ? "md" : "lg"}
                   width={isMobile ? "full" : "auto"}
                 >
-                  Update
+                  Change
                 </Button>
                 {isMobile && (
                   <Button
@@ -196,7 +212,7 @@ const EditUserProfile = () => {
                     size={isMobile ? "md" : "lg"}
                     width={isMobile ? "full" : "auto"}
                     onClick={() =>
-                      navigate(`/admin/crowd-configuration/view/${areaId}`)
+                      navigate(`/admin/users-management/view/${user?.id}`)
                     }
                   >
                     Cancel
@@ -211,4 +227,4 @@ const EditUserProfile = () => {
   );
 };
 
-export default EditUserProfile;
+export default ChangeUserPassword;

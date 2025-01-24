@@ -1,40 +1,48 @@
-// src/pages/profile/ChangeUserPassword.tsx
+// src/pages/profile/EditUserProfile.tsx
 import { useEffect, useState } from "react";
 import {
+  Text,
   Box,
   Button,
   Card,
   CardBody,
+  Container,
   FormControl,
   FormLabel,
   Heading,
   Input,
+  Spinner,
   Stack,
   useColorModeValue,
   useToast,
   VStack,
   useMediaQuery,
   Flex,
-  Container,
-  Spinner,
-  Text,
+  Select,
   Divider,
 } from "@chakra-ui/react";
-import { editPasswordByAdmin, useUserById } from "../../hooks/useUser";
+import { editProfileByAdmin, useUserById } from "../../../hooks/useUser";
 import { useNavigate, useParams } from "react-router-dom";
 
-const ChangeUserPassword = () => {
+const EditUserProfile = () => {
   const { userId } = useParams();
   const { user, isLoading, isError } = useUserById(userId || "");
   const navigate = useNavigate();
   const toast = useToast();
 
   const [passwordAdmin, setPasswordAdmin] = useState("");
-  const [passwordInput, setPasswordInput] = useState("");
-  const [newUserPassword, setNewPassword] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
   const cardBg = useColorModeValue("white", "gray.800");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
+
+  useEffect(() => {
+    if (user) {
+      setEmail(user.email);
+      setName(user.name);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!userId) {
@@ -68,23 +76,24 @@ const ChangeUserPassword = () => {
     );
   }
 
-  const handleChangeUserPassword = async (e: React.FormEvent) => {
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (passwordInput === newUserPassword) {
+    if (name !== user?.name || email !== user?.email) {
       try {
-        const changeUserPasswordPromise = editPasswordByAdmin(user?.id, {
+        const updatePromise = editProfileByAdmin(user?.id, {
           passwordAdmin,
-          newUserPassword,
+          name,
+          email,
         });
-        toast.promise(changeUserPasswordPromise, {
+        toast.promise(updatePromise, {
           loading: {
-            title: "Updating User Password",
-            description: `Please wait while we update the User's new password.`,
+            title: "Updating",
+            description: "Please wait while we update User profile data.",
           },
           success: {
-            title: "Change User Password Success",
-            description: `The User's new password has been successfully updated!`,
+            title: "Edit User Profile Successful",
+            description: "User profile data has been updated!",
             duration: 1000,
             isClosable: true,
             onCloseComplete() {
@@ -92,17 +101,16 @@ const ChangeUserPassword = () => {
             },
           },
           error: (error) => ({
-            title: "Change User Password Failed",
-            description:
-              "An error occurred while updating the password: " + error,
+            title: "Edit User Profile Failed",
+            description: "An error occurred during edit User profile: " + error,
             duration: 5000,
             isClosable: true,
           }),
         });
       } catch (error) {
         toast({
-          title: "Change User Password Failed",
-          description: `An error occurred: ${error}`,
+          title: "Edit User Profile Failed",
+          description: `An error occurred during edit User profile: ${error}`,
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -110,8 +118,8 @@ const ChangeUserPassword = () => {
       }
     } else {
       toast({
-        title: "Change Password Failed",
-        description: `The User's new password you retyped is not the same!`,
+        title: "Edit User Profile Failed",
+        description: "You enter the same data, no need to update!",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -123,9 +131,7 @@ const ChangeUserPassword = () => {
     <VStack spacing={6} p={4} w="full" maxW="1200px" mx="auto">
       <Box p={6}>
         <VStack align="start" spacing={4}>
-          <Heading size={isMobile ? "md" : "lg"} textAlign="center">
-            CHANGE PASSWORD USER_{user?.email}
-          </Heading>
+          <Heading size="lg">EDIT USER PROFILE</Heading>
         </VStack>
       </Box>
       <Card
@@ -137,7 +143,7 @@ const ChangeUserPassword = () => {
         overflow="hidden"
       >
         <CardBody p={[4, 6, 8]}>
-          <form onSubmit={handleChangeUserPassword} name="editForm">
+          <form onSubmit={handleUpdate} name="editForm">
             <Stack spacing={4}>
               <FormControl>
                 <FormLabel>Admin Password</FormLabel>
@@ -153,25 +159,31 @@ const ChangeUserPassword = () => {
               <Divider borderColor="blackAlpha.900" />
 
               <FormControl>
-                <FormLabel>New Password</FormLabel>
+                <FormLabel>User Email</FormLabel>
                 <Input
-                  type="password"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  placeholder="Enter the User's new password"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={user?.email}
                   required
+                  autoComplete="email"
                 />
               </FormControl>
 
               <FormControl>
-                <FormLabel>Retype New Password</FormLabel>
+                <FormLabel>User Name</FormLabel>
                 <Input
-                  type="password"
-                  value={newUserPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Retype the User's new password"
+                  type="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={user?.name}
                   required
                 />
+              </FormControl>
+
+              <FormControl mb={4}>
+                <FormLabel>Role</FormLabel>
+                <Select disabled={true} placeholder={user?.role}></Select>
               </FormControl>
 
               <Flex
@@ -196,13 +208,12 @@ const ChangeUserPassword = () => {
                 )}
                 <Button
                   type="submit"
-                  bg="blue.500"
+                  colorScheme="green"
                   color="white"
-                  _hover={{ bg: "blue.800" }}
                   size={isMobile ? "md" : "lg"}
                   width={isMobile ? "full" : "auto"}
                 >
-                  Change
+                  Update
                 </Button>
                 {isMobile && (
                   <Button
@@ -227,4 +238,4 @@ const ChangeUserPassword = () => {
   );
 };
 
-export default ChangeUserPassword;
+export default EditUserProfile;
