@@ -11,11 +11,10 @@ import {
   Heading,
   useColorModeValue,
   CardHeader,
+  SimpleGrid,
   // useMediaQuery
 } from "@chakra-ui/react";
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -24,20 +23,24 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
+  BarChart,
+  Bar,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
-import { useCrowds } from "../../hooks/useCrowd";
-import { useAreas } from "../../hooks/useArea";
+import { useCrowdsByUser } from "../../hooks/useCrowd";
+import { useAreasByUserId } from "../../hooks/useArea";
+import { useUser } from "../../hooks/useUser";
+import React from "react";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
-  const { crowds, lastCrowdPerArea, isLoading, isError } = useCrowds();
-  const areas = useAreas();
+  const { user } = useUser();
+  const { crowdsUser, lastCrowdPerAreaUser, isLoading, isError } =
+    useCrowdsByUser(user?.id || "");
+  const { areasByUserId } = useAreasByUserId(user?.id || "");
 
   const bgCard = useColorModeValue("white", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");
-  // const bgHover = useColorModeValue('gray.50', 'gray.600');
-  // const labelColor = useColorModeValue('gray.600', 'gray.400');
   // const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   if (isLoading) {
@@ -48,7 +51,7 @@ const UserDashboard = () => {
     );
   }
 
-  if (isError || !crowds) {
+  if (isError || !crowdsUser) {
     return (
       <Container centerContent py={10}>
         <VStack spacing={4}>
@@ -59,8 +62,23 @@ const UserDashboard = () => {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <VStack align="start" spacing={3} bg={"whiteAlpha.400"} padding={4}>
+          <Heading className="label" size="sm">
+            {label}
+          </Heading>
+          <p className="intro">{`Count : ${payload[0].value} People`}</p>
+          <p className="Time">{`Time : ${payload[0].payload.createdAt}`}</p>
+        </VStack>
+      );
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <React.Fragment>
       <Box p={6}>
         <VStack align="start" spacing={4}>
           <Heading size="lg">DASHBOARD</Heading>
@@ -80,7 +98,7 @@ const UserDashboard = () => {
         <CardBody>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart
-              data={lastCrowdPerArea}
+              data={lastCrowdPerAreaUser || []}
               margin={{
                 top: 5,
                 right: 30,
@@ -99,24 +117,24 @@ const UserDashboard = () => {
         </CardBody>
       </Card>
 
-      {areas?.areas.map((area) => (
+      {areasByUserId?.map((areasUser) => (
         <Card
           className="Crowd Detection Per Area"
-          key={area.id}
+          key={areasUser.id}
           bg={bgCard}
           borderColor={borderColor}
           borderWidth="1px"
           mb={4}
         >
-          <CardHeader>
-            <Heading size="md">{area.name}</Heading>
-            <Heading size="sm">Crowd Detection Result</Heading>
+          <CardHeader paddingBlockEnd={0}>
+            <Heading size="md">{areasUser.name}</Heading>
+            <Heading size="sm">CROWD DETECTION RESULT</Heading>
           </CardHeader>
           <CardBody>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart
-                data={crowds
-                  .filter((crowd) => crowd.area_id === area.id)
+                data={crowdsUser
+                  .filter((crowd) => crowd.area_id === areasUser.id)
                   .slice(0, 10)
                   .reverse()}
                 margin={{
@@ -142,25 +160,66 @@ const UserDashboard = () => {
           </CardBody>
         </Card>
       ))}
-    </div>
+
+      <Card bg={bgCard} borderColor={borderColor} borderWidth="1px" mb={4}>
+        <CardHeader paddingBlockEnd={0}>
+          <Heading size="md">FATIGUE DETECTION RESULT</Heading>
+        </CardHeader>
+        <CardBody>
+          <SimpleGrid columns={[1, 2, 4]} spacing={4}>
+            <Card
+              className="Normal"
+              bg={bgCard}
+              borderColor={borderColor}
+              borderWidth="1px"
+              mb={4}
+            >
+              <CardHeader paddingBlockEnd={0}>
+                <Heading size="md">NORMAL</Heading>
+              </CardHeader>
+              <CardBody></CardBody>
+            </Card>
+            <Card
+              className="Open Mouth"
+              bg={bgCard}
+              borderColor={borderColor}
+              borderWidth="1px"
+              mb={4}
+            >
+              <CardHeader paddingBlockEnd={0}>
+                <Heading size="md">MENGUAP</Heading>
+              </CardHeader>
+              <CardBody></CardBody>
+            </Card>
+            <Card
+              className="Close Eye"
+              bg={bgCard}
+              borderColor={borderColor}
+              borderWidth="1px"
+              mb={4}
+            >
+              <CardHeader paddingBlockEnd={0}>
+                <Heading size="md">MICROSLEEP</Heading>
+              </CardHeader>
+              <CardBody></CardBody>
+            </Card>
+            <Card
+              className="Close Eye n Open Mouth"
+              bg={bgCard}
+              borderColor={borderColor}
+              borderWidth="1px"
+              mb={4}
+            >
+              <CardHeader paddingBlockEnd={0}>
+                <Heading size="md">SANGAT LELAH</Heading>
+              </CardHeader>
+              <CardBody></CardBody>
+            </Card>
+          </SimpleGrid>
+        </CardBody>
+      </Card>
+    </React.Fragment>
   );
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <VStack align="start" spacing={3} bg={"whiteAlpha.400"} padding={4}>
-        <Heading className="label" size="sm">
-          {label}
-        </Heading>
-        <p className="intro">{`Count : ${payload[0].value} People`}</p>
-        <p className="Time">{`Time : ${payload[0].payload.createdAt}`}</p>
-      </VStack>
-    );
-  }
-
-  return null;
 };
 
 export default UserDashboard;

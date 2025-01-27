@@ -66,6 +66,7 @@ const routes = createBrowserRouter([
         children: [
           { path: "", element: <UserDashboard /> },
           { path: "crowd-detection", element: <UserCrowdDetection /> },
+          { path: "crowd-detection/:areaId", element: <UserCrowdDetection /> },
           { path: "fatigue-detection", element: <UserFatigueDetection /> },
           {
             path: "profile",

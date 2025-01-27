@@ -7,6 +7,7 @@ export interface Area {
   id: string;
   name: string;
   capacity: number;
+  user_id: string;
 }
 
 interface AreaApiResponse {
@@ -68,6 +69,25 @@ export const useAreaById = (areaId: string) => {
 
   return {
     areaById: data,
+    isLoading: !error && !data,
+    isError: error,
+    mutate,
+  };
+};
+
+export const useAreasByUserId = (userId: string) => {
+  const { data, error, mutate } = useSWR<Area[]>(
+    `/areas/users/${userId}`,
+    areasFetcher,
+    {
+      // refreshInterval: 300000,
+      errorRetryCount: 3,
+      revalidateOnFocus: true,
+    }
+  );
+
+  return {
+    areasByUserId: data,
     isLoading: !error && !data,
     isError: error,
     mutate,

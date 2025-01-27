@@ -1,4 +1,4 @@
-// pages/CrowdDetection.tsx
+// pages/user/CrowdDetection.tsx
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
@@ -17,6 +17,7 @@ import {
   Select,
   Spinner,
   useMediaQuery,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import {
   XAxis,
@@ -30,8 +31,10 @@ import {
 } from "recharts";
 import Webcam from "react-webcam";
 import { socket } from "../../lib/socket";
-import { useAreas, useAreaById } from "../../hooks/useArea";
+import { useAreaById, useAreasByUserId } from "../../hooks/useArea";
 import { useNavigate, useParams } from "react-router-dom";
+import React from "react";
+import { useUser } from "../../hooks/useUser";
 
 interface CrowdResult {
   detection_data: Detection_Data[];
@@ -56,15 +59,20 @@ const UserCrowdDetection = () => {
   const { areaId } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
+  const { user } = useUser();
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const bgCard = useColorModeValue("white", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   const [isCameraActive, setIsCameraActive] = useState(false);
 
-  // const [areaId, setAreaId] = useState('');
-  const { areas, isLoading, isError } = useAreas();
+  const { areasByUserId, isLoading, isError } = useAreasByUserId(
+    user?.id || ""
+  );
   const [selectedAreaId, setSelectedAreaId] = useState<string>(areaId || "");
   const { areaById } = useAreaById(areaId || "");
 
@@ -90,14 +98,13 @@ const UserCrowdDetection = () => {
                 }),
         },
       ];
-      return newArray.length > 10 ? newArray.slice(1) : newArray;
+      return newArray.length >= 10 ? newArray.slice(1) : newArray;
     });
   }, [crowdData]);
 
   // Socket connection effect
   useEffect(() => {
     if (areaById?.id) {
-      console.log("cek" + areaById.id);
       // Connect socket if not connected
       if (!socket.connected) {
         socket.connect();
@@ -128,7 +135,15 @@ const UserCrowdDetection = () => {
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const newAreaId = event.target.value;
+    setCrowdData({
+      detection_data: [],
+      // status: "",
+      count: 0,
+      createdAt: "",
+    });
     setSelectedAreaId(newAreaId);
+    setCrowdDataArray([]);
+    setIsCameraActive(false);
     await navigate(`/crowd-detection/${newAreaId}`, { replace: true });
   };
 
@@ -245,7 +260,7 @@ const UserCrowdDetection = () => {
 
   useEffect(() => {
     if (areaId && !isLoading) {
-      const areaExists = areas?.some((area) => area.id === areaId);
+      const areaExists = areasByUserId?.some((area) => area.id === areaId);
       if (!areaExists) {
         toast({
           title: "Invalid Area",
@@ -258,7 +273,7 @@ const UserCrowdDetection = () => {
         setSelectedAreaId("");
       }
     }
-  }, [areaId, areas, isLoading, navigate, toast]);
+  }, [areasByUserId, areaId, isLoading, navigate, toast]);
 
   if (isError) {
     return (
@@ -274,7 +289,7 @@ const UserCrowdDetection = () => {
   }
 
   return (
-    <>
+    <React.Fragment>
       <Box p={6}>
         <Flex
           justify="space-between"
@@ -312,7 +327,7 @@ const UserCrowdDetection = () => {
                         Select Area
                       </option>
                     )}
-                    {areas.map((area) => (
+                    {areasByUserId?.map((area) => (
                       <option key={area.id} value={area.id}>
                         {area.name}
                       </option>
@@ -325,17 +340,11 @@ const UserCrowdDetection = () => {
         </Flex>
       </Box>
 
-      <VStack spacing={4} w="full" maxW="1200px" mx="auto">
-        <Box
-          w="full"
-          borderWidth={1}
-          borderRadius="lg"
-          overflow="hidden"
-          bg={"white"}
-        >
-          <Heading size="md" p={4}>
-            CAMERA
-          </Heading>
+      <Card bg={bgCard} borderColor={borderColor} borderWidth="1px" mb={4}>
+        <CardHeader paddingBlockEnd={0}>
+          <Heading size="md">CAMERA</Heading>
+        </CardHeader>
+        <CardBody>
           <Center p={4} position="relative">
             {isCameraActive ? (
               <>
@@ -394,12 +403,14 @@ const UserCrowdDetection = () => {
                 : "Turn On Camera"}
             </Button>
           </Flex>
-        </Box>
+        </CardBody>
+      </Card>
 
-        <Box w="full" borderWidth={1} borderRadius="lg" p={4} bg={"white"}>
-          <Heading size="md" p={1}>
-            ANALYTIC RESULT
-          </Heading>
+      <Card bg={bgCard} borderColor={borderColor} borderWidth="1px" mb={4}>
+        <CardHeader paddingBlockEnd={0}>
+          <Heading size="md">ANALYTIC RESULT</Heading>
+        </CardHeader>
+        <CardBody>
           <Text>
             Jumlah Orang:{" "}
             {crowdDataArray[0]?.createdAt == "" ? "" : crowdData.count}
@@ -415,12 +426,14 @@ const UserCrowdDetection = () => {
                   timeZone: "Asia/Jakarta",
                 })}
           </Text>
-        </Box>
+        </CardBody>
+      </Card>
 
-        <Box w="full" borderWidth={1} borderRadius="lg" p={4} bg={"white"}>
-          <Heading size="md" p={1}>
-            CROWD DATA LOG
-          </Heading>
+      <Card bg={bgCard} borderColor={borderColor} borderWidth="1px" mb={4}>
+        <CardHeader paddingBlockEnd={0}>
+          <Heading size="md">CROWD DATA LOG</Heading>
+        </CardHeader>
+        <CardBody>
           <ResponsiveContainer width="100%" height={400}>
             <LineChart
               data={
@@ -448,9 +461,9 @@ const UserCrowdDetection = () => {
               />
             </LineChart>
           </ResponsiveContainer>
-        </Box>
-      </VStack>
-    </>
+        </CardBody>
+      </Card>
+    </React.Fragment>
   );
 };
 
