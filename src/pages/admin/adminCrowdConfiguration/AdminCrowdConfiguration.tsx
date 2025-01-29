@@ -256,6 +256,8 @@ const CrowdConfiguration = () => {
               key={area?.id}
               _hover={{ bg: bgHover }}
               transition="background 0.2s"
+              borderTopWidth="3px"
+              borderColor={borderColor}
             >
               <Td textAlign="center">{index + 1}</Td>
               <Td textAlign="center">

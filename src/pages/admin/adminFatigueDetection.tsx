@@ -31,11 +31,10 @@ interface UserFatigueCardProps {
 }
 
 const UserFatigueCard: React.FC<UserFatigueCardProps> = ({ user }) => {
-  const bgCardChild = useColorModeValue("gray.50", "gray.500");
+  const bgCard = useColorModeValue("white", "gray.700");
+  const bgCardChild = useColorModeValue("gray.50", "gray.600");
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
-
-  console.log(user);
 
   const {
     normalStatusByUser,
@@ -47,7 +46,7 @@ const UserFatigueCard: React.FC<UserFatigueCardProps> = ({ user }) => {
   return (
     <Card
       className="Detection Data Per User"
-      bg={useColorModeValue("white", "gray.700")}
+      bg={bgCard}
       borderColor={borderColor}
       borderWidth="1px"
       mb={4}

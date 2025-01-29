@@ -47,7 +47,7 @@ const UserFatigueDetection = () => {
   const [isCameraActive, setIsCameraActive] = useState(false);
 
   const bgCard = useColorModeValue("white", "gray.700");
-  const bgCardChild = useColorModeValue("gray.50", "gray.500");
+  const bgCardChild = useColorModeValue("gray.50", "gray.600");
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
@@ -263,10 +263,11 @@ const UserFatigueDetection = () => {
                 w="100%"
                 maxW="640px"
                 h="40px"
-                bg="gray.100"
+                bg={borderColor}
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
+                color={"black"}
               >
                 <Text>Kamera tidak aktif</Text>
               </Box>

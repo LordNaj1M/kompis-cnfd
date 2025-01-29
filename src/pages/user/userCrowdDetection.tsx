@@ -339,7 +339,7 @@ const UserCrowdDetection = () => {
           >
             <FormControl>
               <Flex align="center" gap={2}>
-                <FormLabel margin={0} whiteSpace="nowrap">
+                <FormLabel margin={0} whiteSpace="nowrap" color={"black"}>
                   Selected Area
                 </FormLabel>
                 {isLoading ? (
@@ -351,6 +351,7 @@ const UserCrowdDetection = () => {
                     value={selectedAreaId}
                     onChange={handleChangeAreaId}
                     bg={"white"}
+                    color={"black"}
                   >
                     {areasByUserId.length === 0 && (
                       <option value="" disabled>
@@ -410,10 +411,11 @@ const UserCrowdDetection = () => {
                 w="100%"
                 maxW="640px"
                 h="40px"
-                bg="gray.100"
+                bg={borderColor}
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
+                color={"black"}
               >
                 <Text>Kamera tidak aktif</Text>
               </Box>

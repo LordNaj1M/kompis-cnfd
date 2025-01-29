@@ -16,6 +16,7 @@ import {
   Spinner,
   useToast,
   VStack,
+  useColorMode,
 } from "@chakra-ui/react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useSidenav } from "./sidenav";
@@ -23,6 +24,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useUser } from "../hooks/useUser";
 import LogoAnaheim from "./../assets/logo-anaheim.svg";
 import { FiMenu } from "react-icons/fi";
+import { MdOutlineLightMode, MdOutlineDarkMode } from "react-icons/md";
 
 export function Navbar() {
   const { onOpen } = useSidenav();
@@ -30,6 +32,7 @@ export function Navbar() {
   const { logout } = useAuth();
   const { user, isLoading, isError } = useUser();
   const toast = useToast();
+  const { colorMode, toggleColorMode } = useColorMode();
 
   const bgColor = useColorModeValue("gray.50", "gray.900");
   const borderColor = useColorModeValue("gray.300", "gray.700");
@@ -126,44 +129,61 @@ export function Navbar() {
           </Text>
         </HStack>
 
-        <Menu>
-          <MenuButton>
-            <HStack spacing={3}>
-              <Box
-                border={
-                  location.pathname.startsWith("/profile")
-                    ? "5px solid"
-                    : "none"
-                }
-                borderRadius="3xl"
-                borderColor="orange.500"
+        <Flex alignItems="center">
+          <IconButton
+            aria-label="Toggle Dark Mode"
+            icon={
+              colorMode === "light" ? (
+                <MdOutlineDarkMode />
+              ) : (
+                <MdOutlineLightMode />
+              )
+            }
+            onClick={toggleColorMode}
+            variant="outline"
+            isRound
+            _hover={{ bg: "teal.500", color: "white" }}
+            _active={{ bg: "teal.600", color: "white" }}
+          />
+          <Menu>
+            <MenuButton ml={4}>
+              <HStack spacing={3}>
+                <Box
+                  border={
+                    location.pathname.startsWith("/profile")
+                      ? "5px solid"
+                      : "none"
+                  }
+                  borderRadius="3xl"
+                  borderColor="orange.500"
+                >
+                  <Avatar size="sm" name={user.name} bg="cyan.500" />
+                </Box>
+              </HStack>
+            </MenuButton>
+            <MenuList>
+              <MenuItem
+                as={NavLink}
+                to={"/profile"}
+                // _focus={{ bg: "gray.100" }}
+                // _hover={{ bg: "gray.200" }}
+                _activeLink={{ bg: "orange.500", color: "white" }}
+                w="full"
+                borderRadius="2xl"
               >
-                <Avatar size="sm" name={user.name} bg="cyan.500" />
-              </Box>
-            </HStack>
-          </MenuButton>
-          <MenuList>
-            <MenuItem
-              as={NavLink}
-              to={"/profile"}
-              _focus={{ bg: "gray.100" }}
-              _hover={{ bg: "gray.200" }}
-              _activeLink={{ bg: "orange.500", color: "white" }}
-              w="full"
-              borderRadius="2xl"
-            >
-              Profile
-            </MenuItem>
-            <MenuItem
-              _hover={{ bg: "gray.200" }}
-              w="full"
-              borderRadius="2xl"
-              onClick={handleLogout}
-            >
-              Logout
-            </MenuItem>
-          </MenuList>
-        </Menu>
+                Profile
+              </MenuItem>
+              <MenuItem
+                // _hover={{ bg: "gray.200" }}
+                w="full"
+                borderRadius="2xl"
+                onClick={handleLogout}
+              >
+                Logout
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </Flex>
       </Flex>
     </Box>
   );

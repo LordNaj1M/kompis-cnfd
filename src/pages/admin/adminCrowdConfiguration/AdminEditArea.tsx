@@ -35,7 +35,8 @@ const EditUserProfile = () => {
   const [capacity, setCapacity] = useState(0);
   const [user_id, setUserId] = useState("");
 
-  const cardBg = useColorModeValue("white", "gray.800");
+  const bgCard = useColorModeValue("white", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   useEffect(() => {
@@ -144,7 +145,9 @@ const EditUserProfile = () => {
         w="full"
         boxShadow="xl"
         borderRadius="xl"
-        bg={cardBg}
+        bg={bgCard}
+        borderColor={borderColor}
+        borderWidth="1px"
         overflow="hidden"
       >
         <CardBody p={[4, 6, 8]}>

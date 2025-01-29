@@ -36,7 +36,7 @@ const AdminCrowdDetection = () => {
   const { areas } = useAreas();
 
   const bgCard = useColorModeValue("white", "gray.700");
-  const bgCardChild = useColorModeValue("gray.50", "gray.500");
+  const bgCardChild = useColorModeValue("gray.50", "gray.600");
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
@@ -89,66 +89,68 @@ const AdminCrowdDetection = () => {
         </VStack>
       </Box>
 
-      {users.map((user) => (
-        <Card
-          className="Crowd Detection Data Per User"
-          key={user.id}
-          bg={bgCard}
-          borderColor={borderColor}
-          borderWidth="1px"
-          mb={4}
-        >
-          <CardHeader paddingBlockEnd={0}>
-            <Heading size="md">DATA RESULT {user.email}</Heading>
-          </CardHeader>
-          <CardBody>
-            {areas
-              ?.filter((area) => area.user_id === user.id)
-              .map((area) => (
-                <Card
-                  className="Crowd Detection Per User Per Area"
-                  key={area.id}
-                  bg={bgCardChild}
-                  borderColor={borderColor}
-                  borderWidth="1px"
-                  mb={4}
-                >
-                  <CardHeader paddingBlockEnd={0}>
-                    <Heading size="md">{area.name}</Heading>
-                  </CardHeader>
-                  <CardBody>
-                    <ResponsiveContainer width="100%" height={400}>
-                      <LineChart
-                        data={crowds
-                          .filter((crowd) => crowd.area_id === area.id)
-                          .slice(0, 10)
-                          .reverse()}
-                        margin={{
-                          top: 5,
-                          right: 30,
-                          left: 20,
-                          bottom: 5,
-                        }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="createdAt" />
-                        <YAxis />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend />
-                        <Line
-                          type="monotone"
-                          dataKey="count"
-                          fill="#8884d8"
-                          name="Crowd Area Count"
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </CardBody>
-                </Card>
-              ))}
-          </CardBody>
-        </Card>
-      ))}
+      {users
+        .filter((user) => user.role === "user")
+        .map((user) => (
+          <Card
+            className="Crowd Detection Data Per User"
+            key={user.id}
+            bg={bgCard}
+            borderColor={borderColor}
+            borderWidth="1px"
+            mb={4}
+          >
+            <CardHeader paddingBlockEnd={0}>
+              <Heading size="md">DATA RESULT {user.email}</Heading>
+            </CardHeader>
+            <CardBody>
+              {areas
+                ?.filter((area) => area.user_id === user.id)
+                .map((area) => (
+                  <Card
+                    className="Crowd Detection Per User Per Area"
+                    key={area.id}
+                    bg={bgCardChild}
+                    borderColor={borderColor}
+                    borderWidth="1px"
+                    mb={4}
+                  >
+                    <CardHeader paddingBlockEnd={0}>
+                      <Heading size="md">{area.name}</Heading>
+                    </CardHeader>
+                    <CardBody>
+                      <ResponsiveContainer width="100%" height={400}>
+                        <LineChart
+                          data={crowds
+                            .filter((crowd) => crowd.area_id === area.id)
+                            .slice(0, 10)
+                            .reverse()}
+                          margin={{
+                            top: 5,
+                            right: 30,
+                            left: 20,
+                            bottom: 5,
+                          }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="createdAt" />
+                          <YAxis />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Legend />
+                          <Line
+                            type="monotone"
+                            dataKey="count"
+                            fill="#8884d8"
+                            name="Crowd Area Count"
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </CardBody>
+                  </Card>
+                ))}
+            </CardBody>
+          </Card>
+        ))}
     </React.Fragment>
   );
 };

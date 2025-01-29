@@ -47,7 +47,8 @@ const Login = () => {
 
   // Warna-warna responsif
   const bgColor = useColorModeValue("gray.50", "gray.900");
-  const cardBg = useColorModeValue("white", "gray.800");
+  const bgCard = useColorModeValue("white", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
   const textColor = useColorModeValue("gray.600", "gray.200");
   const buttonBoxBorder = useColorModeValue("gray.200", "gray.700");
   const buttonHover = useColorModeValue("gray.100", "gray.900");
@@ -253,15 +254,19 @@ const Login = () => {
           />
         </FormControl>
 
-        <Button type="submit" w="full" colorScheme="green" color="white">
+        <Button type="submit" w="full" colorScheme="green">
           Sign In
         </Button>
 
         <Box textAlign="center">
           <Link
             fontSize="sm"
-            color="gray.600"
-            _hover={{ color: "red.500 ", textDecoration: "underline" }}
+            color={textColor}
+            _hover={{
+              // eslint-disable-next-line react-hooks/rules-of-hooks
+              color: useColorModeValue("red.600", "red.300"),
+              textDecoration: "underline",
+            }}
             onClick={() => setShowResetPassword(true)}
           >
             Forgot password?
@@ -332,6 +337,12 @@ const Login = () => {
           <Checkbox
             isChecked={agreeToTerms}
             onChange={(e) => setAgreeToTerms(e.target.checked)}
+            sx={{
+              "span.chakra-checkbox__control": {
+                border: "2px solid",
+                borderColor: "blue.500",
+              },
+            }}
           >
             Saya yakin dengan data yang diisi
           </Checkbox>
@@ -399,6 +410,12 @@ const Login = () => {
             <Checkbox
               isChecked={agreeToTerms}
               onChange={(e) => setAgreeToTerms(e.target.checked)}
+              sx={{
+                "span.chakra-checkbox__control": {
+                  border: "2px solid",
+                  borderColor: "red.500",
+                },
+              }}
             >
               Saya yakin dengan data yang diisi
             </Checkbox>
@@ -485,10 +502,11 @@ const Login = () => {
           <Box
             w="100%"
             h="40px"
-            bg="gray.100"
+            bg={borderColor}
             display="flex"
             alignItems="center"
             justifyContent="center"
+            color={"black"}
           >
             <Text>
               {hasStoredPhotos
@@ -618,7 +636,9 @@ const Login = () => {
           w="full"
           boxShadow="xl"
           borderRadius="xl"
-          bg={cardBg}
+          bg={bgCard}
+          borderColor={borderColor}
+          borderWidth="1px"
           overflow="hidden"
         >
           <CardBody p={[4, 6, 8]}>

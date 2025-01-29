@@ -47,7 +47,7 @@ const UserDashboard = () => {
   } = useFatigueSortByUserId(user?.id || "");
 
   const bgCard = useColorModeValue("white", "gray.700");
-  const bgCardChild = useColorModeValue("gray.50", "gray.500");
+  const bgCardChild = useColorModeValue("gray.50", "gray.600");
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
