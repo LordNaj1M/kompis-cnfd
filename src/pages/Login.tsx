@@ -15,12 +15,16 @@ import {
   Heading,
   useColorModeValue,
   Center,
+  IconButton,
+  useColorMode,
 } from "@chakra-ui/react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Webcam from "react-webcam";
+import { MdOutlineLightMode, MdOutlineDarkMode } from "react-icons/md";
+import React from "react";
 
 const Login = () => {
   const { login, register, resetPassword } = useAuth();
@@ -52,6 +56,8 @@ const Login = () => {
   const textColor = useColorModeValue("gray.600", "gray.200");
   const buttonBoxBorder = useColorModeValue("gray.200", "gray.700");
   const buttonHover = useColorModeValue("gray.100", "gray.900");
+
+  const { colorMode, toggleColorMode } = useColorMode();
 
   // Reset form ketika pindah tab
   useEffect(() => {
@@ -618,119 +624,139 @@ const Login = () => {
   };
 
   return (
-    <Box
-      minH="100vh"
-      bg={bgColor}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      p={[4, 6, 8]}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1 }}
+    <React.Fragment>
+      <Box
+        minH="100vh"
+        bg={bgColor}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        p={[4, 6, 8]}
       >
-        <Card
-          maxW="450px"
-          w="full"
-          boxShadow="xl"
-          borderRadius="xl"
-          bg={bgCard}
-          borderColor={borderColor}
-          borderWidth="1px"
-          overflow="hidden"
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1 }}
         >
-          <CardBody p={[4, 6, 8]}>
-            {!showResetPassword && (
-              <Flex
-                mb={6}
-                borderBottom="2px"
-                borderColor={buttonBoxBorder}
-                pb={2}
-              >
-                {["login", "register"].map((tab) => (
-                  <Button
-                    key={tab}
-                    flex="1"
-                    variant="ghost"
-                    borderBottom={activeTab === tab ? "3px solid" : "none"}
-                    borderColor={
-                      activeTab === tab && tab === "login"
-                        ? "green.500"
-                        : "blue.500"
-                    }
-                    bg={
-                      activeTab === tab && tab === "login"
-                        ? "green.50"
-                        : activeTab === tab && tab === "register"
-                        ? "blue.50"
-                        : "transparent"
-                    }
-                    color={tab === "login" ? "green.500" : "blue.500"}
-                    onClick={() => {
-                      setActiveTab(tab);
-                      setShowResetPassword(false);
-                    }}
-                    _hover={{
-                      bg: buttonHover,
-                    }}
-                  >
-                    {tab.toUpperCase()}
-                  </Button>
-                ))}
-              </Flex>
-            )}
-
-            <AnimatePresence mode="wait">
-              {showResetPassword ? (
-                <motion.div
-                  key="reset-password"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.3 }}
+          <Card
+            maxW="450px"
+            w="full"
+            boxShadow="xl"
+            borderRadius="xl"
+            bg={bgCard}
+            borderColor={borderColor}
+            borderWidth="1px"
+            overflow="hidden"
+          >
+            <CardBody p={[4, 6, 8]}>
+              {!showResetPassword && (
+                <Flex
+                  mb={6}
+                  borderBottom="2px"
+                  borderColor={buttonBoxBorder}
+                  pb={2}
                 >
-                  {resetPasswordForm()}
-                </motion.div>
-              ) : activeTab === "login" ? (
-                <motion.div
-                  key="login"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {loginForm()}
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="register"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {registerForm()}
-                </motion.div>
+                  {["login", "register"].map((tab) => (
+                    <Button
+                      key={tab}
+                      flex="1"
+                      variant="ghost"
+                      borderBottom={activeTab === tab ? "3px solid" : "none"}
+                      borderColor={
+                        activeTab === tab && tab === "login"
+                          ? "green.500"
+                          : "blue.500"
+                      }
+                      bg={
+                        activeTab === tab && tab === "login"
+                          ? "green.50"
+                          : activeTab === tab && tab === "register"
+                          ? "blue.50"
+                          : "transparent"
+                      }
+                      color={tab === "login" ? "green.500" : "blue.500"}
+                      onClick={() => {
+                        setActiveTab(tab);
+                        setShowResetPassword(false);
+                      }}
+                      _hover={{
+                        bg: buttonHover,
+                      }}
+                    >
+                      {tab.toUpperCase()}
+                    </Button>
+                  ))}
+                </Flex>
               )}
-            </AnimatePresence>
-          </CardBody>
-        </Card>
 
-        <Flex
-          justifyContent="center"
-          mt={4}
-          color={textColor}
-          fontSize="sm"
-          textAlign="center"
-        >
-          <Text>
-            © {new Date().getFullYear()} Anaheim Internship. ComVis-CnFD.
-          </Text>
-        </Flex>
-      </motion.div>
-    </Box>
+              <AnimatePresence mode="wait">
+                {showResetPassword ? (
+                  <motion.div
+                    key="reset-password"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {resetPasswordForm()}
+                  </motion.div>
+                ) : activeTab === "login" ? (
+                  <motion.div
+                    key="login"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {loginForm()}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="register"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {registerForm()}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </CardBody>
+          </Card>
+
+          <Flex
+            justifyContent="center"
+            mt={4}
+            color={textColor}
+            fontSize="sm"
+            textAlign="center"
+          >
+            <Text>
+              © {new Date().getFullYear()} Anaheim Internship. ComVis-CnFD.
+            </Text>
+          </Flex>
+        </motion.div>
+      </Box>
+      <IconButton
+        aria-label="Toggle Dark Mode"
+        icon={
+          colorMode === "light" ? <MdOutlineDarkMode /> : <MdOutlineLightMode />
+        }
+        fontSize="2xl"
+        p={6}
+        onClick={toggleColorMode}
+        variant="outline"
+        isRound
+        bg="teal.500"
+        color="white"
+        _hover={{ bg: "teal.600" }}
+        position="fixed"
+        bottom="20px"
+        right="20px"
+        zIndex="1000"
+      />
+    </React.Fragment>
   );
 };
 
