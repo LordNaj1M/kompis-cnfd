@@ -76,6 +76,10 @@ const UserCrowdDetection = () => {
   const [selectedAreaId, setSelectedAreaId] = useState<string>(areaId || "");
   const { areaById } = useAreaById(areaId || "");
 
+  const handleCreateArea = () => {
+    navigate(`/crowd-configuration/create`);
+  };
+
   const [crowdData, setCrowdData] = useState<CrowdResult>({
     detection_data: [],
     status: "",
@@ -348,6 +352,11 @@ const UserCrowdDetection = () => {
                     onChange={handleChangeAreaId}
                     bg={"white"}
                   >
+                    {areasByUserId.length === 0 && (
+                      <option value="" disabled>
+                        No Area Yet
+                      </option>
+                    )}
                     {!selectedAreaId && (
                       <option value="" disabled>
                         Select Area
@@ -411,23 +420,29 @@ const UserCrowdDetection = () => {
             )}
           </Center>
           <Flex justify="center" p={4}>
-            <Button
-              colorScheme={
-                !areaId && !areaById?.id
-                  ? "yellow"
+            {areasByUserId.length === 0 ? (
+              <Button colorScheme={"yellow"} onClick={handleCreateArea}>
+                Create Area on Crowd Configuration
+              </Button>
+            ) : (
+              <Button
+                colorScheme={
+                  !areaId && !areaById?.id
+                    ? "yellow"
+                    : isCameraActive
+                    ? "red"
+                    : "green"
+                }
+                onClick={toggleCamera}
+                isDisabled={!areaId && !areaById?.id}
+              >
+                {!areaId && !areaById?.id
+                  ? "Please Select Area"
                   : isCameraActive
-                  ? "red"
-                  : "green"
-              }
-              onClick={toggleCamera}
-              isDisabled={!areaId && !areaById?.id}
-            >
-              {!areaId && !areaById?.id
-                ? "Please Select Area"
-                : isCameraActive
-                ? "Turn Off Camera"
-                : "Turn On Camera"}
-            </Button>
+                  ? "Turn Off Camera"
+                  : "Turn On Camera"}
+              </Button>
+            )}
           </Flex>
         </CardBody>
       </Card>
@@ -436,23 +451,21 @@ const UserCrowdDetection = () => {
         <CardHeader paddingBlockEnd={0}>
           <Heading size={isMobile ? "sm" : "md"}>ANALYTIC RESULT</Heading>
         </CardHeader>
-        {isCameraActive && crowdDataArray[0]?.createdAt == "" ? (
+        {isCameraActive && crowdData?.createdAt == "" ? (
           <Container centerContent py={10}>
             <Spinner size="xl" />
           </Container>
         ) : (
           <CardBody>
             <Text>
-              Jumlah Orang:{" "}
-              {crowdDataArray[0]?.createdAt == "" ? "" : crowdData.count}
+              Jumlah Orang: {crowdData?.createdAt == "" ? "" : crowdData.count}
             </Text>
             <Text>
-              Status:{" "}
-              {crowdDataArray[0]?.createdAt == "" ? "" : crowdData.status}
+              Status: {crowdData?.createdAt == "" ? "" : crowdData.status}
             </Text>
             <Text>
               Terakhir Diperbarui:{" "}
-              {crowdDataArray[0]?.createdAt == ""
+              {crowdData?.createdAt == ""
                 ? ""
                 : new Date(crowdData.createdAt).toLocaleString("id-ID", {
                     timeZone: "Asia/Jakarta",
@@ -466,7 +479,7 @@ const UserCrowdDetection = () => {
         <CardHeader paddingBlockEnd={0}>
           <Heading size={isMobile ? "sm" : "md"}>CROWD DATA LOG</Heading>
         </CardHeader>
-        {isCameraActive && crowdDataArray[0]?.createdAt == "" ? (
+        {isCameraActive && crowdData?.createdAt == "" ? (
           <Container centerContent py={10}>
             <Spinner size="xl" />
           </Container>
@@ -475,7 +488,7 @@ const UserCrowdDetection = () => {
             <ResponsiveContainer width="100%" height={400}>
               <LineChart
                 data={
-                  areaById?.id && crowdDataArray[0]?.createdAt != ""
+                  areaById?.id && crowdData?.createdAt != ""
                     ? crowdDataArray
                     : []
                 }

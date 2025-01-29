@@ -23,12 +23,7 @@ import React from "react";
 
 interface FatigueResult {
   detection_data: Detection_Data[];
-  status:
-    | "Normal"
-    | "Open Mouth"
-    | "Close Eye"
-    | "Open Mouth and Close Eye"
-    | "";
+  status: string;
   createdAt: string;
 }
 
@@ -62,8 +57,6 @@ const UserFatigueDetection = () => {
     createdAt: "",
   });
 
-  const [fatigueDataArray, setFatigueDataArray] = useState<FatigueResult[]>([]);
-
   const [normalStatus, setNormalStatus] = useState({
     status: "",
     createdAt: "",
@@ -82,21 +75,6 @@ const UserFatigueDetection = () => {
   });
 
   useEffect(() => {
-    setFatigueDataArray((prevArray) => {
-      const newArray = [
-        ...prevArray,
-        {
-          ...fatigueData,
-          createdAt:
-            fatigueData?.createdAt == ""
-              ? ""
-              : new Date(fatigueData.createdAt).toLocaleString("id-ID", {
-                  timeZone: "Asia/Jakarta",
-                }),
-        },
-      ];
-      return newArray.length > 10 ? newArray.slice(1) : newArray;
-    });
     switch (fatigueData.status) {
       case "Normal":
         setNormalStatus(fatigueData);
@@ -211,7 +189,11 @@ const UserFatigueDetection = () => {
         }
         socket.off("io-fatigue-result", onFatigueResult);
         socket.disconnect();
-        setFatigueDataArray([]);
+        setFatigueData({
+          detection_data: [],
+          status: "",
+          createdAt: "",
+        });
       };
     }
   }, [isCameraActive]);
@@ -316,19 +298,18 @@ const UserFatigueDetection = () => {
         <CardHeader paddingBlockEnd={0}>
           <Heading size={isMobile ? "sm" : "md"}>ANALYTIC RESULT</Heading>
         </CardHeader>
-        {isCameraActive && fatigueDataArray[0]?.createdAt == "" ? (
+        {isCameraActive && fatigueData?.createdAt == "" ? (
           <Container centerContent py={10}>
             <Spinner size="xl" />
           </Container>
         ) : (
           <CardBody>
             <Text>
-              Status:{" "}
-              {fatigueDataArray[0]?.createdAt == "" ? "" : fatigueData.status}
+              Status: {fatigueData?.createdAt == "" ? "" : fatigueData.status}
             </Text>
             <Text>
               Terakhir Diperbarui:{" "}
-              {fatigueDataArray[0]?.createdAt == ""
+              {fatigueData?.createdAt == ""
                 ? ""
                 : new Date(fatigueData.createdAt).toLocaleString("id-ID", {
                     timeZone: "Asia/Jakarta",
@@ -342,7 +323,7 @@ const UserFatigueDetection = () => {
         <CardHeader paddingBlockEnd={0}>
           <Heading size={isMobile ? "sm" : "md"}>FATIGUE DATA LOG</Heading>
         </CardHeader>
-        {isCameraActive && fatigueDataArray[0]?.createdAt == "" ? (
+        {isCameraActive && fatigueData?.createdAt == "" ? (
           <Container centerContent py={10}>
             <Spinner size="xl" />
           </Container>
@@ -362,7 +343,7 @@ const UserFatigueDetection = () => {
                 <CardBody>
                   <Text>
                     Last Detected:{" "}
-                    {fatigueDataArray[0]?.createdAt == ""
+                    {fatigueData?.createdAt == ""
                       ? ""
                       : normalStatus.createdAt
                       ? new Date(normalStatus.createdAt).toLocaleString(
@@ -388,7 +369,7 @@ const UserFatigueDetection = () => {
                 <CardBody>
                   <Text>
                     Last Detected:{" "}
-                    {fatigueDataArray[0]?.createdAt == ""
+                    {fatigueData?.createdAt == ""
                       ? ""
                       : menguapStatus.createdAt
                       ? new Date(menguapStatus.createdAt).toLocaleString(
@@ -414,7 +395,7 @@ const UserFatigueDetection = () => {
                 <CardBody>
                   <Text>
                     Last Detected:{" "}
-                    {fatigueDataArray[0]?.createdAt == ""
+                    {fatigueData?.createdAt == ""
                       ? ""
                       : microsleepStatus.createdAt
                       ? new Date(microsleepStatus.createdAt).toLocaleString(
@@ -440,7 +421,7 @@ const UserFatigueDetection = () => {
                 <CardBody>
                   <Text>
                     Last Detected:{" "}
-                    {fatigueDataArray[0]?.createdAt == ""
+                    {fatigueData?.createdAt == ""
                       ? ""
                       : sangatLelahStatus.createdAt
                       ? new Date(sangatLelahStatus.createdAt).toLocaleString(

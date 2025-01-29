@@ -25,6 +25,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useRef } from "react";
 import { useAuth } from "./hooks/useAuth";
+import React from "react";
 
 const App = () => {
   const { user, isError } = useUser();
@@ -95,7 +96,7 @@ const App = () => {
   }, [isError, onOpen]);
 
   return (
-    <>
+    <React.Fragment>
       <SidenavProvider>
         <SidenavContainer sidenav={<Sidenav navItems={navItems} />}>
           <main>
@@ -127,7 +128,7 @@ const App = () => {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-    </>
+    </React.Fragment>
   );
 };
 
