@@ -7,36 +7,28 @@ import {
   Text,
   Button,
   Center,
-  Flex,
-  // useToast,
-  // Card,
-  // CardBody,
-  // CardHeader,
-  // FormControl,
-  // FormLabel,
-  // Select,
-  // Spinner,
   useMediaQuery,
+  Card,
+  CardHeader,
+  useColorModeValue,
+  CardBody,
+  SimpleGrid,
+  Container,
+  Spinner,
 } from "@chakra-ui/react";
-// import {
-//   CartesianGrid,
-//   Legend,
-//   Line,
-//   LineChart,
-//   ResponsiveContainer,
-//   Tooltip,
-//   XAxis,
-//   YAxis,
-// } from "recharts";
 import Webcam from "react-webcam";
 import { socket } from "../../lib/socket";
-// import { useAreas, useAreaById } from "../../hooks/useArea";
-// import { useNavigate } from "react-router-dom";
+import { useUser } from "../../hooks/useUser";
+import React from "react";
 
 interface FatigueResult {
   detection_data: Detection_Data[];
-  status: "";
-  // user_id: string;
+  status:
+    | "Normal"
+    | "Open Mouth"
+    | "Close Eye"
+    | "Open Mouth and Close Eye"
+    | "";
   createdAt: string;
 }
 
@@ -52,28 +44,43 @@ interface BoundingBox {
 }
 
 const UserFatigueDetection = () => {
-  // const navigate = useNavigate();
-  // const toast = useToast();
+  const { user } = useUser();
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   const [isCameraActive, setIsCameraActive] = useState(false);
 
-  // const [areaId, setAreaId] = useState('');
-  // const { areas, isLoading, isError } = useAreas();
-  // const [selectedAreaId, setSelectedAreaId] = useState<string>(areaId || "");
-  // const { areaById } = useAreaById(areaId || "");
+  const bgCard = useColorModeValue("white", "gray.700");
+  const bgCardChild = useColorModeValue("gray.50", "gray.500");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   const [fatigueData, setFatigueData] = useState<FatigueResult>({
     detection_data: [],
     status: "",
-    // user_id: "",
     createdAt: "",
   });
 
   const [fatigueDataArray, setFatigueDataArray] = useState<FatigueResult[]>([]);
+
+  const [normalStatus, setNormalStatus] = useState({
+    status: "",
+    createdAt: "",
+  });
+  const [menguapStatus, setMenguapStatus] = useState({
+    status: "",
+    createdAt: "",
+  });
+  const [microsleepStatus, setMicrosleepStatus] = useState({
+    status: "",
+    createdAt: "",
+  });
+  const [sangatLelahStatus, setSangatLelahStatus] = useState({
+    status: "",
+    createdAt: "",
+  });
+
   useEffect(() => {
     setFatigueDataArray((prevArray) => {
       const newArray = [
@@ -90,13 +97,21 @@ const UserFatigueDetection = () => {
       ];
       return newArray.length > 10 ? newArray.slice(1) : newArray;
     });
+    switch (fatigueData.status) {
+      case "Normal":
+        setNormalStatus(fatigueData);
+        break;
+      case "Open Mouth":
+        setMenguapStatus(fatigueData);
+        break;
+      case "Close Eye":
+        setMicrosleepStatus(fatigueData);
+        break;
+      case "Open Mouth and Close Eye":
+        setSangatLelahStatus(fatigueData);
+        break;
+    }
   }, [fatigueData]);
-
-  // const handleChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
-  //   const newAreaId = event.target.value;
-  //   setSelectedAreaId(newAreaId);
-  //   await navigate(`/crowd-detection/${newAreaId}`, { replace: true });
-  // };
 
   // Fungsi untuk menggambar bounding box
   const drawBoundingBoxes = useCallback(() => {
@@ -152,7 +167,7 @@ const UserFatigueDetection = () => {
 
         // Send frame to server
         const frame = canvas.toDataURL("image/jpeg", 0.8);
-        socket.emit("io-fatigue-frame", frame);
+        socket.emit("io-fatigue-frame", frame, user?.id ?? "");
       }
     }
   };
@@ -199,7 +214,7 @@ const UserFatigueDetection = () => {
         setFatigueDataArray([]);
       };
     }
-  }, [isCameraActive]); // Empty dependency array - only run once on mount
+  }, [isCameraActive]);
 
   useEffect(() => {
     if (isCameraActive) {
@@ -213,7 +228,6 @@ const UserFatigueDetection = () => {
 
       // Start the animation loop
       updateCanvas();
-      console.log(fatigueData.status);
 
       // Cleanup function to cancel animation frame
       return () => {
@@ -224,108 +238,22 @@ const UserFatigueDetection = () => {
     }
   }, [isCameraActive, fatigueData, drawBoundingBoxes]);
 
-  // useEffect(() => {
-  //   if (!areaId) {
-  //     <VStack spacing={4}>
-  //       <Text>Invalid area ID.</Text>
-  //       <Button onClick={() => navigate(-1)} colorScheme="red">
-  //         Go Back
-  //       </Button>
-  //     </VStack>;
-  //   } else {
-  //     setSelectedAreaId(areaId);
-  //   }
-  // }, [areaId, navigate]);
-
-  // useEffect(() => {
-  //   if (areaId && !isLoading) {
-  //     const areaExists = areas?.some((area) => area.id === areaId);
-  //     if (!areaExists) {
-  //       toast({
-  //         title: "Invalid Area",
-  //         description: "The selected area does not exist",
-  //         status: "error",
-  //         duration: 3000,
-  //         isClosable: true,
-  //       });
-  //       navigate("/crowd-detection", { replace: true });
-  //       setSelectedAreaId("");
-  //     }
-  //   }
-  // }, [areaId, areas, isLoading, navigate, toast]);
-
-  // if (isError) {
-  //   return (
-  //     <Card bg="white" borderColor="black" borderWidth="1px">
-  //       <CardHeader>
-  //         <Heading size="lg">CROWD AREA LIST</Heading>
-  //       </CardHeader>
-  //       <CardBody>
-  //         <Text color="red.500">Error loading areas: {isError.message}</Text>
-  //       </CardBody>
-  //     </Card>
-  //   );
-  // }
-  // const StatusBox = ({ label, timestamp, isActive }: any) => {
-  //   return (
-  //     <Flex p={4}>
-  //       <Box
-  //         rounded={"lg"}
-  //         p={4}
-  //         h={"full"}
-  //         border={2}
-  //         className={`rounded-lg p-4 h-full border-2 ${
-  //           isActive
-  //             ? "border-blue-500 bg-blue-50"
-  //             : "border-gray-200 bg-gray-50"
-  //         }`}
-  //       >
-  //         <h3 className="font-semibold text-lg mb-2">{label}</h3>
-  //         <p className="text-sm text-gray-600">
-  //           Last detected:
-  //           <br />
-  //           {timestamp || "Never detected"}
-  //         </p>
-  //       </Box>
-  //     </Flex>
-  //   );
-  // };
-
-  // const statuses = [
-  //   { label: "Normal", value: "normal" },
-  //   { label: "Tired", value: "lelah" },
-  //   { label: "Microsleep", value: "microsleep" },
-  //   { label: "Macrosleep", value: "macrosleep" },
-  // ];
-
   return (
-    <>
+    <React.Fragment>
       <Box p={6}>
-        <Flex
-          justify="space-between"
-          align="center"
-          flexDirection={isMobile ? "column" : "row"}
-        >
-          <VStack align="start" spacing={4}>
-            <Heading size="lg">FATIGUE DETECTION</Heading>
-          </VStack>
-        </Flex>
+        <VStack align="start" spacing={4}>
+          <Heading size="lg">FATIGUE DETECTION</Heading>
+        </VStack>
       </Box>
 
-      <VStack spacing={4} w="full" maxW="1200px" mx="auto">
-        <Box
-          w="full"
-          borderWidth={1}
-          borderRadius="lg"
-          overflow="hidden"
-          bg={"white"}
-        >
-          <Heading size="md" p={4}>
-            CAMERA
-          </Heading>
-          <Center p={4} position="relative">
+      <Card bg={bgCard} borderColor={borderColor} borderWidth="1px" mb={4}>
+        <CardHeader paddingBlockEnd={0}>
+          <Heading size={isMobile ? "sm" : "md"}>CAMERA</Heading>
+        </CardHeader>
+        <CardBody>
+          <Center position="relative">
             {isCameraActive ? (
-              <>
+              <React.Fragment>
                 <Webcam
                   ref={webcamRef}
                   audio={false}
@@ -347,7 +275,7 @@ const UserFatigueDetection = () => {
                     pointerEvents: "none",
                   }}
                 />
-              </>
+              </React.Fragment>
             ) : (
               <Box
                 w="100%"
@@ -362,75 +290,174 @@ const UserFatigueDetection = () => {
               </Box>
             )}
           </Center>
-          <Flex justify="center" p={4}>
+          <SimpleGrid
+            columns={[1]}
+            p={4}
+            spacing={4}
+            width={"100%"}
+            placeItems="center"
+          >
+            <Text size={"md"}>
+              * Tunjukkan wajah Anda, hanya Anda; terlihat jelas tanpa halangan,
+              bayangan, dan dengan pencahayaan yang baik serta latar belakang
+              netral.
+            </Text>
             <Button
               colorScheme={isCameraActive ? "red" : "green"}
               onClick={toggleCamera}
             >
               {isCameraActive ? "Turn Off Camera" : "Turn On Camera"}
             </Button>
-          </Flex>
-        </Box>
+          </SimpleGrid>
+        </CardBody>
+      </Card>
 
-        <Box w="full" borderWidth={1} borderRadius="lg" p={4} bg={"white"}>
-          <Heading size="md" p={1}>
-            ANALYTIC RESULT
-          </Heading>
-          <Text>
-            Status:{" "}
-            {fatigueDataArray[0]?.createdAt == "" ? "" : fatigueData.status}
-          </Text>
-          <Text>
-            Terakhir Diperbarui:{" "}
-            {fatigueDataArray[0]?.createdAt == ""
-              ? ""
-              : new Date(fatigueData.createdAt).toLocaleString("id-ID", {
-                  timeZone: "Asia/Jakarta",
-                })}
-          </Text>
-        </Box>
+      <Card bg={bgCard} borderColor={borderColor} borderWidth="1px" mb={4}>
+        <CardHeader paddingBlockEnd={0}>
+          <Heading size={isMobile ? "sm" : "md"}>ANALYTIC RESULT</Heading>
+        </CardHeader>
+        {isCameraActive && fatigueDataArray[0]?.createdAt == "" ? (
+          <Container centerContent py={10}>
+            <Spinner size="xl" />
+          </Container>
+        ) : (
+          <CardBody>
+            <Text>
+              Status:{" "}
+              {fatigueDataArray[0]?.createdAt == "" ? "" : fatigueData.status}
+            </Text>
+            <Text>
+              Terakhir Diperbarui:{" "}
+              {fatigueDataArray[0]?.createdAt == ""
+                ? ""
+                : new Date(fatigueData.createdAt).toLocaleString("id-ID", {
+                    timeZone: "Asia/Jakarta",
+                  })}
+            </Text>
+          </CardBody>
+        )}
+      </Card>
 
-        <Box w="full" borderWidth={1} borderRadius="lg" p={4} bg={"white"}>
-          <Heading size="md" p={1}>
-            FATIGUE DATA LOG
-          </Heading>
-          {/* {statuses.map((status) => (
-            <StatusBox
-              key={status.value}
-              label={status.label}
-              // timestamp={getLatestTimestamp(status.value)}
-              // isActive={currentStatus === status.value}
-            />
-          ))} */}
-
-          {/* <ResponsiveContainer width="100%" height={400}>
-            <LineChart
-              data={
-                fatigueDataArray[0]?.createdAt != "" ? fatigueDataArray : []
-              }
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="status" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="createdAt"
-                fill="#8884d8"
-                name="Fatigue Time"
-              />
-            </LineChart>
-          </ResponsiveContainer> */}
-        </Box>
-      </VStack>
-    </>
+      <Card bg={bgCard} borderColor={borderColor} borderWidth="1px" mb={4}>
+        <CardHeader paddingBlockEnd={0}>
+          <Heading size={isMobile ? "sm" : "md"}>FATIGUE DATA LOG</Heading>
+        </CardHeader>
+        {isCameraActive && fatigueDataArray[0]?.createdAt == "" ? (
+          <Container centerContent py={10}>
+            <Spinner size="xl" />
+          </Container>
+        ) : (
+          <CardBody>
+            <SimpleGrid columns={[1, 2, 4]} spacing={4}>
+              <Card
+                className="Normal"
+                bg={bgCardChild}
+                borderColor={borderColor}
+                borderWidth="1px"
+                mb={4}
+              >
+                <CardHeader paddingBlockEnd={0}>
+                  <Heading size={isMobile ? "sm" : "md"}>NORMAL</Heading>
+                </CardHeader>
+                <CardBody>
+                  <Text>
+                    Last Detected:{" "}
+                    {fatigueDataArray[0]?.createdAt == ""
+                      ? ""
+                      : normalStatus.createdAt
+                      ? new Date(normalStatus.createdAt).toLocaleString(
+                          "id-ID",
+                          {
+                            timeZone: "Asia/Jakarta",
+                          }
+                        )
+                      : "No Data"}
+                  </Text>
+                </CardBody>
+              </Card>
+              <Card
+                className="Open Mouth"
+                bg={bgCardChild}
+                borderColor={borderColor}
+                borderWidth="1px"
+                mb={4}
+              >
+                <CardHeader paddingBlockEnd={0}>
+                  <Heading size={isMobile ? "sm" : "md"}>MENGUAP</Heading>
+                </CardHeader>
+                <CardBody>
+                  <Text>
+                    Last Detected:{" "}
+                    {fatigueDataArray[0]?.createdAt == ""
+                      ? ""
+                      : menguapStatus.createdAt
+                      ? new Date(menguapStatus.createdAt).toLocaleString(
+                          "id-ID",
+                          {
+                            timeZone: "Asia/Jakarta",
+                          }
+                        )
+                      : "No Data"}
+                  </Text>
+                </CardBody>
+              </Card>
+              <Card
+                className="Close Eye"
+                bg={bgCardChild}
+                borderColor={borderColor}
+                borderWidth="1px"
+                mb={4}
+              >
+                <CardHeader paddingBlockEnd={0}>
+                  <Heading size={isMobile ? "sm" : "md"}>MICROSLEEP</Heading>
+                </CardHeader>
+                <CardBody>
+                  <Text>
+                    Last Detected:{" "}
+                    {fatigueDataArray[0]?.createdAt == ""
+                      ? ""
+                      : microsleepStatus.createdAt
+                      ? new Date(microsleepStatus.createdAt).toLocaleString(
+                          "id-ID",
+                          {
+                            timeZone: "Asia/Jakarta",
+                          }
+                        )
+                      : "No Data"}
+                  </Text>
+                </CardBody>
+              </Card>
+              <Card
+                className="Close Eye n Open Mouth"
+                bg={bgCardChild}
+                borderColor={borderColor}
+                borderWidth="1px"
+                mb={4}
+              >
+                <CardHeader paddingBlockEnd={0}>
+                  <Heading size={isMobile ? "sm" : "md"}>SANGAT LELAH</Heading>
+                </CardHeader>
+                <CardBody>
+                  <Text>
+                    Last Detected:{" "}
+                    {fatigueDataArray[0]?.createdAt == ""
+                      ? ""
+                      : sangatLelahStatus.createdAt
+                      ? new Date(sangatLelahStatus.createdAt).toLocaleString(
+                          "id-ID",
+                          {
+                            timeZone: "Asia/Jakarta",
+                          }
+                        )
+                      : "No Data"}
+                  </Text>
+                </CardBody>
+              </Card>
+            </SimpleGrid>
+          </CardBody>
+        )}
+      </Card>
+    </React.Fragment>
   );
 };
 

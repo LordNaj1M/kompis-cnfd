@@ -15,25 +15,33 @@ import {
   VStack,
   useMediaQuery,
   Flex,
+  Select,
 } from "@chakra-ui/react";
 import { createArea } from "../../../hooks/useArea";
 import { useNavigate } from "react-router-dom";
+import { useUsers } from "../../../hooks/useUser";
 
 const CreateArea = () => {
+  const { users } = useUsers();
   const navigate = useNavigate();
   const toast = useToast();
 
   const [name, setName] = useState("");
   const [capacity, setCapacity] = useState(0);
+  const [user_id, setUserId] = useState("");
 
   const cardBg = useColorModeValue("white", "gray.800");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
+
+  const handleBack = () => {
+    navigate(`/admin/crowd-configuration`);
+  };
 
   const handleCreateArea = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const createPromise = createArea({ name, capacity });
+      const createPromise = createArea({ name, capacity, user_id });
       toast.promise(createPromise, {
         loading: {
           title: "Create Area Process",
@@ -45,7 +53,7 @@ const CreateArea = () => {
           duration: 1000,
           isClosable: true,
           onCloseComplete() {
-            navigate(`/admin/crowd-configuration`);
+            handleBack();
           },
         },
         error: (error) => ({
@@ -85,6 +93,28 @@ const CreateArea = () => {
           <form onSubmit={handleCreateArea} name="editForm">
             <Stack spacing={4}>
               <FormControl>
+                <FormLabel>Area Owner</FormLabel>
+                <Select
+                  value={user_id}
+                  onChange={(e) => setUserId(e.target.value)}
+                  required
+                >
+                  {capacity === 0 && (
+                    <option value="" disabled>
+                      Select User
+                    </option>
+                  )}
+                  {users
+                    ?.filter((user) => user.role === "user")
+                    .map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.email}
+                      </option>
+                    ))}
+                </Select>
+              </FormControl>
+
+              <FormControl>
                 <FormLabel>Area Name</FormLabel>
                 <Input
                   type="name"
@@ -119,7 +149,7 @@ const CreateArea = () => {
                     _hover={{ bg: "gray.800" }}
                     size={isMobile ? "md" : "lg"}
                     width={isMobile ? "full" : "auto"}
-                    onClick={() => navigate(`/admin/crowd-configuration`)}
+                    onClick={() => handleBack()}
                   >
                     Cancel
                   </Button>
@@ -141,7 +171,7 @@ const CreateArea = () => {
                     _hover={{ bg: "gray.800" }}
                     size={isMobile ? "md" : "lg"}
                     width={isMobile ? "full" : "auto"}
-                    onClick={() => navigate(`/admin/crowd-configuration`)}
+                    onClick={() => handleBack()}
                   >
                     Cancel
                   </Button>

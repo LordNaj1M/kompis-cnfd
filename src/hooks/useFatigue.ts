@@ -1,121 +1,149 @@
-// // src/hooks/useFatigue.ts
-// import useSWR from "swr";
-// import { axiosInstance } from "../lib/axios";
-// // import { useAreas } from "./useArea";
+// src/hooks/useFatigue.ts
+import useSWR from "swr";
+import { axiosInstance } from "../lib/axios";
+import { useUsers } from "./useUser";
+import { useState, useEffect, useMemo } from "react";
 
-// interface Crowd {
-//   id: string;
-//   status: string;
-//   count: number;
-//   createdAt: string;
-//   area_id: string;
-// }
+interface Fatigue {
+  id: string;
+  status: string;
+  createdAt: string;
+  user_id: string;
+}
 
-// interface CrowdsApiResponse {
-//   data: Crowd[];
-//   message?: string;
-// }
+interface FatiguesApiResponse {
+  data: Fatigue[];
+  message?: string;
+}
 
-// // interface CrowdApiResponse {
-// //   data: Crowd;
-// //   message?: string;
-// // }
+// Fungsi fetcher untuk data semua fatigues
+const fatiguesFetcher = async (url: string): Promise<Fatigue[]> => {
+  const response = await axiosInstance.get<FatiguesApiResponse>(url);
+  return response.data.data;
+};
 
-// // Fungsi fetcher untuk data semua crowds
-// const crowdsFetcher = async (url: string): Promise<Crowd[]> => {
-//   const response = await axiosInstance.get<CrowdsApiResponse>(url);
-//   return response.data.data;
-// };
+export const useFatigues = () => {
+  const { data, error, mutate } = useSWR<Fatigue[]>(
+    "/fatigues",
+    fatiguesFetcher,
+    {
+      // refreshInterval: 300000,
+      errorRetryCount: 3,
+      revalidateOnFocus: true,
+    }
+  );
+  const users = useUsers();
+  const userMap = new Map<string, string>();
+  users.users?.forEach((user) => {
+    userMap.set(user.id, user.email);
+  });
 
-// // Fungsi fetcher untuk data crowd tunggal
-// // const crowdFetcher = async (url: string): Promise<Crowd> => {
-// //   const response = await axiosInstance.get<CrowdApiResponse>(url);
-// //   return response.data.data;
-// // };
+  const sortedData = data
+    ? [...data]
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+        .map((item) => ({
+          ...item,
+          createdAt: new Date(item.createdAt).toLocaleString("id-ID", {
+            timeZone: "Asia/Jakarta",
+          }),
+        }))
+    : [];
 
-// export const useCrowds = () => {
-//   const { data, error, mutate } = useSWR<Crowd[]>("/crowds", crowdsFetcher, {
-//     // refreshInterval: 300000,
-//     errorRetryCount: 3,
-//     revalidateOnFocus: true,
-//   });
-//   const areas = useAreas();
-//   const areaMap = new Map<string, string>();
-//   areas.areas?.forEach((area) => {
-//     areaMap.set(area.id, area.name);
-//   });
+  const getLastFatiguePerUser = new Map<
+    string,
+    Fatigue & { userEmail: string }
+  >();
+  [...sortedData].forEach((fatigue) => {
+    if (!getLastFatiguePerUser.has(fatigue.user_id)) {
+      getLastFatiguePerUser.set(fatigue.user_id, {
+        ...fatigue,
+        userEmail: userMap.get(fatigue.user_id) || "Unknown User",
+      });
+    }
+  });
 
-//   const sortedData = data
-//     ? [...data]
-//         // .sort((a, b) => a.id.localeCompare(b.id))
-//         .sort(
-//           (a, b) =>
-//             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-//         )
-//         .map((item) => ({
-//           ...item,
-//           createdAt: new Date(item.createdAt).toLocaleString("id-ID", {
-//             timeZone: "Asia/Jakarta",
-//           }),
-//         }))
-//     : [];
+  const lastFatiguePerUser = Array.from(getLastFatiguePerUser.values());
 
-//   // const getLastCrowdPerArea = new Map<string, Crowd & { areaName: string }>();
-//   // [...sortedData].forEach((crowd) => {
-//   //   if (!getLastCrowdPerArea.has(crowd.area_id)) {
-//   //     getLastCrowdPerArea.set(crowd.area_id, {
-//   //       ...crowd,
-//   //       areaName: areaMap.get(crowd.area_id) || "Unknown Area",
-//   //     });
-//   //   }
-//   // });
+  return {
+    fatigues: sortedData || [],
+    lastFatiguePerUser,
+    isLoading: !error && !data,
+    isError: error,
+    mutate,
+  };
+};
 
-//   // const lastCrowdPerArea = Array.from(getLastCrowdPerArea.values());
+export const useFatigueSortByUserId = (userId: string) => {
+  const { data, error, mutate } = useSWR<Fatigue[]>(
+    `/fatigues/users/${userId}`,
+    fatiguesFetcher,
+    {
+      errorRetryCount: 3,
+      revalidateOnFocus: true,
+    }
+  );
 
-//   return {
-//     crowds: sortedData || [],
-//     // lastCrowdPerArea,
-//     isLoading: !error && !data,
-//     isError: error,
-//     mutate,
-//   };
-// };
+  const [normalStatusByUser, setNormalStatusByUser] = useState({
+    StatusByUser: "",
+    createdAt: "",
+  });
+  const [menguapStatusByUser, setMenguapStatusByUser] = useState({
+    StatusByUser: "",
+    createdAt: "",
+  });
+  const [microsleepStatusByUser, setMicrosleepStatusByUser] = useState({
+    StatusByUser: "",
+    createdAt: "",
+  });
+  const [sangatLelahStatusByUser, setSangatLelahStatusByUser] = useState({
+    StatusByUser: "",
+    createdAt: "",
+  });
 
-// // export const useCrowdSortById = (areaId: string) => {
-// //   const { crowds, isError, mutate } = useCrowds();
+  const sortedData = useMemo(() => {
+    return data
+      ? [...data]
+          .sort((a, b) => a.id.localeCompare(b.id))
+          .map((item) => ({
+            ...item,
+            createdAt: new Date(item.createdAt).toLocaleString("id-ID", {
+              timeZone: "Asia/Jakarta",
+            }),
+          }))
+      : [];
+  }, [data]);
 
-// //   const crowdSortById = crowds
-// //     ? crowds
-// //         .filter((crowd) => crowd.area_id === areaId)
-// //         .sort(
-// //           (a, b) =>
-// //             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-// //         )
-// //     : [];
+  // Update StatusByUser berdasarkan data yang diterima
+  useEffect(() => {
+    sortedData.forEach((fatigueData) => {
+      switch (fatigueData.status) {
+        case "Normal":
+          setNormalStatusByUser((prev) => ({ ...prev, ...fatigueData }));
+          break;
+        case "Open Mouth":
+          setMenguapStatusByUser((prev) => ({ ...prev, ...fatigueData }));
+          break;
+        case "Close Eye":
+          setMicrosleepStatusByUser((prev) => ({ ...prev, ...fatigueData }));
+          break;
+        case "Open Mouth and Close Eye":
+          setSangatLelahStatusByUser((prev) => ({ ...prev, ...fatigueData }));
+          break;
+      }
+    });
+  }, [sortedData]);
 
-// //   return {
-// //     crowdSortById,
-// //     isLoading: !isError && !crowds,
-// //     isError: isError,
-// //     mutate,
-// //   };
-// // };
-
-// // export const useCrowdById = (areaId: string) => {
-// //   const { data, error, mutate } = useSWR<Crowd>(
-// //     `/crowds/${areaId}`,
-// //     crowdFetcher,
-// //     {
-// //       // refreshInterval: 300000,
-// //       errorRetryCount: 3,
-// //       revalidateOnFocus: true,
-// //     }
-// //   );
-
-// //   return {
-// //     crowdById: data,
-// //     isLoading: !error && !data,
-// //     isError: error,
-// //     mutate,
-// //   };
-// // };
+  return {
+    fatigueSortById: sortedData || [],
+    normalStatusByUser,
+    menguapStatusByUser,
+    microsleepStatusByUser,
+    sangatLelahStatusByUser,
+    isLoading: !error && !data,
+    isError: error,
+    mutate,
+  };
+};

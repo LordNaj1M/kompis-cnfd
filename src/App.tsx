@@ -9,6 +9,7 @@ import { useUser } from "./hooks/useUser";
 import { MdDashboard } from "react-icons/md";
 import { FaPeopleGroup, FaUsersGear } from "react-icons/fa6";
 import { FaUserInjured } from "react-icons/fa";
+import { GrConfigure } from "react-icons/gr";
 import { Outlet } from "react-router-dom";
 import {
   AlertDialog,
@@ -19,6 +20,8 @@ import {
   AlertDialogOverlay,
   Button,
   useDisclosure,
+  Box,
+  Icon,
 } from "@chakra-ui/react";
 import { useEffect, useRef } from "react";
 import { useAuth } from "./hooks/useAuth";
@@ -32,6 +35,19 @@ const App = () => {
   const handleLogout = () => {
     onClose();
     logout();
+  };
+
+  const CrowdConfigIcon = () => {
+    return (
+      <Box position="relative" display="inline-block" boxSize={5}>
+        <FaPeopleGroup />
+        <Icon
+          as={GrConfigure}
+          position="absolute"
+          transform="translate(50%, -60%)"
+        />
+      </Box>
+    );
   };
 
   const navItems: SidenavItem[] = [
@@ -53,6 +69,14 @@ const App = () => {
         user?.role === "admin"
           ? "/admin/fatigue-detection"
           : "/fatigue-detection",
+    },
+    {
+      icon: CrowdConfigIcon,
+      label: "Crowd Configuration",
+      to:
+        user?.role === "admin"
+          ? "/admin/crowd-configuration"
+          : "/crowd-configuration",
     },
   ];
 

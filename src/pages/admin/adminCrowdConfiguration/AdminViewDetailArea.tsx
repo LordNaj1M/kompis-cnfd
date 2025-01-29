@@ -16,8 +16,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAreaById } from "../../../hooks/useArea";
 import { FiEdit2 } from "react-icons/fi";
 import { useEffect } from "react";
+import { useUsers } from "../../../hooks/useUser";
 
 const ViewDetailArea = () => {
+  const { users } = useUsers();
   const { areaId } = useParams();
   const { areaById, isLoading, isError } = useAreaById(areaId || "");
   const navigate = useNavigate();
@@ -26,6 +28,11 @@ const ViewDetailArea = () => {
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const labelColor = useColorModeValue("gray.600", "gray.400");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
+
+  const userMap = new Map();
+  users?.forEach((user) => {
+    userMap.set(user.id, user.email);
+  });
 
   useEffect(() => {
     if (!areaId) {
@@ -42,6 +49,10 @@ const ViewDetailArea = () => {
 
   const handleEditArea = () => {
     navigate(`/admin/crowd-configuration/edit/${areaId}`);
+  };
+
+  const handleBack = () => {
+    navigate(`/admin/crowd-configuration`);
   };
 
   const DetailField = ({ label, value }: { label: string; value: string }) => (
@@ -82,6 +93,10 @@ const ViewDetailArea = () => {
           <CardBody>
             <VStack spacing={6} align="stretch">
               <VStack spacing={4} align="stretch">
+                <DetailField
+                  label="Area Owner"
+                  value={userMap.get(areaById.user_id) || "Unknown User"}
+                />
                 <DetailField label="Area Name" value={areaById.name} />
                 <DetailField
                   label="Area Capacity"
@@ -102,7 +117,7 @@ const ViewDetailArea = () => {
                     _hover={{ bg: "gray.800" }}
                     size={isMobile ? "md" : "lg"}
                     width={isMobile ? "full" : "auto"}
-                    onClick={() => navigate(`/admin/crowd-configuration`)}
+                    onClick={() => handleBack()}
                   >
                     Back
                   </Button>
@@ -125,7 +140,7 @@ const ViewDetailArea = () => {
                     _hover={{ bg: "gray.800" }}
                     size={isMobile ? "md" : "lg"}
                     width={isMobile ? "full" : "auto"}
-                    onClick={() => navigate(`/admin/crowd-configuration`)}
+                    onClick={() => handleBack()}
                   >
                     Back
                   </Button>

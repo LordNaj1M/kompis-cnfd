@@ -18,6 +18,7 @@ import {
   Spinner,
   useMediaQuery,
   useColorModeValue,
+  Container,
 } from "@chakra-ui/react";
 import {
   XAxis,
@@ -38,9 +39,8 @@ import { useUser } from "../../hooks/useUser";
 
 interface CrowdResult {
   detection_data: Detection_Data[];
-  // status: "";
+  status: "";
   count: number;
-  // area_id: string;
   createdAt: string;
 }
 
@@ -78,7 +78,7 @@ const UserCrowdDetection = () => {
 
   const [crowdData, setCrowdData] = useState<CrowdResult>({
     detection_data: [],
-    // status: "",
+    status: "",
     count: 0,
     createdAt: "",
   });
@@ -98,7 +98,7 @@ const UserCrowdDetection = () => {
                 }),
         },
       ];
-      return newArray.length >= 10 ? newArray.slice(1) : newArray;
+      return newArray.length > 10 ? newArray.slice(1) : newArray;
     });
   }, [crowdData]);
 
@@ -115,7 +115,6 @@ const UserCrowdDetection = () => {
         setCrowdData(result);
       };
 
-      // socket.emit("connected", areaById.id);
       socket.on("io-crowd-result", onCrowdResult);
 
       // Cleanup function
@@ -137,7 +136,7 @@ const UserCrowdDetection = () => {
     const newAreaId = event.target.value;
     setCrowdData({
       detection_data: [],
-      // status: "",
+      status: "",
       count: 0,
       createdAt: "",
     });
@@ -201,7 +200,12 @@ const UserCrowdDetection = () => {
 
         // Send frame to server
         const frame = canvas.toDataURL("image/jpeg", 0.8);
-        socket.emit("io-crowd-frame", frame);
+        socket.emit(
+          "io-crowd-frame",
+          frame,
+          Number(areaById?.capacity),
+          areaById?.id ?? ""
+        );
       }
     }
   };
@@ -288,6 +292,28 @@ const UserCrowdDetection = () => {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function CustomTooltip({ active, payload, label }: any) {
+    if (active && payload && payload.length) {
+      return (
+        <Box className="custom-tooltip">
+          <Heading
+            className="label"
+            size={isMobile ? "sm" : "md"}
+          >{`${payload[0].payload?.status}`}</Heading>
+          <Text className="label" fontSize={isMobile ? "md" : "lg"}>{`Count : ${
+            payload[0].value
+          } People${payload[0].value > 1 ? "s" : ""}`}</Text>
+          <Text
+            className="label"
+            fontSize={isMobile ? "md" : "lg"}
+          >{`Time: ${label}`}</Text>
+        </Box>
+      );
+    }
+    return null;
+  }
+
   return (
     <React.Fragment>
       <Box p={6}>
@@ -342,7 +368,7 @@ const UserCrowdDetection = () => {
 
       <Card bg={bgCard} borderColor={borderColor} borderWidth="1px" mb={4}>
         <CardHeader paddingBlockEnd={0}>
-          <Heading size="md">CAMERA</Heading>
+          <Heading size={isMobile ? "sm" : "md"}>CAMERA</Heading>
         </CardHeader>
         <CardBody>
           <Center p={4} position="relative">
@@ -408,60 +434,73 @@ const UserCrowdDetection = () => {
 
       <Card bg={bgCard} borderColor={borderColor} borderWidth="1px" mb={4}>
         <CardHeader paddingBlockEnd={0}>
-          <Heading size="md">ANALYTIC RESULT</Heading>
+          <Heading size={isMobile ? "sm" : "md"}>ANALYTIC RESULT</Heading>
         </CardHeader>
-        <CardBody>
-          <Text>
-            Jumlah Orang:{" "}
-            {crowdDataArray[0]?.createdAt == "" ? "" : crowdData.count}
-          </Text>
-          {/* <Text>
-            Status: {crowdDataArray[0]?.createdAt == "" ? "" : crowdData.status}
-          </Text> */}
-          <Text>
-            Terakhir Diperbarui:{" "}
-            {crowdDataArray[0]?.createdAt == ""
-              ? ""
-              : new Date(crowdData.createdAt).toLocaleString("id-ID", {
-                  timeZone: "Asia/Jakarta",
-                })}
-          </Text>
-        </CardBody>
+        {isCameraActive && crowdDataArray[0]?.createdAt == "" ? (
+          <Container centerContent py={10}>
+            <Spinner size="xl" />
+          </Container>
+        ) : (
+          <CardBody>
+            <Text>
+              Jumlah Orang:{" "}
+              {crowdDataArray[0]?.createdAt == "" ? "" : crowdData.count}
+            </Text>
+            <Text>
+              Status:{" "}
+              {crowdDataArray[0]?.createdAt == "" ? "" : crowdData.status}
+            </Text>
+            <Text>
+              Terakhir Diperbarui:{" "}
+              {crowdDataArray[0]?.createdAt == ""
+                ? ""
+                : new Date(crowdData.createdAt).toLocaleString("id-ID", {
+                    timeZone: "Asia/Jakarta",
+                  })}
+            </Text>
+          </CardBody>
+        )}
       </Card>
 
       <Card bg={bgCard} borderColor={borderColor} borderWidth="1px" mb={4}>
         <CardHeader paddingBlockEnd={0}>
-          <Heading size="md">CROWD DATA LOG</Heading>
+          <Heading size={isMobile ? "sm" : "md"}>CROWD DATA LOG</Heading>
         </CardHeader>
-        <CardBody>
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart
-              data={
-                areaById?.id && crowdDataArray[0]?.createdAt != ""
-                  ? crowdDataArray
-                  : []
-              }
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="createdAt" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="count"
-                fill="#8884d8"
-                name="Crowd Area Count"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardBody>
+        {isCameraActive && crowdDataArray[0]?.createdAt == "" ? (
+          <Container centerContent py={10}>
+            <Spinner size="xl" />
+          </Container>
+        ) : (
+          <CardBody>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart
+                data={
+                  areaById?.id && crowdDataArray[0]?.createdAt != ""
+                    ? crowdDataArray
+                    : []
+                }
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="createdAt" />
+                <YAxis />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  fill="#8884d8"
+                  name="Crowd Area Count"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardBody>
+        )}
       </Card>
     </React.Fragment>
   );

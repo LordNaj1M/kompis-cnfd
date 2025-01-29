@@ -21,8 +21,10 @@ import {
 } from "@chakra-ui/react";
 import { editArea, useAreaById } from "../../../hooks/useArea";
 import { useNavigate, useParams } from "react-router-dom";
+import { useUser } from "../../../hooks/useUser";
 
 const EditUserProfile = () => {
+  const { user } = useUser();
   const { areaId } = useParams();
   const { areaById, isLoading, isError } = useAreaById(areaId || "");
   const navigate = useNavigate();
@@ -30,6 +32,7 @@ const EditUserProfile = () => {
 
   const [name, setName] = useState("");
   const [capacity, setCapacity] = useState(0);
+  const [user_id, setUserId] = useState(user?.id || "");
 
   const cardBg = useColorModeValue("white", "gray.800");
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
@@ -73,12 +76,20 @@ const EditUserProfile = () => {
     );
   }
 
+  const handleBack = () => {
+    navigate(`/crowd-configuration/view/${areaId}`);
+  };
+
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (name !== areaById?.name || capacity !== areaById?.capacity) {
       try {
-        const updatePromise = editArea(areaById?.id, { name, capacity });
+        const updatePromise = editArea(areaById?.id, {
+          name,
+          capacity,
+          user_id,
+        });
         toast.promise(updatePromise, {
           loading: {
             title: "Updating",
@@ -90,7 +101,7 @@ const EditUserProfile = () => {
             duration: 1000,
             isClosable: true,
             onCloseComplete() {
-              navigate(`/admin/crowd-configuration/view/${areaId}`);
+              handleBack();
             },
           },
           error: (error) => ({
@@ -159,6 +170,15 @@ const EditUserProfile = () => {
                 />
               </FormControl>
 
+              <FormControl>
+                <Input
+                  type="hidden"
+                  value={user?.id}
+                  onChange={(e) => setUserId(e.target.value)}
+                  required
+                />
+              </FormControl>
+
               <Flex
                 mt={4}
                 gap={4}
@@ -172,9 +192,7 @@ const EditUserProfile = () => {
                     _hover={{ bg: "gray.800" }}
                     size={isMobile ? "md" : "lg"}
                     width={isMobile ? "full" : "auto"}
-                    onClick={() =>
-                      navigate(`/admin/crowd-configuration/view/${areaId}`)
-                    }
+                    onClick={() => handleBack()}
                   >
                     Cancel
                   </Button>
@@ -195,9 +213,7 @@ const EditUserProfile = () => {
                     _hover={{ bg: "gray.800" }}
                     size={isMobile ? "md" : "lg"}
                     width={isMobile ? "full" : "auto"}
-                    onClick={() =>
-                      navigate(`/admin/crowd-configuration/view/${areaId}`)
-                    }
+                    onClick={() => handleBack()}
                   >
                     Cancel
                   </Button>

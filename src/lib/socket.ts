@@ -10,15 +10,18 @@ interface ServerToClientEvents {
 
 interface ClientToServerEvents {
   // connected: (areaId: string) => void;
-  "io-crowd-frame": (imageData: string) => void;
-  "io-fatigue-frame": (imageData: string) => void;
+  "io-crowd-frame": (
+    imageData: string,
+    capacity: number,
+    area_id: string
+  ) => void;
+  "io-fatigue-frame": (imageData: string, user_id: string) => void;
 }
 
 interface CrowdResult {
   detection_data: Detection_Data[];
-  // status: "";
+  status: "";
   count: number;
-  // area_id: string;
   createdAt: string;
 }
 

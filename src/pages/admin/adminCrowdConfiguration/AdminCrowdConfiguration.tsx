@@ -38,11 +38,13 @@ import { BiLayerPlus } from "react-icons/bi";
 import { HiOutlineInformationCircle } from "react-icons/hi";
 import { CiEdit } from "react-icons/ci";
 import { RiDeleteBin5Line } from "react-icons/ri";
+import { useUsers } from "../../../hooks/useUser";
 
 interface Area {
   id: string;
   name: string;
   capacity: number;
+  user_id: string;
 }
 
 const CrowdConfiguration = () => {
@@ -61,6 +63,12 @@ const CrowdConfiguration = () => {
   const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   const { areas, isLoading, isError } = useAreas();
+  const { users } = useUsers();
+
+  const userMap = new Map();
+  users?.forEach((user) => {
+    userMap.set(user.id, user.email);
+  });
 
   const handleCreateArea = () => {
     navigate(`/admin/crowd-configuration/create`);
@@ -167,14 +175,14 @@ const CrowdConfiguration = () => {
     </HStack>
   );
 
-  if (isError) {
+  if (isError || !users) {
     return (
       <Card bg={bgCard} borderColor={borderColor} borderWidth="1px">
         <CardHeader>
           <Heading size="lg">CROWD AREA CONFIGURATION</Heading>
         </CardHeader>
         <CardBody>
-          <Text color="red.500">Error loading areas: {isError.message}</Text>
+          <Text color="red.500">Error loading users: {isError.message}</Text>
         </CardBody>
       </Card>
     );
@@ -197,6 +205,15 @@ const CrowdConfiguration = () => {
               #{index + 1}
             </Text>
           </Flex>
+
+          <Box>
+            <Text fontSize="sm" color={labelColor}>
+              Owner
+            </Text>
+            <Text fontWeight="medium">
+              {userMap.get(area.user_id) || "Unknown User"}
+            </Text>
+          </Box>
 
           <Box>
             <Text fontSize="sm" color={labelColor}>
@@ -227,6 +244,7 @@ const CrowdConfiguration = () => {
         <Thead>
           <Tr>
             <Th textAlign="center">No</Th>
+            <Th textAlign="center">Owner</Th>
             <Th textAlign="center">Name</Th>
             <Th textAlign="center">Capacity</Th>
             <Th textAlign="center">Action</Th>
@@ -240,6 +258,9 @@ const CrowdConfiguration = () => {
               transition="background 0.2s"
             >
               <Td textAlign="center">{index + 1}</Td>
+              <Td textAlign="center">
+                {userMap.get(area.user_id) || "Unknown User"}
+              </Td>
               <Td textAlign="center">{area.name}</Td>
               <Td textAlign="center">{area.capacity}</Td>
               <Td textAlign="center">

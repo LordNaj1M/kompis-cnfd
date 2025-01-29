@@ -12,7 +12,7 @@ import {
   useColorModeValue,
   CardHeader,
   SimpleGrid,
-  // useMediaQuery
+  useMediaQuery,
 } from "@chakra-ui/react";
 import {
   XAxis,
@@ -30,6 +30,7 @@ import { useNavigate } from "react-router-dom";
 import { useCrowdsByUser } from "../../hooks/useCrowd";
 import { useAreasByUserId } from "../../hooks/useArea";
 import { useUser } from "../../hooks/useUser";
+import { useFatigueSortByUserId } from "../../hooks/useFatigue";
 import React from "react";
 
 const UserDashboard = () => {
@@ -38,10 +39,17 @@ const UserDashboard = () => {
   const { crowdsUser, lastCrowdPerAreaUser, isLoading, isError } =
     useCrowdsByUser(user?.id || "");
   const { areasByUserId } = useAreasByUserId(user?.id || "");
+  const {
+    normalStatusByUser,
+    menguapStatusByUser,
+    microsleepStatusByUser,
+    sangatLelahStatusByUser,
+  } = useFatigueSortByUserId(user?.id || "");
 
   const bgCard = useColorModeValue("white", "gray.700");
+  const bgCardChild = useColorModeValue("gray.50", "gray.500");
   const borderColor = useColorModeValue("gray.200", "gray.600");
-  // const isMobile = useMediaQuery("(max-width: 768px)")[0];
+  const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   if (isLoading) {
     return (
@@ -63,19 +71,26 @@ const UserDashboard = () => {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  function CustomTooltip({ active, payload }: any) {
     if (active && payload && payload.length) {
       return (
-        <VStack align="start" spacing={3} bg={"whiteAlpha.400"} padding={4}>
-          <Heading className="label" size="sm">
-            {label}
-          </Heading>
-          <p className="intro">{`Count : ${payload[0].value} People`}</p>
-          <p className="Time">{`Time : ${payload[0].payload.createdAt}`}</p>
-        </VStack>
+        <Box className="custom-tooltip">
+          <Heading
+            className="status"
+            size={isMobile ? "sm" : "md"}
+          >{`${payload[0].payload?.status}`}</Heading>
+          <Text className="count" fontSize={isMobile ? "md" : "lg"}>{`Count : ${
+            payload[0].value
+          } People${payload[0].payload?.count > 1 ? "s" : ""}`}</Text>
+          <Text
+            className="time"
+            fontSize={isMobile ? "md" : "lg"}
+          >{`Time: ${payload[0].payload?.createdAt}`}</Text>
+        </Box>
       );
     }
-  };
+    return null;
+  }
 
   return (
     <React.Fragment>
@@ -92,8 +107,8 @@ const UserDashboard = () => {
         borderWidth="1px"
         mb={4}
       >
-        <CardHeader>
-          <Heading size="md">Latest Crowd Detection</Heading>
+        <CardHeader paddingBlockEnd={0}>
+          <Heading size="md">LATEST CROWD DETECTION</Heading>
         </CardHeader>
         <CardBody>
           <ResponsiveContainer width="100%" height={400}>
@@ -117,51 +132,13 @@ const UserDashboard = () => {
         </CardBody>
       </Card>
 
-      {areasByUserId?.map((areasUser) => (
-        <Card
-          className="Crowd Detection Per Area"
-          key={areasUser.id}
-          bg={bgCard}
-          borderColor={borderColor}
-          borderWidth="1px"
-          mb={4}
-        >
-          <CardHeader paddingBlockEnd={0}>
-            <Heading size="md">{areasUser.name}</Heading>
-            <Heading size="sm">CROWD DETECTION RESULT</Heading>
-          </CardHeader>
-          <CardBody>
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart
-                data={crowdsUser
-                  .filter((crowd) => crowd.area_id === areasUser.id)
-                  .slice(0, 10)
-                  .reverse()}
-                margin={{
-                  top: 5,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="createdAt" />
-                <YAxis />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  fill="#8884d8"
-                  name="Crowd Area Count"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardBody>
-        </Card>
-      ))}
-
-      <Card bg={bgCard} borderColor={borderColor} borderWidth="1px" mb={4}>
+      <Card
+        className="Fatigue Detection Result"
+        bg={bgCard}
+        borderColor={borderColor}
+        borderWidth="1px"
+        mb={4}
+      >
         <CardHeader paddingBlockEnd={0}>
           <Heading size="md">FATIGUE DETECTION RESULT</Heading>
         </CardHeader>
@@ -169,53 +146,137 @@ const UserDashboard = () => {
           <SimpleGrid columns={[1, 2, 4]} spacing={4}>
             <Card
               className="Normal"
-              bg={bgCard}
+              bg={bgCardChild}
               borderColor={borderColor}
               borderWidth="1px"
               mb={4}
             >
               <CardHeader paddingBlockEnd={0}>
-                <Heading size="md">NORMAL</Heading>
+                <Heading size={isMobile ? "sm" : "md"}>NORMAL</Heading>
               </CardHeader>
-              <CardBody></CardBody>
+              <CardBody>
+                <Text>
+                  Last Detected:{" "}
+                  {normalStatusByUser.createdAt
+                    ? normalStatusByUser.createdAt
+                    : "No Data"}
+                </Text>
+              </CardBody>
             </Card>
             <Card
               className="Open Mouth"
-              bg={bgCard}
+              bg={bgCardChild}
               borderColor={borderColor}
               borderWidth="1px"
               mb={4}
             >
               <CardHeader paddingBlockEnd={0}>
-                <Heading size="md">MENGUAP</Heading>
+                <Heading size={isMobile ? "sm" : "md"}>MENGUAP</Heading>
               </CardHeader>
-              <CardBody></CardBody>
+              <CardBody>
+                <Text>
+                  Last Detected:{" "}
+                  {menguapStatusByUser.createdAt
+                    ? menguapStatusByUser.createdAt
+                    : "No Data"}
+                </Text>
+              </CardBody>
             </Card>
             <Card
               className="Close Eye"
-              bg={bgCard}
+              bg={bgCardChild}
               borderColor={borderColor}
               borderWidth="1px"
               mb={4}
             >
               <CardHeader paddingBlockEnd={0}>
-                <Heading size="md">MICROSLEEP</Heading>
+                <Heading size={isMobile ? "sm" : "md"}>MICROSLEEP</Heading>
               </CardHeader>
-              <CardBody></CardBody>
+              <CardBody>
+                <Text>
+                  Last Detected:{" "}
+                  {microsleepStatusByUser.createdAt
+                    ? microsleepStatusByUser.createdAt
+                    : "No Data"}
+                </Text>
+              </CardBody>
             </Card>
             <Card
               className="Close Eye n Open Mouth"
-              bg={bgCard}
+              bg={bgCardChild}
               borderColor={borderColor}
               borderWidth="1px"
               mb={4}
             >
               <CardHeader paddingBlockEnd={0}>
-                <Heading size="md">SANGAT LELAH</Heading>
+                <Heading size={isMobile ? "sm" : "md"}>SANGAT LELAH</Heading>
               </CardHeader>
-              <CardBody></CardBody>
+              <CardBody>
+                <Text>
+                  Last Detected:{" "}
+                  {sangatLelahStatusByUser.createdAt
+                    ? sangatLelahStatusByUser.createdAt
+                    : "No Data"}
+                </Text>
+              </CardBody>
             </Card>
           </SimpleGrid>
+        </CardBody>
+      </Card>
+
+      <Card
+        className="Crowd Detection Data"
+        bg={bgCard}
+        borderColor={borderColor}
+        borderWidth="1px"
+        mb={4}
+      >
+        <CardHeader paddingBlockEnd={0}>
+          <Heading size="md">CROWD DETECTION RESULT</Heading>
+        </CardHeader>
+        <CardBody>
+          {areasByUserId?.map((areasUser) => (
+            <Card
+              className="Crowd Detection Per Area"
+              key={areasUser.id}
+              bg={bgCardChild}
+              borderColor={borderColor}
+              borderWidth="1px"
+              mb={4}
+            >
+              <CardHeader paddingBlockEnd={0}>
+                <Heading size="md">{areasUser.name}</Heading>
+              </CardHeader>
+              <CardBody>
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart
+                    data={crowdsUser
+                      .filter((crowd) => crowd.area_id === areasUser.id)
+                      .slice(0, 10)
+                      .reverse()}
+                    margin={{
+                      top: 5,
+                      right: 30,
+                      left: 20,
+                      bottom: 5,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="createdAt" />
+                    <YAxis />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      fill="#8884d8"
+                      name="Crowd Area Count"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardBody>
+            </Card>
+          ))}
         </CardBody>
       </Card>
     </React.Fragment>

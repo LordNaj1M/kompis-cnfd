@@ -87,7 +87,7 @@ export const useAreasByUserId = (userId: string) => {
   );
 
   return {
-    areasByUserId: data,
+    areasByUserId: data || [],
     isLoading: !error && !data,
     isError: error,
     mutate,
@@ -97,6 +97,7 @@ export const useAreasByUserId = (userId: string) => {
 export const createArea = async (data: {
   name?: string;
   capacity?: number;
+  user_id?: string;
 }) => {
   try {
     const response = await axiosInstance.post(`/areas`, data);
@@ -109,7 +110,7 @@ export const createArea = async (data: {
 
 export const editArea = async (
   areaId: string,
-  data: { name?: string; capacity?: number }
+  data: { name?: string; capacity?: number; user_id?: string }
 ) => {
   try {
     const response = await axiosInstance.put(`/areas/${areaId}`, data);

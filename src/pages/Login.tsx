@@ -451,9 +451,9 @@ const Login = () => {
             />
 
             <Text as={"sub"}>
-              * Tunjukkan beberapa angle wajah Anda; terlihat jelas tanpa
-              halangan, bayangan, dan dengan pencahayaan yang baik serta latar
-              belakang netral.
+              * Tunjukkan beberapa angle wajah Anda, hanya Anda; terlihat jelas
+              tanpa halangan, bayangan, dan dengan pencahayaan yang baik serta
+              latar belakang netral.
             </Text>
 
             {countdown && (

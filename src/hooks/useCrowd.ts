@@ -2,11 +2,11 @@
 import useSWR from "swr";
 import { axiosInstance } from "../lib/axios";
 import { useAreas, useAreasByUserId } from "./useArea";
-// import { useUserById } from "./useUser";
+import { useUsers } from "./useUser";
 
 interface Crowd {
   id: string;
-  // status: string;
+  status: string;
   count: number;
   createdAt: string;
   area_id: string;
@@ -43,7 +43,7 @@ export const useCrowds = () => {
     fallbackData: [
       {
         id: "",
-        // status: "unknown",
+        status: "",
         count: 0,
         createdAt: new Date().toISOString(),
         area_id: "",
@@ -51,6 +51,7 @@ export const useCrowds = () => {
       },
     ],
   });
+  const { users } = useUsers();
   const areas = useAreas();
   const areaMap = new Map<string, string>();
   areas.areas?.forEach((area) => {
@@ -75,9 +76,14 @@ export const useCrowds = () => {
   const getLastCrowdPerArea = new Map<string, Crowd & { areaName: string }>();
   [...sortedData].forEach((crowd) => {
     if (!getLastCrowdPerArea.has(crowd.area_id)) {
+      const areaName = areaMap.get(crowd.area_id) || "Unknown Area";
+      const userEmail =
+        users.find((user) => user.id === crowd.user_id)?.email ||
+        "Unknown User";
+
       getLastCrowdPerArea.set(crowd.area_id, {
         ...crowd,
-        areaName: areaMap.get(crowd.area_id) || "Unknown Area",
+        areaName: `${areaName}<>${userEmail}`,
       });
     }
   });
@@ -134,7 +140,7 @@ export const useCrowdById = (areaId: string) => {
       revalidateOnFocus: true,
       fallbackData: {
         id: "",
-        // status: "unknown",
+        status: "",
         count: 0,
         createdAt: new Date().toISOString(),
         area_id: areaId,
@@ -162,7 +168,7 @@ export const useCrowdsByUser = (userId: string) => {
       fallbackData: [
         {
           id: "",
-          // status: "unknown",
+          status: "",
           count: 0,
           createdAt: new Date().toISOString(),
           area_id: "",
@@ -180,7 +186,6 @@ export const useCrowdsByUser = (userId: string) => {
 
   const sortedData = data
     ? [...data]
-        // .sort((a, b) => a.id.localeCompare(b.id))
         .sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

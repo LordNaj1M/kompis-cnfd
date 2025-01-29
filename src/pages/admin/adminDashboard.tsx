@@ -11,34 +11,33 @@ import {
   Heading,
   useColorModeValue,
   CardHeader,
-  // useMediaQuery
+  SimpleGrid,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
 import { useCrowds } from "../../hooks/useCrowd";
-import { useAreas } from "../../hooks/useArea";
+import { useFatigues } from "../../hooks/useFatigue";
+import React from "react";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { crowds, lastCrowdPerArea, isLoading, isError } = useCrowds();
-  const areas = useAreas();
+  const { lastFatiguePerUser } = useFatigues();
 
   const bgCard = useColorModeValue("white", "gray.700");
+  const bgCardChild = useColorModeValue("gray.50", "gray.500");
   const borderColor = useColorModeValue("gray.200", "gray.600");
-  // const bgHover = useColorModeValue('gray.50', 'gray.600');
-  // const labelColor = useColorModeValue('gray.600', 'gray.400');
-  // const isMobile = useMediaQuery("(max-width: 768px)")[0];
+  const isMobile = useMediaQuery("(max-width: 768px)")[0];
 
   if (isLoading) {
     return (
@@ -59,11 +58,37 @@ const AdminDashboard = () => {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function CustomTooltip({ active, payload, label }: any) {
+    if (active && payload && payload.length) {
+      return (
+        <Box className="custom-tooltip">
+          <Heading
+            className="label"
+            size={isMobile ? "sm" : "md"}
+          >{`${label}`}</Heading>
+          <Text
+            className="status"
+            fontSize="lg"
+          >{`Status: ${payload[0].payload?.status}`}</Text>
+          <Text className="count" fontSize={isMobile ? "md" : "lg"}>{`Count : ${
+            payload[0].value
+          } People${payload[0].payload?.count > 1 ? "s" : ""}`}</Text>
+          <Text
+            className="time"
+            fontSize={isMobile ? "md" : "lg"}
+          >{`Time: ${payload[0].payload?.createdAt}`}</Text>
+        </Box>
+      );
+    }
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <React.Fragment>
       <Box p={6}>
         <VStack align="start" spacing={4}>
-          <Heading size="lg">DASHBOARD ADMIN</Heading>
+          <Heading size="lg">DASHBOARD</Heading>
         </VStack>
       </Box>
 
@@ -74,13 +99,13 @@ const AdminDashboard = () => {
         borderWidth="1px"
         mb={4}
       >
-        <CardHeader>
-          <Heading size="md">Latest Crowd Detection</Heading>
+        <CardHeader paddingBlockEnd={0}>
+          <Heading size="md">LATEST CROWD DETECTION</Heading>
         </CardHeader>
         <CardBody>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart
-              data={lastCrowdPerArea}
+              data={lastCrowdPerArea || []}
               margin={{
                 top: 5,
                 right: 30,
@@ -99,68 +124,51 @@ const AdminDashboard = () => {
         </CardBody>
       </Card>
 
-      {areas?.areas.map((area) => (
-        <Card
-          className="Crowd Detection Per Area"
-          key={area.id}
-          bg={bgCard}
-          borderColor={borderColor}
-          borderWidth="1px"
-          mb={4}
-        >
-          <CardHeader>
-            <Heading size="md">{area.name}</Heading>
-            <Heading size="sm">Crowd Detection Result</Heading>
-          </CardHeader>
-          <CardBody>
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart
-                data={crowds
-                  .filter((crowd) => crowd.area_id === area.id)
-                  .slice(0, 10)
-                  .reverse()}
-                margin={{
-                  top: 5,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
+      <Card
+        className="Latest Fatigue Detection"
+        bg={bgCard}
+        borderColor={borderColor}
+        borderWidth="1px"
+        mb={4}
+      >
+        <CardHeader paddingBlockEnd={0}>
+          <Heading size="md">LATEST FATIGUE DETECTION</Heading>
+        </CardHeader>
+        <CardBody>
+          <SimpleGrid columns={[1, 2, 4]} spacing={4}>
+            {lastFatiguePerUser.map((fatigueUser) => (
+              <Card
+                className="Latest Fatigue User Detection"
+                key={fatigueUser.id}
+                bg={bgCardChild}
+                borderColor={borderColor}
+                borderWidth="1px"
+                mb={4}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="createdAt" />
-                <YAxis />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  fill="#8884d8"
-                  name="Crowd Area Count"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardBody>
-        </Card>
-      ))}
-    </div>
+                <CardHeader paddingBlockEnd={0}>
+                  <Heading size="md">{fatigueUser.userEmail}</Heading>
+                </CardHeader>
+                <CardBody>
+                  <Text>
+                    Detected:{" "}
+                    {fatigueUser.createdAt !== ""
+                      ? fatigueUser.status
+                      : "No Data"}
+                  </Text>
+                  <Text>
+                    Last Detected:{" "}
+                    {fatigueUser.createdAt !== ""
+                      ? fatigueUser.createdAt
+                      : "No Data"}
+                  </Text>
+                </CardBody>
+              </Card>
+            ))}
+          </SimpleGrid>
+        </CardBody>
+      </Card>
+    </React.Fragment>
   );
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <VStack align="start" spacing={3} bg={"whiteAlpha.400"} padding={4}>
-        <Heading className="label" size="sm">
-          {label}
-        </Heading>
-        <p className="intro">{`Count : ${payload[0].value} People`}</p>
-        <p className="Time">{`Time : ${payload[0].payload.createdAt}`}</p>
-      </VStack>
-    );
-  }
-
-  return null;
 };
 
 export default AdminDashboard;

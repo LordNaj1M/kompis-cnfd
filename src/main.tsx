@@ -16,9 +16,17 @@ import UsersManagement from "./pages/admin/usersManagement/UsersManagement";
 import ViewUserProfile from "./pages/admin/usersManagement/ViewUserProfile";
 import EditUserProfile from "./pages/admin/usersManagement/EditUserProfile";
 import ChangeUserPassword from "./pages/admin/usersManagement/ChangeUserPassword";
+import AdminCrowdConfiguration from "./pages/admin/adminCrowdConfiguration/AdminCrowdConfiguration";
+import AdminCreateArea from "./pages/admin/adminCrowdConfiguration/AdminCreateArea";
+import AdminViewDetailArea from "./pages/admin/adminCrowdConfiguration/AdminViewDetailArea";
+import AdminEditArea from "./pages/admin/adminCrowdConfiguration/AdminEditArea";
 import UserDashboard from "./pages/user/userDashboard";
 import UserCrowdDetection from "./pages/user/userCrowdDetection";
 import UserFatigueDetection from "./pages/user/userFatigueDetection";
+import CrowdConfiguration from "./pages/user/userCrowdConfiguration/userCrowdConfiguration";
+import CreateArea from "./pages/user/userCrowdConfiguration/userCreateArea";
+import ViewDetailArea from "./pages/user/userCrowdConfiguration/userViewDetailArea";
+import EditArea from "./pages/user/userCrowdConfiguration/userEditArea";
 import Profile from "./pages/profile/Profile";
 import EditProfile from "./pages/profile/EditProfile";
 import ChangePassword from "./pages/profile/ChangePassword";
@@ -69,6 +77,15 @@ const routes = createBrowserRouter([
           { path: "crowd-detection/:areaId", element: <UserCrowdDetection /> },
           { path: "fatigue-detection", element: <UserFatigueDetection /> },
           {
+            path: "crowd-configuration",
+            children: [
+              { path: "", element: <CrowdConfiguration /> },
+              { path: "create", element: <CreateArea /> },
+              { path: "view/:areaId", element: <ViewDetailArea /> },
+              { path: "edit/:areaId", element: <EditArea /> },
+            ],
+          },
+          {
             path: "profile",
             children: [
               { path: "", element: <Profile /> },
@@ -101,6 +118,15 @@ const routes = createBrowserRouter([
                 path: "change-password/:userId",
                 element: <ChangeUserPassword />,
               },
+            ],
+          },
+          {
+            path: "crowd-configuration",
+            children: [
+              { path: "", element: <AdminCrowdConfiguration /> },
+              { path: "create", element: <AdminCreateArea /> },
+              { path: "view/:areaId", element: <AdminViewDetailArea /> },
+              { path: "edit/:areaId", element: <AdminEditArea /> },
             ],
           },
         ],
